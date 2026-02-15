@@ -2,6 +2,7 @@ import Navbar from '../../components/layout/Navbar';
 import Hero from '../../components/public/Hero';
 import HowItWorks from '../../components/public/HowItWorks';
 import StatsSection from '../../components/public/StatsSection';
+import CtaSection from '../../components/public/CtaSection';
 
 const LandingPage = () => {
   return (
@@ -12,6 +13,7 @@ const LandingPage = () => {
         <Hero />
         <HowItWorks />
         <StatsSection />
+        <CtaSection />
       </main>
     </div>
   );
