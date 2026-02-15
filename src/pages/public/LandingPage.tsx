@@ -3,6 +3,7 @@ import Hero from '../../components/public/Hero';
 import HowItWorks from '../../components/public/HowItWorks';
 import StatsSection from '../../components/public/StatsSection';
 import CtaSection from '../../components/public/CtaSection';
+import Footer from '../../components/layout/Footer';
 
 const LandingPage = () => {
   return (
@@ -15,6 +16,8 @@ const LandingPage = () => {
         <StatsSection />
         <CtaSection />
       </main>
+
+      <Footer />
     </div>
   );
 };
