@@ -1,5 +1,6 @@
 import Navbar from '../../components/layout/Navbar';
 import Hero from '../../components/public/Hero';
+import HowItWorks from '../../components/public/HowItWorks';
 
 const LandingPage = () => {
   return (
@@ -8,6 +9,7 @@ const LandingPage = () => {
 
       <main className="flex-grow">
         <Hero />
+        <HowItWorks />
       </main>
     </div>
   );
