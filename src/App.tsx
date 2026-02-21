@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import DashboardLayout from './components/layouts/DashboardLayout';
+import DashboardLayout from './layouts/DashboardLayout';
 import DonationFeed from './pages/DonationFeed';
 
 function App() {

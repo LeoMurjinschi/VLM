@@ -12,6 +12,13 @@ export interface Donation {
   pickupLocation: string;
 }
 
+export const DONATION_CATEGORIES = [
+  'Vegetables', 
+  'Fruits', 
+  'Bakery', 
+  'Cooked Food', 
+  'Dairy'
+];
 
 export const MOCK_DONATIONS: Donation[] = [
   {
