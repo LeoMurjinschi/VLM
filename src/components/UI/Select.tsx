@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDownIcon, CheckIcon } from '@heroicons/react/24/outline';
+import { ChevronDownIcon} from '@heroicons/react/24/outline';
 
 export interface Option {
   value: string;

@@ -3,11 +3,14 @@ import Modal from './UI/Modal';
 import { MapPinIcon, ClockIcon, ArchiveBoxIcon } from '@heroicons/react/24/outline';
 import {type Donation } from '../_mock/donations';
 
+
+import { toast } from 'react-toastify';
+
 interface ReservationModalProps {
   isOpen: boolean;
   onClose: () => void;
   donation: Donation;
-  onReserve: (id: string, amount: number) => void; 
+  onReserve: (id: string, amount: number) => void;
 }
 
 const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, donation, onReserve }) => {
@@ -16,6 +19,9 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, do
   const handleConfirmReservation = () => {
  
     onReserve(donation.id, quantity);
+    
+
+    toast.success(`You successfully reserved ${quantity} ${donation.unit} of "${donation.title}"!`);
     
 
     setQuantity(1);
@@ -29,6 +35,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, do
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Reserve Item">
+      
 
       <div className="flex gap-4 mb-5">
         <img src={donation.image} alt={donation.title} className="w-20 h-20 rounded-xl object-cover shadow-sm border border-gray-100" />
@@ -46,6 +53,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, do
         <p className="text-xs text-gray-600 leading-relaxed font-medium">{donation.description}</p>
       </div>
 
+
       <div className="space-y-3 mb-6">
         <div className="flex items-center text-xs text-gray-700 bg-white p-2.5 rounded-xl border border-gray-100 shadow-sm">
           <div className="bg-blue-50 p-1.5 rounded-lg mr-3"><MapPinIcon className="w-4 h-4 text-blue-600" /></div>
@@ -56,6 +64,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, do
           <div><p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-0.5">Use Before</p><span className="font-bold text-red-500">{new Date(donation.expirationDate).toLocaleString()}</span></div>
         </div>
       </div>
+
 
       <div className="mb-6 flex items-center justify-between p-3 bg-white border border-gray-200 rounded-xl shadow-sm">
         <div className="flex flex-col">
@@ -68,6 +77,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, do
           <button onClick={handleIncrement} disabled={isMaxReached} className={`w-7 h-7 flex items-center justify-center rounded-md font-bold transition-all ${isMaxReached ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700 shadow-sm'}`}>+</button>
         </div>
       </div>
+
 
       <button onClick={handleConfirmReservation} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg shadow-blue-200 transition-all active:scale-[0.98] text-sm">
         Confirm {quantity} {donation.unit}

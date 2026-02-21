@@ -45,7 +45,7 @@ export const MOCK_DONATIONS: Donation[] = [
     postedAt: '30 mins ago',
     image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     quantity: 20,
-    unit: 'bucăți'
+    unit: 'pieces'
   },
   {
     id: '3',
@@ -71,6 +71,6 @@ export const MOCK_DONATIONS: Donation[] = [
     postedAt: '1 hour ago',
     image: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     quantity: 12,
-    unit: 'porții'
+    unit: 'plates'
   }
 ];
