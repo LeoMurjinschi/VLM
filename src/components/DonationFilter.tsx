@@ -1,26 +1,28 @@
 import React from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { DONATION_CATEGORIES } from '../_mock/donations';
-
+import Select from './UI/Select'; // <-- IMPORTĂM NOUA COMPONENTĂ
 
 interface DonationFilterProps {
   isOpen: boolean;
   onClose: () => void;
-  
   sortBy: string;
   setSortBy: (val: string) => void;
-  
   selectedCategories: string[];
   toggleCategory: (category: string) => void;
-  
   statusFilter: string;
   setStatusFilter: (val: string) => void;
-  
   urgencyFilter: string;
   setUrgencyFilter: (val: string) => void;
-  
   clearFilters: () => void;
 }
+
+// Definim opțiunile pentru noul nostru Select
+const SORT_OPTIONS = [
+  { value: 'newest', label: 'Newest Added' },
+  { value: 'expires_first', label: 'Expiring First' },
+  { value: 'name_asc', label: 'Name (A-Z)' },
+];
 
 const DonationFilter: React.FC<DonationFilterProps> = ({
   isOpen, onClose, sortBy, setSortBy, selectedCategories, toggleCategory,
@@ -31,7 +33,7 @@ const DonationFilter: React.FC<DonationFilterProps> = ({
 
   return (
     <div className="absolute right-0 top-full mt-3 w-[280px] sm:w-80 bg-white rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.1)] border border-gray-100 p-6 z-50 animate-fade-in-up">
-
+      {/* Header Filtru */}
       <div className="flex justify-between items-center mb-5 pb-3 border-b border-gray-100">
         <h3 className="font-extrabold text-gray-900 text-lg">Filters & Sorting</h3>
         <button onClick={onClose} className="text-gray-400 hover:text-red-500 transition-colors">
@@ -39,22 +41,18 @@ const DonationFilter: React.FC<DonationFilterProps> = ({
         </button>
       </div>
 
-
-      <div className="mb-5">
+      {/* Sortare - FOLOSIM COMPONENTA NOUĂ AICI */}
+      <div className="mb-5 relative z-20"> {/* z-20 adaugat pentru a asigura ca meniul cade PESTE elementele de dedesubt */}
         <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Sort By</label>
-        <select 
+        <Select 
+          options={SORT_OPTIONS}
           value={sortBy}
-          onChange={(e) => setSortBy(e.target.value)}
-          className="w-full bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 outline-none font-medium cursor-pointer"
-        >
-          <option value="newest">Newest Added</option>
-          <option value="expires_first">Expiring First</option>
-          <option value="name_asc">Name (A-Z)</option>
-        </select>
+          onChange={setSortBy}
+        />
       </div>
 
-
-      <div className="mb-5">
+      {/* Filtru Categorii */}
+      <div className="mb-5 relative z-10">
         <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Categories</label>
         <div className="space-y-2">
           {DONATION_CATEGORIES.map(category => (
@@ -71,7 +69,8 @@ const DonationFilter: React.FC<DonationFilterProps> = ({
         </div>
       </div>
 
-      <div className="mb-5">
+      {/* Filtru Disponibilitate */}
+      <div className="mb-5 relative z-10">
         <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Availability</label>
         <div className="flex gap-2">
           {['All', 'Available', 'Reserved'].map(status => (
@@ -89,7 +88,8 @@ const DonationFilter: React.FC<DonationFilterProps> = ({
         </div>
       </div>
 
-      <div className="mb-6">
+      {/* Filtru Urgență */}
+      <div className="mb-6 relative z-10">
         <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Urgency</label>
         <label className="flex items-center gap-3 cursor-pointer group">
           <input 
@@ -102,10 +102,10 @@ const DonationFilter: React.FC<DonationFilterProps> = ({
         </label>
       </div>
 
-
+      {/* Clear Filters */}
       <button 
         onClick={clearFilters}
-        className="w-full py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-bold rounded-xl transition-colors"
+        className="w-full py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-bold rounded-xl transition-colors relative z-10"
       >
         Clear All Filters
       </button>
