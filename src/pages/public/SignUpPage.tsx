@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import {
   Mail, Lock, Building2, MapPin, FileUp,
   User, Store, Heart, CheckCircle, XCircle, Upload, X
@@ -9,7 +9,9 @@ import { InputField } from '../../components/ui/InputField';
 import { AuthButton } from '../../components/ui/AuthButton';
 
 const SignupPage = () => {
-  const [role, setRole] = useState<'donor' | 'receiver'>('donor');
+  const [searchParams] = useSearchParams();
+  const initialRole = searchParams.get('role') === 'receiver' ? 'receiver' : 'donor';
+  const [role, setRole] = useState<'donor' | 'receiver'>(initialRole);
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
@@ -180,8 +182,8 @@ const SignupPage = () => {
               type="button"
               onClick={() => setRole('donor')}
               className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all duration-200 ${role === 'donor'
-                  ? 'border-blue-600 bg-blue-50 text-blue-700 shadow-sm'
-                  : 'border-gray-200 hover:border-blue-300 text-gray-500 hover:bg-gray-50'
+                ? 'border-blue-600 bg-blue-50 text-blue-700 shadow-sm'
+                : 'border-gray-200 hover:border-blue-300 text-gray-500 hover:bg-gray-50'
                 }`}
             >
               <Store className="mb-2" size={24} />
@@ -191,8 +193,8 @@ const SignupPage = () => {
               type="button"
               onClick={() => setRole('receiver')}
               className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all duration-200 ${role === 'receiver'
-                  ? 'border-blue-600 bg-blue-50 text-blue-700 shadow-sm'
-                  : 'border-gray-200 hover:border-blue-300 text-gray-500 hover:bg-gray-50'
+                ? 'border-blue-600 bg-blue-50 text-blue-700 shadow-sm'
+                : 'border-gray-200 hover:border-blue-300 text-gray-500 hover:bg-gray-50'
                 }`}
             >
               <Heart className="mb-2" size={24} />
