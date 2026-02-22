@@ -1,6 +1,5 @@
 import { Store, MousePointerClick, HeartHandshake, Scale, Soup, Leaf, Building2 } from 'lucide-react';
 
-// 1. Data for Hero Section
 export const RECENT_DONORS = [
   { 
     id: 1, 
@@ -28,7 +27,6 @@ export const RECENT_DONORS = [
   },
 ];
 
-// 2. Data for How It Works Section
 export const STEPS = [
   {
     id: 1,
@@ -56,7 +54,6 @@ export const STEPS = [
   },
 ];
 
-// 3. Data for Stats Section
 export const STATS = [
   {
     id: 1,
