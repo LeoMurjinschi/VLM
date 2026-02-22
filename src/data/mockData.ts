@@ -84,3 +84,27 @@ export const STATS = [
     description: 'Active organizations verified'
   },
 ];
+
+export const OPEN_POSITIONS = [
+  {
+    id: 1,
+    title: 'Senior Full-Stack Developer',
+    department: 'Engineering',
+    location: 'Chișinău, Moldova (Hybrid)',
+    type: 'Full-time',
+  },
+  {
+    id: 2,
+    title: 'NGO Partnership Manager',
+    department: 'Operations',
+    location: 'Remote',
+    type: 'Full-time',
+  },
+  {
+    id: 3,
+    title: 'Marketing & PR Specialist',
+    department: 'Marketing',
+    location: 'Chișinău, Moldova',
+    type: 'Part-time',
+  }
+];
