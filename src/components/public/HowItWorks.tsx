@@ -1,31 +1,5 @@
-import { Store, MousePointerClick, HeartHandshake, ArrowRight } from 'lucide-react';
-
-const STEPS = [
-  {
-    id: 1,
-    title: 'Donors List Food',
-    description: 'Restaurants and stores upload details about surplus food items (quantity, expiry time) in less than 2 minutes.',
-    icon: <Store size={32} className="text-white" />,
-    color: 'bg-blue-600',
-    shadow: 'shadow-blue-200',
-  },
-  {
-    id: 2,
-    title: 'NGOs Reserve It',
-    description: 'Registered charities get instant alerts and reserve the food directly from the interactive map or dashboard.',
-    icon: <MousePointerClick size={32} className="text-white" />,
-    color: 'bg-orange-500',
-    shadow: 'shadow-orange-200',
-  },
-  {
-    id: 3,
-    title: 'Pickup & Impact',
-    description: 'The receiver picks up the food. The transaction is completed, and we calculate the environmental impact saved.',
-    icon: <HeartHandshake size={32} className="text-white" />,
-    color: 'bg-green-500',
-    shadow: 'shadow-green-200',
-  },
-];
+import {ArrowRight } from 'lucide-react';
+import {STEPS} from '../../data/mockData';
 
 const HowItWorks = () => {
   return (
@@ -51,7 +25,7 @@ const HowItWorks = () => {
               className="relative group bg-white rounded-2xl p-8 shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100"
             >
               <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-6 transform group-hover:scale-110 transition-transform duration-300 ${step.color} shadow-lg ${step.shadow}`}>
-                {step.icon}
+                <step.icon size={32} className="text-white"/>
               </div>
 
               <h4 className="text-xl font-bold text-gray-900 mb-3">

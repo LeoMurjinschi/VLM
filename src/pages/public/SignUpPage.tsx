@@ -9,12 +9,10 @@ import { InputField } from '../../components/ui/InputField';
 import { AuthButton } from '../../components/ui/AuthButton';
 
 const SignupPage = () => {
-  // State for Role Selection: 'donor' (Business) or 'receiver' (NGO)
   const [role, setRole] = useState<'donor' | 'receiver'>('donor');
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  // Form State
   const [formData, setFormData] = useState({
     orgName: '',
     fiscalCode: '',
@@ -35,14 +33,12 @@ const SignupPage = () => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simulate API Call
     await new Promise(resolve => setTimeout(resolve, 1500));
     
     setIsLoading(false);
     setIsSubmitted(true);
   };
 
-  // SUCCESS STATE (After submission)
   if (isSubmitted) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
@@ -67,7 +63,6 @@ const SignupPage = () => {
     );
   }
 
-  // REGISTRATION FORM
   return (
     <AuthLayout 
       title="Join FoodShare" 
@@ -75,7 +70,6 @@ const SignupPage = () => {
     >
       <form onSubmit={handleSubmit} className="space-y-6">
         
-        {/* 1. ROLE SELECTION TOGGLE */}
         <div>
           <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wide">
             I represent a:
@@ -110,7 +104,6 @@ const SignupPage = () => {
 
         <div className="border-t border-gray-100 my-4"></div>
 
-        {/* 2. ORGANIZATION DETAILS */}
         <div className="space-y-4">
           <h3 className="text-sm font-black text-gray-900 uppercase tracking-wide">
             Organization Details
@@ -147,7 +140,6 @@ const SignupPage = () => {
           </div>
         </div>
 
-        {/* 3. REPRESENTATIVE DETAILS */}
         <div className="space-y-4">
           <h3 className="text-sm font-black text-gray-900 uppercase tracking-wide mt-2">
             Login Credentials
@@ -186,7 +178,6 @@ const SignupPage = () => {
           />
         </div>
 
-        {/* 4. VERIFICATION UPLOAD AREA */}
         <div className="bg-blue-50 p-5 rounded-xl border border-blue-100 border-dashed">
           <h3 className="text-sm font-bold text-blue-900 mb-1 flex items-center gap-2">
               <FileUp size={16} />

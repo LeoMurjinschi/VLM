@@ -1,32 +1,6 @@
 import { Link } from 'react-router-dom';
 import {Heart, Leaf, Store, Utensils } from 'lucide-react';
-
-const RECENT_DONORS = [
-  { 
-    id: 1, 
-    name: 'Fresh Market Central', 
-    type: 'Supermarket',
-    image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=100&q=80' 
-  },
-  { 
-    id: 2, 
-    name: 'Green Bakery', 
-    type: 'Bakery',
-    image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=100&q=80' 
-  },
-  { 
-    id: 3, 
-    name: 'Bistro 55', 
-    type: 'Restaurant',
-    image: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=100&q=80' 
-  },
-  { 
-    id: 4, 
-    name: 'Organic Juice Bar', 
-    type: 'Coffee Shop',
-    image: 'https://images.unsplash.com/photo-1621360841013-c768371e93cf?auto=format&fit=crop&w=100&q=80' 
-  },
-];
+import { RECENT_DONORS } from '../../data/mockData';
 
 const Hero = () => {
   return (

@@ -1,35 +1,4 @@
-import { Scale, Soup, Leaf, Building2 } from 'lucide-react';
-
-const STATS = [
-  {
-    id: 1,
-    label: 'Food Saved',
-    value: '15,400 kg',
-    icon: <Scale size={28} className="text-blue-100" />,
-    description: 'Surplus redirected from waste'
-  },
-  {
-    id: 2,
-    label: 'Meals Provided',
-    value: '42,000+',
-    icon: <Soup size={28} className="text-blue-100" />,
-    description: 'Warm meals for shelters'
-  },
-  {
-    id: 3,
-    label: 'CO2 Prevented',
-    value: '38 Tons',
-    icon: <Leaf size={28} className="text-blue-100" />,
-    description: 'Carbon footprint reduced'
-  },
-  {
-    id: 4,
-    label: 'Partner NGOs',
-    value: '120+',
-    icon: <Building2 size={28} className="text-blue-100" />,
-    description: 'Active organizations verified'
-  },
-];
+import {STATS} from '../../data/mockData';
 
 const StatsSection = () => {
   return (
@@ -44,7 +13,7 @@ const StatsSection = () => {
               }`}
             >
               <div className="p-3 bg-white/10 rounded-xl backdrop-blur-sm">
-                {stat.icon}
+                <stat.icon size={28} className="text-white"/>
               </div>
               
               <div className="flex flex-col items-center md:items-start">
