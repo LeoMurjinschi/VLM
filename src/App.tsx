@@ -12,6 +12,7 @@ import BlogPage from './pages/public/BlogPage';
 import TermsPage from './pages/public/TermsPage';
 import PrivacyPage from './pages/public/PrivacyPage';
 import CookiePage from './pages/public/CookiePage';
+import HelpCenterPage from './pages/public/HelpCenterPage';
 
 const DonorDashboard = () => <div className="p-10 text-2xl font-bold">Donor Dashboard (Protected)</div>;
 const ReceiverDashboard = () => <div className="p-10 text-2xl font-bold">Receiver Dashboard (Protected)</div>;
@@ -32,6 +33,7 @@ function App() {
           <Route path="/terms" element={<TermsPage />} />
           <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/cookies" element={<CookiePage />} />
+          <Route path="/contact" element={<HelpCenterPage />} />
           <Route path="/" element={<LandingPage />} />
 
           <Route

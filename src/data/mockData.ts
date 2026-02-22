@@ -185,3 +185,42 @@ export const BLOG_POSTS = [
     content: `Technology connects the dots, but people do the heavy lifting. The FoodShare platform relies on a dedicated network of volunteers who ensure that the food gets from the donor to the receiver safely and quickly.\n\nTake Andrei, for example. A university student who uses his bicycle to do short-distance deliveries between local bakeries and a nearby children's center. "It keeps me fit, and I know exactly where my effort is going," he says.\n\nOr Elena, a retired teacher who coordinates the evening pickups for a large homeless shelter. "Seeing the relief on people's faces when warm meals arrive makes every late night worth it."\n\nIf you have a few spare hours a week and a vehicle (or a bike!), you can join our volunteer network. It's the most direct way to impact your community.`
   }
 ];
+
+export const FAQS = [
+  {
+    id: 1,
+    category: 'General',
+    question: 'Is FoodShare completely free to use?',
+    answer: 'Yes, FoodShare is absolutely free for both food donors (businesses) and food receivers (NGOs). Our goal is to eliminate food waste, not to create financial barriers.'
+  },
+  {
+    id: 2,
+    category: 'General',
+    question: 'How does FoodShare ensure the food is safe?',
+    answer: 'Safety is our top priority. All donating businesses must comply with local health regulations and clearly state the expiry time of the listed items. Receivers must visually inspect the food before pickup.'
+  },
+  {
+    id: 3,
+    category: 'Donors',
+    question: 'What kind of businesses can donate?',
+    answer: 'Any registered food business can donate. This includes supermarkets, bakeries, restaurants, cafes, and catering companies. All businesses must provide a valid Fiscal Code (IDNO) during registration.'
+  },
+  {
+    id: 4,
+    category: 'Donors',
+    question: 'Do I get a tax deduction for donating?',
+    answer: 'In many regions, yes. At the end of every month, your dashboard generates a digital receipt of all your donations, which you can provide to your accountant to claim applicable tax deductions.'
+  },
+  {
+    id: 5,
+    category: 'Receivers',
+    question: 'Can individuals receive food directly?',
+    answer: 'Currently, no. To ensure safety and efficient distribution, we only allow verified NGOs, charities, and shelters to reserve and pick up food. Individuals in need should contact our partner NGOs directly.'
+  },
+  {
+    id: 6,
+    category: 'Receivers',
+    question: 'How quickly do I need to pick up a reservation?',
+    answer: 'When a donor lists an item, they specify a "Pickup Window" (e.g., between 8 PM and 10 PM). You must pick up the food within that specific timeframe; otherwise, the reservation is automatically canceled.'
+  }
+];
