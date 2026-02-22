@@ -22,15 +22,69 @@ const SignupPage = () => {
     password: ''
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const passwordCriteria = {
+    length: formData.password.length >= 8,
+    uppercase: /[A-Z]/.test(formData.password),
+    lowercase: /[a-z]/.test(formData.password),
+    number: /[0-9]/.test(formData.password),
+    special: /[^A-Za-z0-9]/.test(formData.password),
   };
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+
+  if (name === 'fiscalCode') {
+      const onlyNumbers = value.replace(/\D/g, '');
+      setFormData({ ...formData, [name]: onlyNumbers });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
+if (errors[name]) {
+      setErrors({ ...errors, [name]: '' });
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+
+    if (formData.orgName.trim().length < 2) {
+      newErrors.orgName = 'Organization name must be at least 2 characters.';
+    }
+    
+    if (formData.fiscalCode.length !== 13) {
+      newErrors.fiscalCode = 'IDNO must be exactly 13 digits.';
+    }
+
+    if (formData.address.trim().length < 5) {
+      newErrors.address = 'Please provide a valid address.';
+    }
+
+    if (formData.repName.trim().length < 2) {
+      newErrors.repName = 'Representative name must be at least 2 characters.';
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      newErrors.email = 'Please provide a valid email address.';
+    }
+
+    const isPasswordValid = Object.values(passwordCriteria).every(Boolean);
+    if (!isPasswordValid) {
+      newErrors.password = 'Password does not meet all security requirements.';
+    }
+
+    setErrors(newErrors);
+    
+    return Object.keys(newErrors).length === 0;
+  };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
     setIsLoading(true);
 
     await new Promise(resolve => setTimeout(resolve, 1500));

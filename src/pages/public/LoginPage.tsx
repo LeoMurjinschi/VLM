@@ -4,9 +4,12 @@ import { Mail, Lock, LogIn } from 'lucide-react';
 import { AuthLayout } from '../../components/auth/AuthLayout';
 import { InputField } from '../../components/ui/InputField';
 import { AuthButton } from '../../components/ui/AuthButton';
+import { useAuth} from '../../context/AuthContext';
+import type { Role } from '../../context/AuthContext';
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
