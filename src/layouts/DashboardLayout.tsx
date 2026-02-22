@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Header from './Header';
+import { useTheme } from '../hooks/useTheme';
 
 const DashboardLayout: React.FC = () => {
-
+  const { theme } = useTheme();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden relative">
+    <div className={`flex h-screen overflow-hidden relative ${theme === 'light' ? 'bg-gray-50' : 'bg-gray-900'}`}>
       
 
       <aside className="hidden md:flex flex-shrink-0 w-56 z-20">
@@ -20,16 +21,18 @@ const DashboardLayout: React.FC = () => {
 
       {isMobileMenuOpen && (
         <div 
-          className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-40 md:hidden transition-opacity"
-          onClick={() => setIsMobileMenuOpen(false)} // Dai click afară = se închide
+          className={`fixed inset-0 backdrop-blur-sm z-40 md:hidden transition-opacity ${theme === 'light' ? 'bg-gray-900/60' : 'bg-black/60'}`}
+          onClick={() => setIsMobileMenuOpen(false)}
         />
       )}
       
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-56 bg-white transform transition-transform duration-300 ease-in-out md:hidden shadow-2xl
-          ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
-        `}
+        className={`fixed inset-y-0 left-0 z-50 w-56 transform transition-transform duration-300 ease-in-out md:hidden shadow-2xl ${
+          theme === 'light' ? 'bg-white' : 'bg-gray-900'
+        } ${
+          isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
       >
         <Sidebar onClose={() => setIsMobileMenuOpen(false)} />
       </aside>
@@ -40,7 +43,9 @@ const DashboardLayout: React.FC = () => {
 
         <Header onMenuClick={() => setIsMobileMenuOpen(true)} />
 
-        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50/50 p-4 md:p-8 pt-6">
+        <main className={`flex-1 overflow-x-hidden overflow-y-auto p-4 md:p-8 pt-6 ${
+          theme === 'light' ? 'bg-gray-50/50' : 'bg-gray-800/50'
+        }`}>
           <div className="mx-auto max-w-7xl animate-fade-in-up">
             <Outlet /> 
           </div>

@@ -1,5 +1,6 @@
 import React from 'react';
 import { ToastContainer } from 'react-toastify';
+import { useTheme } from '../../hooks/useTheme';
 import 'react-toastify/dist/ReactToastify.css';
 
 interface ToastProviderProps {
@@ -7,14 +8,16 @@ interface ToastProviderProps {
 }
 
 const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
+  const { theme } = useTheme();
+
   return (
     <>
       {children}
       <style>
         {`
           :root {
-            --toastify-color-success: #2563eb; /* Schimbă culoarea la bifă */
-            --toastify-color-progress-success: #2563eb; /* Schimbă culoarea la bara de timp */
+            --toastify-color-success: #2563eb;
+            --toastify-color-progress-success: #2563eb;
           }
         `}
       </style>
@@ -28,7 +31,7 @@ const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
         pauseOnFocusLoss
         draggable
         pauseOnHover
-        theme="light"
+        theme={theme}
       />
     </>
   );
