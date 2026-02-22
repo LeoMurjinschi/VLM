@@ -16,16 +16,24 @@ const Footer = () => {
               Join us in our mission to eliminate food waste and support local communities.
             </p>
             <div className="flex gap-4">
-              <a href="#" className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:bg-blue-600 hover:text-white transition-all">
+              <a href="https://facebook.com/foodshare.md" 
+                target="_blank" 
+                rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:bg-blue-600 hover:text-white transition-all">
                 <Facebook size={20} />
               </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:bg-blue-400 hover:text-white transition-all">
+              <a href="https://twitter.com/foodshare_md" 
+                target="_blank" 
+                rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:bg-blue-400 hover:text-white transition-all">
                 <Twitter size={20} />
               </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:bg-pink-600 hover:text-white transition-all">
+              <a href="https://instagram.com/foodshare.md" 
+                target="_blank" 
+                rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:bg-pink-600 hover:text-white transition-all">
                 <Instagram size={20} />
               </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:bg-blue-700 hover:text-white transition-all">
+              <a href="https://linkedin.com/company/foodshare-md" 
+                target="_blank" 
+                rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:bg-blue-700 hover:text-white transition-all">
                 <Linkedin size={20} />
               </a>
             </div>
