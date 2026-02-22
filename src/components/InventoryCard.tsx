@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TrashIcon, PencilIcon, MinusIcon, PlusIcon } from '@heroicons/react/24/outline';
+import { TrashIcon, PencilIcon, MinusIcon, PlusIcon, CheckIcon } from '@heroicons/react/24/outline';
 import { useTheme } from '../hooks/useTheme';
 import type { InventoryItem } from '../_mock/inventory';
 import { toast } from 'react-toastify';
@@ -18,7 +18,12 @@ const InventoryCard: React.FC<InventoryCardProps> = ({
   onUpdateQuantity,
 }) => {
   const { theme } = useTheme();
-  const [isAdjusting, setIsAdjusting] = useState(false);
+  
+ 
+  const [draftQuantity, setDraftQuantity] = useState<number | string>(item.quantity);
+
+ 
+  const hasChanges = Number(draftQuantity) !== item.quantity;
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -43,23 +48,66 @@ const InventoryCard: React.FC<InventoryCardProps> = ({
     return null;
   };
 
-  const handleDelete = () => {
-    if (window.confirm(`Are you sure you want to delete "${item.title}"?`)) {
-      onDelete(item.id);
-      toast.success(`${item.title} removed from inventory`);
-    }
+const handleDelete = () => {
+    
+    const ConfirmDelete = ({ closeToast }: { closeToast?: () => void }) => (
+      <div className="flex flex-col">
+        <p className="text-sm font-semibold mb-3 text-gray-800">
+          Are you sure you want to delete <br />
+          <span className="font-bold text-red-500">"{item.title}"</span>?
+        </p>
+        <div className="flex gap-2 justify-end">
+          <button
+            onClick={closeToast}
+            className="px-3 py-1.5 text-xs font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={() => {
+              onDelete(item.id);
+              if (closeToast) closeToast(); 
+              toast.success(`"${item.title}" removed from inventory!`);
+            }}
+            className="px-3 py-1.5 text-xs font-bold text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors shadow-sm"
+          >
+            Yes, Delete
+          </button>
+        </div>
+      </div>
+    );
+
+    
+    toast.warn(<ConfirmDelete />, {
+      position: "top-center", 
+      autoClose: false,      
+      closeOnClick: false,    
+      draggable: false,       
+      theme: "light",         
+    });
   };
 
-  const handleAdjustQuantity = (delta: number) => {
-    const newQuantity = item.quantity + delta;
-    if (newQuantity < 0) {
-      toast.error('Quantity cannot be negative');
+ 
+  const handleDecrement = () => {
+    const current = Number(draftQuantity) || 0;
+    if (current > 0) setDraftQuantity(current - 1);
+  };
+
+  const handleIncrement = () => {
+    const current = Number(draftQuantity) || 0;
+    setDraftQuantity(current + 1);
+  };
+
+  
+  const handleSaveQuantity = () => {
+    const newQuantity = Number(draftQuantity);
+    if (newQuantity < 0 || isNaN(newQuantity)) {
+      toast.error('Quantity must be a valid number (minimum 0)');
+      setDraftQuantity(item.quantity);
       return;
     }
     onUpdateQuantity(item.id, newQuantity);
-    toast.success(
-      `Stock updated: ${newQuantity} ${item.unit}`
-    );
+    toast.success(`Stock updated: ${newQuantity} ${item.unit}`);
   };
 
   const expirationWarning = getExpirationWarning();
@@ -72,7 +120,7 @@ const InventoryCard: React.FC<InventoryCardProps> = ({
           : 'bg-gray-800 border-gray-700'
       }`}
     >
-      {/* Image Section */}
+    
       <div className="relative h-48 w-full overflow-hidden">
         <div
           className={`absolute inset-0 group-hover:bg-black/0 transition-colors z-10 ${
@@ -93,9 +141,8 @@ const InventoryCard: React.FC<InventoryCardProps> = ({
         </span>
       </div>
 
-      {/* Content Section */}
+
       <div className="p-6 flex flex-col flex-grow">
-        {/* Header */}
         <div className="flex justify-between items-start mb-3">
           <span className="text-xs font-bold tracking-wide text-blue-600 bg-blue-50 px-2.5 py-1 rounded-md uppercase">
             {item.category}
@@ -109,7 +156,6 @@ const InventoryCard: React.FC<InventoryCardProps> = ({
           </span>
         </div>
 
-        {/* Title */}
         <h3
           className={`text-xl font-extrabold mb-2 leading-tight group-hover:text-blue-600 transition-colors ${
             theme === 'light' ? 'text-gray-900' : 'text-gray-100'
@@ -118,7 +164,6 @@ const InventoryCard: React.FC<InventoryCardProps> = ({
           {item.title}
         </h3>
 
-        {/* Description */}
         <p
           className={`text-sm mb-4 line-clamp-2 leading-relaxed ${
             theme === 'light' ? 'text-gray-500' : 'text-gray-400'
@@ -127,14 +172,13 @@ const InventoryCard: React.FC<InventoryCardProps> = ({
           {item.description}
         </p>
 
-        {/* Divider */}
         <div
           className={`mt-auto pt-4 border-t ${
             theme === 'light' ? 'border-gray-50' : 'border-gray-700'
           }`}
         />
 
-        {/* Metadata */}
+
         <div className="space-y-2.5 my-4">
           <div
             className={`flex items-center justify-between text-sm font-medium ${
@@ -172,7 +216,7 @@ const InventoryCard: React.FC<InventoryCardProps> = ({
           )}
         </div>
 
-        {/* Quantity Adjustment */}
+
         <div
           className={`flex items-center gap-2 mb-4 p-3 rounded-xl ${
             theme === 'light'
@@ -181,68 +225,81 @@ const InventoryCard: React.FC<InventoryCardProps> = ({
           }`}
         >
           <button
-            onClick={() => handleAdjustQuantity(-1)}
-            disabled={isAdjusting || item.quantity <= 0}
+            onClick={handleDecrement}
             title="Decrease quantity"
             className={`flex-shrink-0 p-2 rounded-lg transition-all duration-200 ${
-              isAdjusting || item.quantity <= 0
-                ? 'opacity-50 cursor-not-allowed'
-                : theme === 'light'
-                  ? 'bg-white border border-gray-200 text-gray-600 hover:text-red-600 hover:border-red-200 hover:bg-red-50'
-                  : 'bg-gray-600 border border-gray-500 text-gray-300 hover:text-red-400 hover:border-red-500 hover:bg-red-900/30'
+              theme === 'light'
+                ? 'bg-white border border-gray-200 text-gray-600 hover:text-red-600 hover:border-red-200 hover:bg-red-50'
+                : 'bg-gray-600 border border-gray-500 text-gray-300 hover:text-red-400 hover:border-red-500 hover:bg-red-900/30'
             }`}
           >
             <MinusIcon className="w-5 h-5" />
           </button>
 
-          <span
-            className={`flex-1 text-center font-bold text-sm ${
-              theme === 'light' ? 'text-gray-900' : 'text-gray-100'
-            }`}
-          >
-            {item.quantity} {item.unit}
-          </span>
+ 
+          <div className="flex-1 flex items-center justify-center gap-1.5">
+            <input
+              type="number"
+              value={draftQuantity}
+              onChange={(e) => setDraftQuantity(e.target.value)}
+              min="0"
+              className={`w-14 text-center font-extrabold text-sm bg-transparent border-b-2 focus:outline-none focus:border-blue-500 transition-colors hide-arrows ${
+                theme === 'light' 
+                  ? 'text-gray-900 border-gray-300' 
+                  : 'text-gray-100 border-gray-500'
+              }`}
+            />
+            <span className={`text-xs font-bold uppercase tracking-wider ${theme === 'light' ? 'text-gray-400' : 'text-gray-500'}`}>
+              {item.unit}
+            </span>
+          </div>
 
           <button
-            onClick={() => handleAdjustQuantity(1)}
-            disabled={isAdjusting}
+            onClick={handleIncrement}
             title="Increase quantity"
             className={`flex-shrink-0 p-2 rounded-lg transition-all duration-200 ${
-              isAdjusting
-                ? 'opacity-50 cursor-not-allowed'
-                : theme === 'light'
-                  ? 'bg-white border border-gray-200 text-gray-600 hover:text-emerald-600 hover:border-emerald-200 hover:bg-emerald-50'
-                  : 'bg-gray-600 border border-gray-500 text-gray-300 hover:text-emerald-400 hover:border-emerald-500 hover:bg-emerald-900/30'
+              theme === 'light'
+                ? 'bg-white border border-gray-200 text-gray-600 hover:text-emerald-600 hover:border-emerald-200 hover:bg-emerald-50'
+                : 'bg-gray-600 border border-gray-500 text-gray-300 hover:text-emerald-400 hover:border-emerald-500 hover:bg-emerald-900/30'
             }`}
           >
             <PlusIcon className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Action Buttons */}
+  
         <div className="flex gap-2">
+
           <button
-            onClick={() => onEdit(item)}
-            className={`flex-1 flex items-center justify-center gap-2 px-3 py-2.5 font-semibold rounded-lg transition-all duration-200 active:scale-[0.98] ${
-              theme === 'light'
-                ? 'bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200'
-                : 'bg-blue-900/30 text-blue-400 hover:bg-blue-900/50 border border-blue-800'
+            onClick={() => {
+              if (hasChanges) {
+                handleSaveQuantity();
+              } else {
+                onEdit(item);
+              }
+            }}
+            className={`flex-1 flex items-center justify-center gap-2 px-3 py-2.5 font-bold rounded-lg transition-all duration-200 active:scale-[0.98] ${
+              hasChanges
+                ? 'bg-emerald-500 text-white hover:bg-emerald-600 shadow-md shadow-emerald-200/50'
+                : theme === 'light'
+                  ? 'bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200'
+                  : 'bg-blue-900/30 text-blue-400 hover:bg-blue-900/50 border border-blue-800'
             }`}
           >
-            <PencilIcon className="w-4 h-4" />
-            <span className="text-xs">Edit</span>
+            {hasChanges ? <CheckIcon className="w-4 h-4" /> : <PencilIcon className="w-4 h-4" />}
+            <span className="text-xs uppercase tracking-wider">{hasChanges ? 'Save' : 'Edit'}</span>
           </button>
 
           <button
             onClick={handleDelete}
-            className={`flex-1 flex items-center justify-center gap-2 px-3 py-2.5 font-semibold rounded-lg transition-all duration-200 active:scale-[0.98] ${
+            className={`flex-1 flex items-center justify-center gap-2 px-3 py-2.5 font-bold rounded-lg transition-all duration-200 active:scale-[0.98] ${
               theme === 'light'
                 ? 'bg-red-50 text-red-600 hover:bg-red-100 border border-red-200'
                 : 'bg-red-900/30 text-red-400 hover:bg-red-900/50 border border-red-800'
             }`}
           >
             <TrashIcon className="w-4 h-4" />
-            <span className="text-xs">Delete</span>
+            <span className="text-xs uppercase tracking-wider">Delete</span>
           </button>
         </div>
       </div>
