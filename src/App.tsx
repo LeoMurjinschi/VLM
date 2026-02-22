@@ -8,6 +8,7 @@ import AboutPage from './pages/public/AboutPage';
 import CareersPage from './pages/public/CareersPage';
 import JobApplicationPage from './pages/public/JobApplicationPage';
 import PartnersPage from './pages/public/PartnersPage';
+import BlogPage from './pages/public/BlogPage';
 
 const DonorDashboard = () => <div className="p-10 text-2xl font-bold">Donor Dashboard (Protected)</div>;
 const ReceiverDashboard = () => <div className="p-10 text-2xl font-bold">Receiver Dashboard (Protected)</div>;
@@ -24,6 +25,7 @@ function App() {
           <Route path="/careers" element={<CareersPage />} />
           <Route path="/careers/apply/:jobId" element={<JobApplicationPage />} />
           <Route path="/partners" element={<PartnersPage />} />
+          <Route path="/blog" element={<BlogPage />} />
           <Route path="/" element={<LandingPage />} />
 
           <Route
