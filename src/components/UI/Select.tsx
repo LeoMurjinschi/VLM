@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDownIcon} from '@heroicons/react/24/outline';
+import { ChevronDownIcon, CheckIcon } from '@heroicons/react/24/outline';
 import { useTheme } from '../../hooks/useTheme';
 
 export interface Option {
@@ -11,7 +11,7 @@ interface SelectProps {
   options: Option[];
   value: string;
   onChange: (value: string) => void;
-  hasError?: boolean; // <-- AM ADĂUGAT PROPRIETATEA AICI
+  hasError?: boolean;
 }
 
 const Select: React.FC<SelectProps> = ({ options, value, onChange, hasError }) => {
@@ -43,8 +43,8 @@ const Select: React.FC<SelectProps> = ({ options, value, onChange, hasError }) =
               : 'border-blue-500 ring-2 ring-blue-900 text-blue-400 bg-gray-700'
             : hasError 
               ? theme === 'light'
-                ? 'border-red-500 bg-red-50 text-red-900 ring-1 ring-red-500' // Eroare Light
-                : 'border-red-500 bg-red-900/20 text-red-200 ring-1 ring-red-500' // Eroare Dark
+                ? 'border-red-500 bg-red-50 text-red-900 ring-1 ring-red-500'
+                : 'border-red-500 bg-red-900/20 text-red-200 ring-1 ring-red-500'
               : theme === 'light'
                 ? 'bg-white border-gray-200 text-gray-700 hover:border-blue-400'
                 : 'bg-gray-700 border-gray-600 text-gray-300 hover:border-blue-500'
@@ -90,6 +90,8 @@ const Select: React.FC<SelectProps> = ({ options, value, onChange, hasError }) =
                   `}
                 >
                   <span>{option.label}</span>
+ 
+                  {isSelected && <CheckIcon className="w-5 h-5 text-white" />} 
                 </li>
               );
             })}

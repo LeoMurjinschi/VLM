@@ -4,6 +4,8 @@ import { toast } from 'react-toastify';
 import Select from '../components/UI/Select';
 import { useTheme } from '../hooks/useTheme';
 import type { Donation } from '../_mock/donations';
+import { useInventory } from '../context/InventoryContext';
+import type { InventoryItem } from '../_mock/inventory';
 
 interface FormState {
   title: string;
@@ -36,7 +38,7 @@ const AddStock: React.FC = () => {
   const { theme } = useTheme();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
-
+  const { addStock } = useInventory();
   const [formState, setFormState] = useState<FormState>({
     title: '',
     description: '',
@@ -65,17 +67,17 @@ const AddStock: React.FC = () => {
     }));
   };
 
-  // Verifică dacă un câmp obligatoriu este gol DUPĂ ce s-a apăsat submit
+ 
   const hasError = (field: keyof FormState): boolean => {
     if (!hasAttemptedSubmit) return false;
-    if (field === 'image') return false; // imaginea este opțională
+    if (field === 'image') return false; 
     if (typeof formState[field] === 'string') {
       return !formState[field].toString().trim();
     }
     return !formState[field];
   };
 
-  // Generează clasele CSS pentru inputuri în mod dinamic
+
   const getInputClass = (field: keyof FormState) => {
     const isError = hasError(field);
     const baseClass = "w-full px-4 py-3.5 border rounded-xl transition-all duration-200 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-opacity-100";
@@ -106,14 +108,15 @@ const AddStock: React.FC = () => {
       expirationDate: '',
       image: '',
     });
-    setHasAttemptedSubmit(false); // Resetăm starea de eroare
+    setHasAttemptedSubmit(false);
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  
+
+const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setHasAttemptedSubmit(true);
 
-    // Validarea principală
     if (
       !formState.title.trim() ||
       !formState.category ||
@@ -137,8 +140,9 @@ const AddStock: React.FC = () => {
     try {
       await new Promise((resolve) => setTimeout(resolve, 1200));
 
-      const newStock: Donation = {
-        id: `stock_${Date.now()}`,
+
+      const newStock: InventoryItem = {
+        id: `inv_${Date.now()}`,
         title: formState.title,
         description: formState.description,
         category: formState.category,
@@ -146,17 +150,18 @@ const AddStock: React.FC = () => {
         unit: formState.unit,
         pickupLocation: formState.pickupLocation,
         expirationDate: new Date(formState.expirationDate).toISOString(),
-        status: 'Available',
-        postedAt: 'just now',
+        status: 'In Stock',
+        addedAt: 'Just now',
         image: formState.image || 'https://images.unsplash.com/photo-1488459716781-6f3ee109e5e4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
       };
 
-      console.log('✅ New stock added:', newStock);
+
+      addStock(newStock);
+
       toast.success('Stock added successfully! 🎉');
       resetForm();
     } catch (error) {
       toast.error('Failed to add stock. Please try again.');
-      console.error('Error adding stock:', error);
     } finally {
       setIsSubmitting(false);
     }
@@ -215,7 +220,7 @@ const AddStock: React.FC = () => {
                 <label htmlFor="category" className={`block text-sm font-semibold mb-2.5 ${theme === 'light' ? 'text-gray-800' : 'text-gray-200'}`}>
                   Category <span className="text-red-500">*</span>
                 </label>
-                <div className="rounded-xl overflow-hidden transition-all">
+                <div className="relative z-20">
                   <Select
                     options={CATEGORIES}
                     value={formState.category}
@@ -246,7 +251,7 @@ const AddStock: React.FC = () => {
                 <label htmlFor="unit" className={`block text-sm font-semibold mb-2.5 ${theme === 'light' ? 'text-gray-800' : 'text-gray-200'}`}>
                   Unit <span className="text-red-500">*</span>
                 </label>
-                <div className="rounded-xl overflow-hidden transition-all">
+                <div className="relative z-10">
                   <Select
                     options={UNITS}
                     value={formState.unit}
@@ -360,5 +365,7 @@ const AddStock: React.FC = () => {
     </div>
   );
 };
+
+
 
 export default AddStock;
