@@ -10,6 +10,7 @@ import JobApplicationPage from './pages/public/JobApplicationPage';
 import PartnersPage from './pages/public/PartnersPage';
 import BlogPage from './pages/public/BlogPage';
 import TermsPage from './pages/public/TermsPage';
+import PrivacyPage from './pages/public/PrivacyPage';
 
 const DonorDashboard = () => <div className="p-10 text-2xl font-bold">Donor Dashboard (Protected)</div>;
 const ReceiverDashboard = () => <div className="p-10 text-2xl font-bold">Receiver Dashboard (Protected)</div>;
@@ -28,6 +29,7 @@ function App() {
           <Route path="/partners" element={<PartnersPage />} />
           <Route path="/blog" element={<BlogPage />} />
           <Route path="/terms" element={<TermsPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/" element={<LandingPage />} />
 
           <Route
