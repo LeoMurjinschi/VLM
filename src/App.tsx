@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import ScrollToTop from './components/ScrollToTop';
 import LandingPage from './pages/public/LandingPage';
 import LoginPage from './pages/public/LoginPage';
 import SignUpPage from './pages/public/SignUpPage';
@@ -22,6 +23,7 @@ function App() {
   return (
     <AuthProvider>
       <Router>
+        <ScrollToTop />
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignUpPage />} />
