@@ -6,6 +6,7 @@ import { AuthProvider } from './context/AuthContext';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import AboutPage from './pages/public/AboutPage';
 import CareersPage from './pages/public/CareersPage';
+import JobApplicationPage from './pages/public/JobApplicationPage';
 
 const DonorDashboard = () => <div className="p-10 text-2xl font-bold">Donor Dashboard (Protected)</div>;
 const ReceiverDashboard = () => <div className="p-10 text-2xl font-bold">Receiver Dashboard (Protected)</div>;
@@ -20,6 +21,7 @@ function App() {
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/careers" element={<CareersPage />} />
+          <Route path="/careers/apply/:jobId" element={<JobApplicationPage />} />
           <Route path="/" element={<LandingPage />} />
 
           <Route
