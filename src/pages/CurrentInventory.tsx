@@ -86,7 +86,7 @@ const CurrentInventory: React.FC = () => {
     );
   };
 
-  // Filter and sort logic
+
   let processedInventory = [...inventory];
 
   if (searchQuery) {
@@ -109,7 +109,7 @@ const CurrentInventory: React.FC = () => {
     );
   }
 
-  // Sorting
+
   processedInventory.sort((a, b) => {
     if (sortBy === 'newest') {
       const dateA = new Date(a.addedAt).getTime();
@@ -150,7 +150,7 @@ const CurrentInventory: React.FC = () => {
         theme === 'light' ? 'bg-gray-50' : 'bg-gray-900'
       }`}
     >
-      {/* Header Section with Stats */}
+
       <div
         className={`pb-6 border-b relative z-20 ${
           theme === 'light' ? 'border-gray-100' : 'border-gray-700'
@@ -182,7 +182,7 @@ const CurrentInventory: React.FC = () => {
           </div>
         </div>
 
-        {/* Stats Grid */}
+
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div
             className={`p-4 rounded-xl border ${
@@ -243,7 +243,7 @@ const CurrentInventory: React.FC = () => {
         </div>
       </div>
 
-      {/* Search & Filter Bar */}
+
       <div
         className={`flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-6 border-b relative z-20 ${
           theme === 'light' ? 'border-gray-100' : 'border-gray-700'
@@ -289,7 +289,7 @@ const CurrentInventory: React.FC = () => {
         </div>
       </div>
 
-      {/* Filter Panel */}
+
       {isFilterOpen && (
         <div
           className={`p-6 rounded-2xl border shadow-sm animate-fade-in-up ${
@@ -299,7 +299,7 @@ const CurrentInventory: React.FC = () => {
           }`}
         >
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Category Filter */}
+
             <div>
               <h3
                 className={`text-sm font-semibold mb-3 ${
@@ -331,7 +331,7 @@ const CurrentInventory: React.FC = () => {
               </div>
             </div>
 
-            {/* Status Filter */}
+   
             <div>
               <h3
                 className={`text-sm font-semibold mb-3 ${
@@ -347,7 +347,7 @@ const CurrentInventory: React.FC = () => {
               />
             </div>
 
-            {/* Sort Options */}
+
             <div>
               <h3
                 className={`text-sm font-semibold mb-3 ${
@@ -364,7 +364,7 @@ const CurrentInventory: React.FC = () => {
             </div>
           </div>
 
-          {/* Filter Actions */}
+ 
           <div className="flex gap-3 justify-end pt-4 mt-4 border-t border-gray-200">
             <button
               onClick={clearFilters}
@@ -380,7 +380,7 @@ const CurrentInventory: React.FC = () => {
         </div>
       )}
 
-      {/* Inventory Grid */}
+
       {processedInventory.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-8">
           {processedInventory.map((item) => (

@@ -35,6 +35,7 @@ const UNITS = [
 const AddStock: React.FC = () => {
   const { theme } = useTheme();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
 
   const [formState, setFormState] = useState<FormState>({
     title: '',
@@ -64,6 +65,36 @@ const AddStock: React.FC = () => {
     }));
   };
 
+  // Verifică dacă un câmp obligatoriu este gol DUPĂ ce s-a apăsat submit
+  const hasError = (field: keyof FormState): boolean => {
+    if (!hasAttemptedSubmit) return false;
+    if (field === 'image') return false; // imaginea este opțională
+    if (typeof formState[field] === 'string') {
+      return !formState[field].toString().trim();
+    }
+    return !formState[field];
+  };
+
+  // Generează clasele CSS pentru inputuri în mod dinamic
+  const getInputClass = (field: keyof FormState) => {
+    const isError = hasError(field);
+    const baseClass = "w-full px-4 py-3.5 border rounded-xl transition-all duration-200 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-opacity-100";
+    
+    if (isError) {
+      return `${baseClass} border-red-500 ring-1 ring-red-500 ${
+        theme === 'light' 
+          ? 'bg-red-50 text-red-900 placeholder-red-300' 
+          : 'bg-red-900/20 text-red-200 placeholder-red-400'
+      }`;
+    }
+    
+    return `${baseClass} ${
+      theme === 'light' 
+        ? 'bg-white border-gray-200 text-gray-900 placeholder-gray-400 hover:border-gray-300' 
+        : 'bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-500 hover:border-gray-500'
+    }`;
+  };
+
   const resetForm = () => {
     setFormState({
       title: '',
@@ -75,12 +106,14 @@ const AddStock: React.FC = () => {
       expirationDate: '',
       image: '',
     });
+    setHasAttemptedSubmit(false); // Resetăm starea de eroare
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setHasAttemptedSubmit(true);
 
-
+    // Validarea principală
     if (
       !formState.title.trim() ||
       !formState.category ||
@@ -94,7 +127,6 @@ const AddStock: React.FC = () => {
       return;
     }
 
-
     if (parseFloat(formState.quantity) <= 0) {
       toast.error('Quantity must be greater than 0');
       return;
@@ -103,9 +135,7 @@ const AddStock: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-
       await new Promise((resolve) => setTimeout(resolve, 1200));
-
 
       const newStock: Donation = {
         id: `stock_${Date.now()}`,
@@ -121,12 +151,8 @@ const AddStock: React.FC = () => {
         image: formState.image || 'https://images.unsplash.com/photo-1488459716781-6f3ee109e5e4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
       };
 
-
       console.log('✅ New stock added:', newStock);
-
- 
       toast.success('Stock added successfully! 🎉');
-
       resetForm();
     } catch (error) {
       toast.error('Failed to add stock. Please try again.');
@@ -155,13 +181,12 @@ const AddStock: React.FC = () => {
               Add New Stock
             </h1>
           </div>
-          <p className={`ml-12.5 text-base md:text-lg leading-relaxed ${
+          <p className={`ml-12 md:ml-12.5 text-base md:text-lg leading-relaxed ${
             theme === 'light' ? 'text-gray-500' : 'text-gray-400'
           }`}>
             Enter the details of the surplus food you want to donate.
           </p>
         </div>
-
 
         <div className={`rounded-2xl border shadow-sm overflow-hidden transition-all ${
           theme === 'light'
@@ -169,16 +194,10 @@ const AddStock: React.FC = () => {
             : 'bg-gray-800 border-gray-700'
         }`}>
           <form onSubmit={handleSubmit} className="p-6 md:p-8 space-y-6">
-
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
   
               <div className="md:col-span-2">
-                <label
-                  htmlFor="title"
-                  className={`block text-sm font-semibold mb-2.5 ${
-                    theme === 'light' ? 'text-gray-800' : 'text-gray-200'
-                  }`}
-                >
+                <label htmlFor="title" className={`block text-sm font-semibold mb-2.5 ${theme === 'light' ? 'text-gray-800' : 'text-gray-200'}`}>
                   Item Title <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -188,38 +207,26 @@ const AddStock: React.FC = () => {
                   value={formState.title}
                   onChange={handleInputChange}
                   placeholder="e.g., Fresh Tomatoes, Artisan Bread Loaves"
-                  className={`w-full px-4 py-3.5 border rounded-xl transition-all duration-200 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-opacity-100 ${
-                    theme === 'light'
-                      ? 'bg-white border-gray-200 text-gray-900 placeholder-gray-400 hover:border-gray-300'
-                      : 'bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-500 hover:border-gray-500'
-                  }`}
+                  className={getInputClass('title')}
                 />
               </div>
 
-
               <div>
-                <label
-                  htmlFor="category"
-                  className={`block text-sm font-semibold mb-2.5 ${
-                    theme === 'light' ? 'text-gray-800' : 'text-gray-200'
-                  }`}
-                >
+                <label htmlFor="category" className={`block text-sm font-semibold mb-2.5 ${theme === 'light' ? 'text-gray-800' : 'text-gray-200'}`}>
                   Category <span className="text-red-500">*</span>
                 </label>
-                <Select
-                  options={CATEGORIES}
-                  value={formState.category}
-                  onChange={(value) => handleSelectChange('category', value)}
-                />
+                <div className="rounded-xl overflow-hidden transition-all">
+                  <Select
+                    options={CATEGORIES}
+                    value={formState.category}
+                    onChange={(value) => handleSelectChange('category', value)}
+                    hasError={hasError('category')}
+                  />
+                </div>
               </div>
 
               <div>
-                <label
-                  htmlFor="quantity"
-                  className={`block text-sm font-semibold mb-2.5 ${
-                    theme === 'light' ? 'text-gray-800' : 'text-gray-200'
-                  }`}
-                >
+                <label htmlFor="quantity" className={`block text-sm font-semibold mb-2.5 ${theme === 'light' ? 'text-gray-800' : 'text-gray-200'}`}>
                   Quantity <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -231,38 +238,26 @@ const AddStock: React.FC = () => {
                   placeholder="0"
                   min="0"
                   step="0.1"
-                  className={`w-full px-4 py-3.5 border rounded-xl transition-all duration-200 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-opacity-100 ${
-                    theme === 'light'
-                      ? 'bg-white border-gray-200 text-gray-900 placeholder-gray-400 hover:border-gray-300'
-                      : 'bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-500 hover:border-gray-500'
-                  }`}
+                  className={getInputClass('quantity')}
                 />
               </div>
 
               <div>
-                <label
-                  htmlFor="unit"
-                  className={`block text-sm font-semibold mb-2.5 ${
-                    theme === 'light' ? 'text-gray-800' : 'text-gray-200'
-                  }`}
-                >
+                <label htmlFor="unit" className={`block text-sm font-semibold mb-2.5 ${theme === 'light' ? 'text-gray-800' : 'text-gray-200'}`}>
                   Unit <span className="text-red-500">*</span>
                 </label>
-                <Select
-                  options={UNITS}
-                  value={formState.unit}
-                  onChange={(value) => handleSelectChange('unit', value)}
-                />
+                <div className="rounded-xl overflow-hidden transition-all">
+                  <Select
+                    options={UNITS}
+                    value={formState.unit}
+                    onChange={(value) => handleSelectChange('unit', value)}
+                    hasError={hasError('unit')}
+                  />
+                </div>
               </div>
 
-
               <div>
-                <label
-                  htmlFor="pickupLocation"
-                  className={`block text-sm font-semibold mb-2.5 ${
-                    theme === 'light' ? 'text-gray-800' : 'text-gray-200'
-                  }`}
-                >
+                <label htmlFor="pickupLocation" className={`block text-sm font-semibold mb-2.5 ${theme === 'light' ? 'text-gray-800' : 'text-gray-200'}`}>
                   Pickup Location <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -272,22 +267,12 @@ const AddStock: React.FC = () => {
                   value={formState.pickupLocation}
                   onChange={handleInputChange}
                   placeholder="e.g., Main Warehouse, Sector 1"
-                  className={`w-full px-4 py-3.5 border rounded-xl transition-all duration-200 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-opacity-100 ${
-                    theme === 'light'
-                      ? 'bg-white border-gray-200 text-gray-900 placeholder-gray-400 hover:border-gray-300'
-                      : 'bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-500 hover:border-gray-500'
-                  }`}
+                  className={getInputClass('pickupLocation')}
                 />
               </div>
 
-
               <div>
-                <label
-                  htmlFor="expirationDate"
-                  className={`block text-sm font-semibold mb-2.5 ${
-                    theme === 'light' ? 'text-gray-800' : 'text-gray-200'
-                  }`}
-                >
+                <label htmlFor="expirationDate" className={`block text-sm font-semibold mb-2.5 ${theme === 'light' ? 'text-gray-800' : 'text-gray-200'}`}>
                   Expiration Date & Time <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -296,22 +281,12 @@ const AddStock: React.FC = () => {
                   name="expirationDate"
                   value={formState.expirationDate}
                   onChange={handleInputChange}
-                  className={`w-full px-4 py-3.5 border rounded-xl transition-all duration-200 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-opacity-100 ${
-                    theme === 'light'
-                      ? 'bg-white border-gray-200 text-gray-900 hover:border-gray-300'
-                      : 'bg-gray-700 border-gray-600 text-gray-100 hover:border-gray-500'
-                  }`}
+                  className={getInputClass('expirationDate')}
                 />
               </div>
 
-
               <div className="md:col-span-2">
-                <label
-                  htmlFor="image"
-                  className={`block text-sm font-semibold mb-2.5 ${
-                    theme === 'light' ? 'text-gray-800' : 'text-gray-200'
-                  }`}
-                >
+                <label htmlFor="image" className={`block text-sm font-semibold mb-2.5 ${theme === 'light' ? 'text-gray-800' : 'text-gray-200'}`}>
                   Image URL <span className="text-gray-400 font-normal">(optional)</span>
                 </label>
                 <input
@@ -321,22 +296,12 @@ const AddStock: React.FC = () => {
                   value={formState.image}
                   onChange={handleInputChange}
                   placeholder="https://example.com/image.jpg"
-                  className={`w-full px-4 py-3.5 border rounded-xl transition-all duration-200 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-opacity-100 ${
-                    theme === 'light'
-                      ? 'bg-white border-gray-200 text-gray-900 placeholder-gray-400 hover:border-gray-300'
-                      : 'bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-500 hover:border-gray-500'
-                  }`}
+                  className={getInputClass('image')}
                 />
               </div>
 
-
               <div className="md:col-span-2">
-                <label
-                  htmlFor="description"
-                  className={`block text-sm font-semibold mb-2.5 ${
-                    theme === 'light' ? 'text-gray-800' : 'text-gray-200'
-                  }`}
-                >
+                <label htmlFor="description" className={`block text-sm font-semibold mb-2.5 ${theme === 'light' ? 'text-gray-800' : 'text-gray-200'}`}>
                   Description <span className="text-red-500">*</span>
                 </label>
                 <textarea
@@ -346,15 +311,10 @@ const AddStock: React.FC = () => {
                   onChange={handleInputChange}
                   placeholder="Describe the food item, storage conditions, handling instructions, or any special notes..."
                   rows={5}
-                  className={`w-full px-4 py-3.5 border rounded-xl transition-all duration-200 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-opacity-100 resize-none ${
-                    theme === 'light'
-                      ? 'bg-white border-gray-200 text-gray-900 placeholder-gray-400 hover:border-gray-300'
-                      : 'bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-500 hover:border-gray-500'
-                  }`}
+                  className={`${getInputClass('description')} resize-none`}
                 />
               </div>
             </div>
-
 
             <div className={`flex gap-3 justify-end pt-6 border-t ${
               theme === 'light' ? 'border-gray-100' : 'border-gray-700'
