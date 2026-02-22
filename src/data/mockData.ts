@@ -108,3 +108,48 @@ export const OPEN_POSITIONS = [
     type: 'Part-time',
   }
 ];
+
+export const PARTNERS = [
+  {
+    id: 1,
+    name: 'Green Market Central',
+    category: 'Business Donor',
+    logo: 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=200&q=80',
+    description: 'Providing fresh produce and daily bakery surplus to local shelters.'
+  },
+  {
+    id: 2,
+    name: 'Hope Foundation',
+    category: 'NGO Partner',
+    logo: 'https://images.unsplash.com/photo-1593113563332-e147e43ce873?auto=format&fit=crop&w=200&q=80',
+    description: 'Distributing warm meals to over 500 vulnerable individuals daily.'
+  },
+  {
+    id: 3,
+    name: 'EcoLogistics',
+    category: 'Logistics Partner',
+    logo: 'https://images.unsplash.com/photo-1586528116311-ad8ed7c663c0?auto=format&fit=crop&w=200&q=80',
+    description: 'Ensuring safe and fast transportation of food donations across the city.'
+  },
+  {
+    id: 4,
+    name: 'City Bakery',
+    category: 'Business Donor',
+    logo: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=200&q=80',
+    description: 'Donating unsold bread and pastries at the end of every business day.'
+  },
+  {
+    id: 5,
+    name: 'Safe Haven Shelter',
+    category: 'NGO Partner',
+    logo: 'https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?auto=format&fit=crop&w=200&q=80',
+    description: 'Providing shelter and food for homeless families in the region.'
+  },
+  {
+    id: 6,
+    name: 'Tech for Good',
+    category: 'Sponsor',
+    logo: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=200&q=80',
+    description: 'Providing cloud infrastructure and technical support for the FoodShare platform.'
+  }
+];

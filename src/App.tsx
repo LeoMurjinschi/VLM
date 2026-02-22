@@ -7,6 +7,7 @@ import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import AboutPage from './pages/public/AboutPage';
 import CareersPage from './pages/public/CareersPage';
 import JobApplicationPage from './pages/public/JobApplicationPage';
+import PartnersPage from './pages/public/PartnersPage';
 
 const DonorDashboard = () => <div className="p-10 text-2xl font-bold">Donor Dashboard (Protected)</div>;
 const ReceiverDashboard = () => <div className="p-10 text-2xl font-bold">Receiver Dashboard (Protected)</div>;
@@ -22,6 +23,7 @@ function App() {
           <Route path="/about" element={<AboutPage />} />
           <Route path="/careers" element={<CareersPage />} />
           <Route path="/careers/apply/:jobId" element={<JobApplicationPage />} />
+          <Route path="/partners" element={<PartnersPage />} />
           <Route path="/" element={<LandingPage />} />
 
           <Route
