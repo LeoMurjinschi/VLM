@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Modal from './UI/Modal';
 import { MapPinIcon, ClockIcon, ArchiveBoxIcon } from '@heroicons/react/24/outline';
-import type { Donation } from '../_mock/donations';
+import type { Donation } from '../_mock';
 import { toast } from 'react-toastify';
 import { useTheme } from '../hooks/useTheme';
 

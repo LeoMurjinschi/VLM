@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTheme } from './../hooks/useTheme';
 import { CheckCircleIcon, InformationCircleIcon, StarIcon } from '@heroicons/react/24/solid';
-import { RECENT_ACTIVITY } from './../_mock/dashboard';
+import { MOCK_RECENT_ACTIVITY } from '../_mock';
 
 const RecentActivity: React.FC = () => {
   const { theme } = useTheme();
@@ -23,7 +23,7 @@ const RecentActivity: React.FC = () => {
       </h3>
       
       <div className="space-y-6 relative before:absolute before:inset-0 before:ml-2.5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-gray-200 dark:before:via-gray-600 before:to-transparent">
-        {RECENT_ACTIVITY.map((activity) => (
+        {MOCK_RECENT_ACTIVITY.map((activity) => (
           <div key={activity.id} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
             
 

@@ -1,6 +1,6 @@
 import React, {type ReactNode, createContext, useContext, useState } from 'react';
-import { MOCK_INVENTORY } from '../_mock/inventory';
-import type { InventoryItem } from '../_mock/inventory';
+import { MOCK_INVENTORY } from '../_mock';
+import type { InventoryItem } from '../_mock';
 
 interface InventoryContextType {
   inventory: InventoryItem[];

@@ -1,11 +1,11 @@
 import React from 'react';
-import { ArrowTrendingUpIcon } from '@heroicons/react/24/outline';
+import { ArrowTrendingUpIcon, SparklesIcon } from '@heroicons/react/24/outline';
 import { useTheme } from '../../hooks/useTheme';
 
 interface StatCardProps {
   stat: {
     title: string; value: string; unit: string; trend: string; trendLabel: string;
-    icon: React.ElementType; color: string;
+    icon?: React.ElementType; color: string;
   };
 }
 
@@ -23,13 +23,15 @@ const StatCard: React.FC<StatCardProps> = ({ stat }) => {
     }
   };
 
+  const IconComponent = stat.icon || SparklesIcon;
+
   return (
     <div className={`p-6 rounded-3xl border shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-transform duration-300 hover:-translate-y-1 ${
       theme === 'light' ? 'bg-white border-gray-100' : 'bg-gray-800 border-gray-700'
     }`}>
       <div className="flex justify-between items-start mb-4">
         <div className={`p-3 rounded-2xl ${getColorClasses(stat.color)}`}>
-          <stat.icon className="w-7 h-7" />
+          <IconComponent className="w-7 h-7" />
         </div>
         <div className={`flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-lg ${
           theme === 'light' ? 'bg-emerald-50 text-emerald-600' : 'bg-emerald-900/30 text-emerald-400'

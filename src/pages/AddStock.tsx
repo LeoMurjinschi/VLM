@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { PlusCircleIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 import { toast } from 'react-toastify';
 import Select from '../components/UI/Select';
 import { useTheme } from '../hooks/useTheme';
-import type { Donation } from '../_mock/donations';
+import { addInventoryItem } from '../services/inventoryService';
 import { useInventory } from '../context/InventoryContext';
-import type { InventoryItem } from '../_mock/inventory';
+import type { InventoryItem } from '../_mock';
 
 interface FormState {
   title: string;
@@ -50,35 +50,36 @@ const AddStock: React.FC = () => {
     image: '',
   });
 
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormState((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      const { name, value } = e.target;
+      setFormState((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    },
+    []
+  );
 
-  const handleSelectChange = (field: keyof FormState, value: string) => {
+  const handleSelectChange = useCallback((field: keyof FormState, value: string) => {
     setFormState((prev) => ({
       ...prev,
       [field]: value,
     }));
-  };
+  }, []);
 
  
-  const hasError = (field: keyof FormState): boolean => {
+  const hasError = useCallback((field: keyof FormState): boolean => {
     if (!hasAttemptedSubmit) return false;
     if (field === 'image') return false; 
     if (typeof formState[field] === 'string') {
       return !formState[field].toString().trim();
     }
     return !formState[field];
-  };
+  }, [hasAttemptedSubmit, formState]);
 
 
-  const getInputClass = (field: keyof FormState) => {
+  const getInputClass = useCallback((field: keyof FormState) => {
     const isError = hasError(field);
     const baseClass = "w-full px-4 py-3.5 border rounded-xl transition-all duration-200 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-opacity-100";
     
@@ -95,9 +96,9 @@ const AddStock: React.FC = () => {
         ? 'bg-white border-gray-200 text-gray-900 placeholder-gray-400 hover:border-gray-300' 
         : 'bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-500 hover:border-gray-500'
     }`;
-  };
+  }, [theme, hasError]);
 
-  const resetForm = () => {
+  const resetForm = useCallback(() => {
     setFormState({
       title: '',
       description: '',
@@ -109,11 +110,11 @@ const AddStock: React.FC = () => {
       image: '',
     });
     setHasAttemptedSubmit(false);
-  };
+  }, []);
 
   
 
-const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+const handleSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setHasAttemptedSubmit(true);
 
@@ -138,11 +139,8 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     setIsSubmitting(true);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1200));
 
-
-      const newStock: InventoryItem = {
-        id: `inv_${Date.now()}`,
+      const newStock = await addInventoryItem({
         title: formState.title,
         description: formState.description,
         category: formState.category,
@@ -150,10 +148,9 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         unit: formState.unit,
         pickupLocation: formState.pickupLocation,
         expirationDate: new Date(formState.expirationDate).toISOString(),
-        status: 'In Stock',
-        addedAt: 'Just now',
         image: formState.image || 'https://images.unsplash.com/photo-1488459716781-6f3ee109e5e4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      };
+        addedAt: 'Just now',
+      });
 
 
       addStock(newStock);
@@ -161,11 +158,12 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
       toast.success('Stock added successfully! 🎉');
       resetForm();
     } catch (error) {
-      toast.error('Failed to add stock. Please try again.');
+      const message = error instanceof Error ? error.message : 'Failed to add stock. Please try again.';
+      toast.error(message);
     } finally {
       setIsSubmitting(false);
     }
-  };
+  }, [formState, addStock, resetForm]);
 
   return (
     <div className={`min-h-screen py-8 md:py-12 px-4 md:px-6 ${

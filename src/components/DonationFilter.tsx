@@ -1,6 +1,6 @@
 import React from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
-import { DONATION_CATEGORIES } from '../_mock/donations';
+import { DONATION_CATEGORIES } from '../_mock';
 import Select from './UI/Select';
 import { useTheme } from '../hooks/useTheme';
 

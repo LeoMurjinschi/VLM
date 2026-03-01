@@ -1,7 +1,7 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
-import { 
-  HomeIcon, MapIcon, ClipboardDocumentListIcon, 
+import {
+  HomeIcon, ClipboardDocumentListIcon,
   PlusCircleIcon, ArchiveBoxIcon, ChartBarIcon,
   XMarkIcon
 } from '@heroicons/react/24/outline';

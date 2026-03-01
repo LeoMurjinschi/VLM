@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTheme } from './../hooks/useTheme';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { BAR_DATA, PIE_DATA, PIE_COLORS } from './../_mock/dashboard';
+import { MOCK_BAR_DATA, MOCK_PIE_DATA, PIE_COLORS } from '../_mock';
 
 const ImpactCharts: React.FC = () => {
   const { theme } = useTheme();
@@ -21,7 +21,7 @@ const ImpactCharts: React.FC = () => {
         </div>
         <div className="h-72 w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={BAR_DATA} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+            <BarChart data={MOCK_BAR_DATA} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={chartGridColor} />
               <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: chartTextColor, fontSize: 12, fontWeight: 600 }} dy={10} />
               <YAxis axisLine={false} tickLine={false} tick={{ fill: chartTextColor, fontSize: 12, fontWeight: 600 }} />
@@ -40,8 +40,8 @@ const ImpactCharts: React.FC = () => {
         <div className="h-64 w-full relative">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
-              <Pie data={PIE_DATA} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value" stroke="none">
-                {PIE_DATA.map((entry, index) => <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />)}
+              <Pie data={MOCK_PIE_DATA} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value" stroke="none">
+                {MOCK_PIE_DATA.map((_, index) => <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />)}
               </Pie>
               <Tooltip contentStyle={{ backgroundColor: tooltipBg, borderColor: tooltipBorder, borderRadius: '12px', fontWeight: 'bold', color: theme === 'light' ? '#1f2937' : '#f9fafb' }} itemStyle={{ color: theme === 'light' ? '#1f2937' : '#f9fafb' }} />
             </PieChart>

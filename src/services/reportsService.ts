@@ -1,5 +1,5 @@
 import type { DonationRecord, Partner, ExportResult, ReportFilters } from '../types/reports';
-import { MOCK_DONATION_HISTORY, MOCK_TOP_PARTNERS } from './mockData';
+import { MOCK_DONATION_HISTORY, MOCK_TOP_PARTNERS } from '../_mock';
 const SIMULATED_LATENCY_MS = 800;
 const simulateRandomError = (): boolean => {
   return Math.random() < 0.1;

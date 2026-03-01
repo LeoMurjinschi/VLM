@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useTheme } from '../hooks/useTheme';
-import { MOCK_STATS } from '../_mock/dashboard'; // Am scos BAR_DATA
+import { fetchDashboardStats } from '../services/dashboardService';
 import StatCard from '../components/UI/StatCard';
 import ImpactCharts from '../components/ImpactCharts';
 import RecentActivity from '../components/RecentActivity';
 import MilestoneTracker from '../components/MilestoneTracker';
-import MilestoneModal, {type Milestone } from '../components/MilestoneModal';
+import MilestoneModal, { type Milestone } from '../components/MilestoneModal';
 import { toast } from 'react-toastify';
-import { PlusIcon } from '@heroicons/react/24/outline'; // Am scos ArrowDownTrayIcon
+import { PlusIcon } from '@heroicons/react/24/outline';
+import { SpinnerLoader, ErrorState } from '../components/UI/StateIndicators';
+import type { DashboardStats } from '../_mock';
 
 const INITIAL_MILESTONES: Milestone[] = [
   { id: 'ms_1', title: 'Monthly Goal', reward: 'Community Hero Badge 🏅', currentAmount: 420, targetAmount: 500 }
@@ -16,36 +18,64 @@ const INITIAL_MILESTONES: Milestone[] = [
 const DonorDashboard: React.FC = () => {
   const { theme } = useTheme();
   
+
+  const [stats, setStats] = useState<DashboardStats[]>([]);
+  const [statsLoading, setStatsLoading] = useState(true);
+  const [statsError, setStatsError] = useState<string | null>(null);
+  
+
   const [milestones, setMilestones] = useState<Milestone[]>(INITIAL_MILESTONES);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingMilestone, setEditingMilestone] = useState<Milestone | null>(null);
 
 
-  const handleSaveMilestone = (newMilestone: Milestone) => {
+  useEffect(() => {
+    const loadStats = async () => {
+      setStatsLoading(true);
+      setStatsError(null);
+      
+      try {
+        const data = await fetchDashboardStats();
+        setStats(data);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Failed to load dashboard stats';
+        setStatsError(message);
+        toast.error(message);
+      } finally {
+        setStatsLoading(false);
+      }
+    };
+
+    loadStats();
+  }, []);
+
+
+  const handleSaveMilestone = useCallback((newMilestone: Milestone) => {
     if (editingMilestone) {
       setMilestones(prev => prev.map(m => m.id === newMilestone.id ? newMilestone : m));
     } else {
       setMilestones(prev => [newMilestone, ...prev]);
     }
     setEditingMilestone(null);
-  };
+    toast.success('Milestone saved!');
+  }, [editingMilestone]);
 
-  const handleEditMilestone = (milestone: Milestone) => {
+  const handleEditMilestone = useCallback((milestone: Milestone) => {
     setEditingMilestone(milestone);
     setIsModalOpen(true);
-  };
+  }, []);
 
-  const handleDeleteMilestone = (id: string) => {
-    if(window.confirm('Are you sure you want to delete this milestone?')) {
+  const handleDeleteMilestone = useCallback((id: string) => {
+    if (window.confirm('Are you sure you want to delete this milestone?')) {
       setMilestones(prev => prev.filter(m => m.id !== id));
       toast.info('Milestone deleted.');
     }
-  };
+  }, []);
 
-  const openNewMilestoneModal = () => {
+  const openNewMilestoneModal = useCallback(() => {
     setEditingMilestone(null);
     setIsModalOpen(true);
-  };
+  }, []);
 
   return (
     <div className={`space-y-8 max-w-7xl mx-auto min-h-screen relative pb-10 ${theme === 'light' ? 'bg-gray-50' : 'bg-gray-900'}`}>
@@ -80,7 +110,13 @@ const DonorDashboard: React.FC = () => {
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6 animate-fade-in-up">
-        {MOCK_STATS.map((stat, index) => <StatCard key={index} stat={stat} />)}
+        {statsLoading ? (
+          <SpinnerLoader />
+        ) : statsError ? (
+          <ErrorState message={statsError} />
+        ) : (
+          stats.map((stat, index) => <StatCard key={index} stat={stat} />)
+        )}
       </div>
 
       <ImpactCharts />

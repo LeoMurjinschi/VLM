@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { ArchiveBoxIcon, MagnifyingGlassIcon, FunnelIcon } from '@heroicons/react/24/outline';
 import InventoryCard from '../components/InventoryCard';
-import { MOCK_INVENTORY } from '../_mock/inventory';
+import { fetchInventory, getInventoryStats } from '../services/inventoryService';
 import { useTheme } from '../hooks/useTheme';
 import Select from '../components/UI/Select';
-import type { InventoryItem } from '../_mock/inventory';
+import { SpinnerLoader, ErrorState } from '../components/UI/StateIndicators';
+import { toast } from 'react-toastify';
+import type { InventoryItem } from '../_mock';
 
 const CATEGORY_OPTIONS = [
   { value: 'Vegetables', label: 'Vegetables' },
@@ -32,7 +34,13 @@ const SORT_OPTIONS = [
 
 const CurrentInventory: React.FC = () => {
   const { theme } = useTheme();
-  const [inventory, setInventory] = useState(MOCK_INVENTORY);
+  
+
+  const [inventory, setInventory] = useState<InventoryItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [stats, setStats] = useState({ totalItems: 0, lowStockCount: 0, expiredCount: 0, totalQuantity: 0 });
+
 
   const [searchQuery, setSearchQuery] = useState('');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -41,32 +49,75 @@ const CurrentInventory: React.FC = () => {
   const [sortBy, setSortBy] = useState<string>('newest');
   const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
 
-  const toggleCategory = (category: string) => {
+  const currentFilters = useMemo(() => ({
+    search: searchQuery,
+    categories: selectedCategories,
+    status: statusFilter,
+    sortBy,
+  }), [searchQuery, selectedCategories, statusFilter, sortBy]);
+
+
+  useEffect(() => {
+    const loadInventory = async () => {
+      setLoading(true);
+      setError(null);
+      
+      try {
+        const data = await fetchInventory(currentFilters, 1, 50);
+        setInventory(data);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Failed to load inventory';
+        setError(message);
+        toast.error(message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadInventory();
+  }, [currentFilters]);
+
+  useEffect(() => {
+    const loadStats = async () => {
+      try {
+        const statsData = await getInventoryStats();
+        setStats(statsData);
+      } catch (err) {
+        console.error('Failed to load stats:', err);
+      }
+    };
+
+    loadStats();
+  }, [inventory]);
+
+
+  const toggleCategory = useCallback((category: string) => {
     setSelectedCategories((prev) =>
       prev.includes(category)
         ? prev.filter((c) => c !== category)
         : [...prev, category]
     );
-  };
+  }, []);
 
-  const clearFilters = () => {
+  const clearFilters = useCallback(() => {
     setSearchQuery('');
     setSelectedCategories([]);
     setStatusFilter('All');
     setSortBy('newest');
     setIsFilterOpen(false);
     setEditingItem(null);
-  };
+  }, []);
 
-  const handleDeleteItem = (id: string) => {
+  const handleDeleteItem = useCallback((id: string) => {
     setInventory((prev) => prev.filter((item) => item.id !== id));
-  };
+    toast.success('Item deleted successfully');
+  }, []);
 
-  const handleEditItem = (item: InventoryItem) => {
+  const handleEditItem = useCallback((item: InventoryItem) => {
     setEditingItem(item);
-  };
+  }, []);
 
-  const handleUpdateQuantity = (id: string, quantity: number) => {
+  const handleUpdateQuantity = useCallback((id: string, quantity: number) => {
     setInventory((prev) =>
       prev.map((item) => {
         if (item.id === id) {
@@ -84,65 +135,16 @@ const CurrentInventory: React.FC = () => {
         return item;
       })
     );
-  };
+    toast.success('Quantity updated');
+  }, []);
+
+  const handleRetry = useCallback(() => {
+    setError(null);
+    setLoading(true);
+  }, []);
 
 
-  let processedInventory = [...inventory];
-
-  if (searchQuery) {
-    processedInventory = processedInventory.filter(
-      (item) =>
-        item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.description.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }
-
-  if (selectedCategories.length > 0) {
-    processedInventory = processedInventory.filter((item) =>
-      selectedCategories.includes(item.category)
-    );
-  }
-
-  if (statusFilter !== 'All') {
-    processedInventory = processedInventory.filter(
-      (item) => item.status === statusFilter
-    );
-  }
-
-
-  processedInventory.sort((a, b) => {
-    if (sortBy === 'newest') {
-      const dateA = new Date(a.addedAt).getTime();
-      const dateB = new Date(b.addedAt).getTime();
-      return dateB - dateA;
-    }
-    if (sortBy === 'oldest') {
-      const dateA = new Date(a.addedAt).getTime();
-      const dateB = new Date(b.addedAt).getTime();
-      return dateA - dateB;
-    }
-    if (sortBy === 'expiring_soon') {
-      return (
-        new Date(a.expirationDate).getTime() -
-        new Date(b.expirationDate).getTime()
-      );
-    }
-    if (sortBy === 'name_asc') {
-      return a.title.localeCompare(b.title);
-    }
-    if (sortBy === 'quantity_high') {
-      return b.quantity - a.quantity;
-    }
-    if (sortBy === 'quantity_low') {
-      return a.quantity - b.quantity;
-    }
-    return 0;
-  });
-
-  const totalItems = inventory.length;
-  const totalQuantity = inventory.reduce((sum, item) => sum + item.quantity, 0);
-  const lowStockItems = inventory.filter((item) => item.status === 'Low Stock')
-    .length;
+  const processedInventory = inventory;
 
   return (
     <div
@@ -199,7 +201,7 @@ const CurrentInventory: React.FC = () => {
               Total Items
             </div>
             <div className="text-2xl font-bold text-blue-600 mt-1">
-              {totalItems}
+              {stats.totalItems}
             </div>
           </div>
 
@@ -218,7 +220,7 @@ const CurrentInventory: React.FC = () => {
               Low Stock Items
             </div>
             <div className="text-2xl font-bold text-amber-600 mt-1">
-              {lowStockItems}
+              {stats.lowStockCount}
             </div>
           </div>
 
@@ -237,7 +239,7 @@ const CurrentInventory: React.FC = () => {
               Total Stock
             </div>
             <div className="text-2xl font-bold text-emerald-600 mt-1">
-              {totalQuantity}+
+              {stats.totalQuantity}+
             </div>
           </div>
         </div>
@@ -393,6 +395,13 @@ const CurrentInventory: React.FC = () => {
             />
           ))}
         </div>
+      ) : loading ? (
+        <SpinnerLoader />
+      ) : error ? (
+        <ErrorState
+          message={error}
+          onRetry={handleRetry}
+        />
       ) : (
         <div
           className={`flex flex-col items-center justify-center py-16 rounded-2xl border-2 border-dashed ${

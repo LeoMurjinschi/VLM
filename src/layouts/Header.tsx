@@ -1,6 +1,6 @@
 import React from 'react';
 import { Bars3Icon, Cog8ToothIcon, BellIcon } from '@heroicons/react/24/outline';
-import { MOCK_USER } from '../_mock/user';
+import { MOCK_USER } from '../_mock';
 import { useTheme } from '../hooks/useTheme';
 
 

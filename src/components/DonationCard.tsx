@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { MapPinIcon, ClockIcon } from '@heroicons/react/24/outline';
-import {type Donation } from '../_mock/donations';
+import type { Donation } from '../_mock';
 import ReservationModal from './ReservationModal';
 import { useTheme } from '../hooks/useTheme';
 
