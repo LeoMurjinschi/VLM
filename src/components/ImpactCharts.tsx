@@ -13,7 +13,7 @@ const ImpactCharts: React.FC = () => {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-in-up" style={{ animationDelay: '100ms' }}>
-      {/* BAR CHART */}
+
       <div className={`lg:col-span-2 p-6 md:p-8 rounded-3xl border shadow-[0_8px_30px_rgb(0,0,0,0.04)] ${theme === 'light' ? 'bg-white border-gray-100' : 'bg-gray-800 border-gray-700'}`}>
         <div className="mb-6">
           <h3 className={`text-xl font-extrabold ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>Donation Volume Over Time</h3>
@@ -32,7 +32,6 @@ const ImpactCharts: React.FC = () => {
         </div>
       </div>
 
-      {/* PIE CHART */}
       <div className={`p-6 md:p-8 rounded-3xl border shadow-[0_8px_30px_rgb(0,0,0,0.04)] ${theme === 'light' ? 'bg-white border-gray-100' : 'bg-gray-800 border-gray-700'}`}>
         <div className="mb-2">
           <h3 className={`text-xl font-extrabold ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>Donation by Category</h3>
