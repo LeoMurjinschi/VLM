@@ -9,10 +9,12 @@ import ToastProvider from './components/UI/ToastProvider';
 import DonorDashboard from './pages/DonorDashboard';
 import ImpactReports from './pages/ImpactReports';
 import Settings from './pages/Settings';
+import { AuthProvider } from './context/AuthContext';
 
 function App() {
   return (
     <ThemeProvider>
+      <AuthProvider>
       <InventoryProvider>
         <ToastProvider>
           <BrowserRouter>
@@ -31,6 +33,7 @@ function App() {
           </BrowserRouter>
         </ToastProvider>
       </InventoryProvider>
+      </AuthProvider>
     </ThemeProvider>
   );
 }
