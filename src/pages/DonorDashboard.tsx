@@ -4,6 +4,7 @@ import { MOCK_STATS, BAR_DATA } from '../_mock/dashboard';
 import StatCard from '../components/UI/StatCard';
 import ImpactCharts from '../components/ImpactCharts';
 import RecentActivity from '../components/RecentActivity';
+import MilestoneTracker from '../components/MilestoneTracker';
 import { toast } from 'react-toastify';
 import { ArrowDownTrayIcon } from '@heroicons/react/24/outline'; 
 
@@ -92,7 +93,7 @@ const DonorDashboard: React.FC = () => {
           </button>
         </div>
       </div>
-
+      <MilestoneTracker />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6 animate-fade-in-up">
         {MOCK_STATS.map((stat, index) => (
