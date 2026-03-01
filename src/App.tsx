@@ -8,6 +8,7 @@ import { InventoryProvider } from './context/InventoryContext';
 import ToastProvider from './components/UI/ToastProvider';
 import DonorDashboard from './pages/DonorDashboard';
 import ImpactReports from './pages/ImpactReports';
+import Settings from './pages/Settings';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
                 <Route path="reports" element={<ImpactReports />} /> 
                 <Route path="add-stock" element={<AddStock />} />
                 <Route path="inventory" element={<CurrentInventory />} />
+                <Route path="settings" element={<Settings />} />
                 <Route path="*" element={<div className="p-10 text-center text-gray-500 font-bold">Page under construction 🚧</div>} />
               </Route>
             </Routes>

@@ -71,7 +71,7 @@ export const updateUserPreferences = async (
 
   return true;
 };
- const logout = async (): Promise<boolean> => {
+ export const logout = async (): Promise<boolean> => {
   await simulateNetworkDelay(300);
 
   return true;
