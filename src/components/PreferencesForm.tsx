@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTheme } from './../hooks/useTheme';
-import { BellIcon } from '@heroicons/react/24/outline';
+import { BellIcon, SunIcon, MoonIcon } from '@heroicons/react/24/outline';
 
 interface PreferencesFormProps {
   preferences: { theme: 'light' | 'dark'; notifications: boolean; emailUpdates: boolean };
@@ -21,8 +21,26 @@ const PreferencesForm: React.FC<PreferencesFormProps> = ({ preferences, onToggle
       </div>
 
       <div className="space-y-6">
-
+        {/* Butonul de Temă */}
         <div className="flex items-center justify-between">
+          <div>
+            <h4 className={`text-base font-bold ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>App Theme</h4>
+            <p className={`text-sm ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>Switch between Light and Dark mode.</p>
+          </div>
+          <button 
+            type="button"
+            onClick={() => onToggle('theme')}
+            disabled={isSaving}
+            className={`flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-xl border transition-colors active:scale-95 ${
+              theme === 'light' ? 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50' : 'bg-gray-700 border-gray-600 text-gray-200 hover:bg-gray-600'
+            }`}
+          >
+            {theme === 'light' ? <><MoonIcon className="w-4 h-4" /> Dark Mode</> : <><SunIcon className="w-4 h-4 text-amber-400" /> Light Mode</>}
+          </button>
+        </div>
+
+        {/* Notificări Push */}
+        <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-700">
           <div>
             <h4 className={`text-base font-bold ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>Push Notifications</h4>
             <p className={`text-sm ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>Receive alerts when your donations are reserved.</p>
@@ -34,22 +52,6 @@ const PreferencesForm: React.FC<PreferencesFormProps> = ({ preferences, onToggle
             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${preferences.notifications ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'}`}
           >
             <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${preferences.notifications ? 'translate-x-6' : 'translate-x-1'}`} />
-          </button>
-        </div>
-
-
-        <div className="flex items-center justify-between">
-          <div>
-            <h4 className={`text-base font-bold ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>Email Updates</h4>
-            <p className={`text-sm ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>Weekly summaries and platform news.</p>
-          </div>
-          <button 
-            type="button"
-            onClick={() => onToggle('emailUpdates')}
-            disabled={isSaving}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${preferences.emailUpdates ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'}`}
-          >
-            <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${preferences.emailUpdates ? 'translate-x-6' : 'translate-x-1'}`} />
           </button>
         </div>
       </div>

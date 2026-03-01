@@ -16,6 +16,18 @@ interface UserPreferences {
   emailUpdates: boolean;
 }
 
+const handlePasswordChange = async (oldPw: string, newPw: string) => {
+    return new Promise<void>((resolve, reject) => {
+      setTimeout(() => {
+        if (oldPw === 'parolagresita') {
+          reject(new Error('Wrong password'));
+        } else {
+          resolve();
+        }
+      }, 1000);
+    });
+  };
+
 const Settings: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
   const { user, updateUser, logout } = useAuth();
@@ -125,10 +137,10 @@ const Settings: React.FC = () => {
           <ProfileSummary user={formData} onLogout={handleLogout} />
         </div>
         <div className="md:col-span-2 space-y-6">
-          <PersonalInfoForm user={formData} onChange={handleProfileChange} onAvatarChange={handleAvatarChange} onSave={handleSaveProfile} isSaving={isSavingProfile} />
-          <PreferencesForm preferences={preferences} onToggle={handleTogglePreference} isSaving={isSavingPrefs} />
-          <SecuritySettings />
-        </div>
+            <PersonalInfoForm user={formData} onChange={handleProfileChange} onAvatarChange={handleAvatarChange} onSave={handleSaveProfile} isSaving={isSavingProfile} />
+            <PreferencesForm preferences={preferences} onToggle={handleTogglePreference} isSaving={isSavingPrefs} />
+            <SecuritySettings onUpdatePassword={handlePasswordChange} /> 
+          </div>
       </div>
     </div>
   );
