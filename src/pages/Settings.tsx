@@ -65,6 +65,11 @@ const Settings: React.FC = () => {
     setUser({ ...user, [e.target.name]: e.target.value });
   }, [user]);
 
+const handleAvatarChange = useCallback((newAvatarBase64: string) => {
+    if (!user) return;
+    setUser({ ...user, avatar: newAvatarBase64 });
+  }, [user]);
+
   const handleSaveProfile = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
@@ -147,6 +152,7 @@ const handleTogglePreference = useCallback(async (key: keyof UserPreferences) =>
           <PersonalInfoForm 
             user={user} 
             onChange={handleProfileChange} 
+            onAvatarChange={handleAvatarChange} 
             onSave={handleSaveProfile} 
             isSaving={isSavingProfile} 
           />

@@ -1,16 +1,18 @@
 import React from 'react';
 import { useTheme } from './../hooks/useTheme';
 import { UserCircleIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import ImageUpload from './UI/ImageUpload'; // <-- IMPORTĂM COMPONENTA NOUĂ
 import type { User } from './../_mock';
 
 interface PersonalInfoFormProps {
   user: User;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onAvatarChange: (newAvatarBase64: string) => void;
   onSave: (e: React.FormEvent) => void;
   isSaving: boolean;
 }
 
-const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ user, onChange, onSave, isSaving }) => {
+const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ user, onChange, onAvatarChange, onSave, isSaving }) => {
   const { theme } = useTheme();
 
   const inputClass = `w-full px-4 py-3 rounded-xl border focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors font-medium ${
@@ -26,7 +28,7 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ user, onChange, onS
         <h2 className={`text-xl font-extrabold ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>Personal Information</h2>
       </div>
 
-      <form onSubmit={onSave} className="space-y-5">
+      <form onSubmit={onSave} className="space-y-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
           <div>
             <label className={`block text-sm font-semibold mb-2 ${theme === 'light' ? 'text-gray-700' : 'text-gray-300'}`}>Full Name</label>
@@ -38,10 +40,13 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ user, onChange, onS
           </div>
         </div>
 
-        <div>
-          <label className={`block text-sm font-semibold mb-2 ${theme === 'light' ? 'text-gray-700' : 'text-gray-300'}`}>Avatar URL</label>
-          <input type="url" name="avatar" value={user.avatar || ''} onChange={onChange} className={inputClass} placeholder="https://..." />
-        </div>
+
+        <ImageUpload 
+          label="Profile Picture"
+          value={user.avatar} 
+          onChange={onAvatarChange} 
+          maxSizeMB={5}
+        />
 
         <div className="pt-2 flex justify-end">
           <button type="submit" disabled={isSaving} className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-200/50 transition-all active:scale-[0.98] disabled:opacity-70">
