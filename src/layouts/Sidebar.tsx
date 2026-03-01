@@ -21,7 +21,6 @@ interface SidebarProps {
 
 const navigation: NavItem[] = [
   { name: 'Donation Feed', href: '/feed', icon: HomeIcon },
-  { name: 'Live Map', href: '/map', icon: MapIcon },
   { name: 'Donor Dashboard', href: '/dashboard', icon: ChartBarIcon },
   { name: 'Add Stock', href: '/add-stock', icon: PlusCircleIcon },
   { name: 'Current Inventory', href: '/inventory', icon: ArchiveBoxIcon },
