@@ -1,16 +1,15 @@
 import React, { useState } from 'react';
 import { useTheme } from '../hooks/useTheme';
-import StatCard from '../components/UI/StatCard';
-import Select from '../components/UI/Select'; // <-- 1. IMPORTĂM COMPONENTA CUSTOM
+import Select from '../components/UI/Select';
 import { 
   ArrowDownTrayIcon, 
   DocumentArrowDownIcon,
-  BuildingOfficeIcon
+  BuildingOfficeIcon,
+  InformationCircleIcon
 } from '@heroicons/react/24/outline';
 import { toast } from 'react-toastify';
-import { REPORT_STATS, TOP_PARTNERS, DONATION_HISTORY } from '../_mock/reports';
+import { TOP_PARTNERS, DONATION_HISTORY } from '../_mock/reports';
 
-// <-- 2. CREĂM ARRAY-UL DE OPȚIUNI PENTRU COMPONENTA SELECT
 const DATE_RANGE_OPTIONS = [
   { value: 'Last 7 Days', label: 'Last 7 Days' },
   { value: 'This Month', label: 'This Month' },
@@ -55,11 +54,11 @@ const ImpactReports: React.FC = () => {
   };
 
   return (
-    <div className={`space-y-8 max-w-7xl mx-auto min-h-screen relative pb-10 ${
+    <div className={`space-y-6 max-w-7xl mx-auto min-h-screen relative pb-10 ${
       theme === 'light' ? 'bg-gray-50' : 'bg-gray-900'
     }`}>
       
-      {/* HEADER & CONTROALE RAPORT */}
+
       <div className={`pb-6 border-b relative z-40 ${theme === 'light' ? 'border-gray-100' : 'border-gray-700'}`}>
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
@@ -72,8 +71,6 @@ const ImpactReports: React.FC = () => {
           </div>
           
           <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
-            
-            {/* 3. FOLOSIM SELECT-UL CUSTOM AICI */}
             <div className="relative z-50 w-full sm:w-56">
               <Select 
                 options={DATE_RANGE_OPTIONS}
@@ -82,7 +79,6 @@ const ImpactReports: React.FC = () => {
               />
             </div>
 
-            {/* Buton Export PDF */}
             <button 
               onClick={() => handleExport('PDF')}
               disabled={isExporting}
@@ -97,17 +93,20 @@ const ImpactReports: React.FC = () => {
         </div>
       </div>
 
-      {/* 1. KPI GRID */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6 animate-fade-in-up relative z-10">
-        {REPORT_STATS.map((stat, index) => (
-          <StatCard key={index} stat={stat} />
-        ))}
+
+      <div className={`p-4 rounded-2xl border flex items-start gap-3 animate-fade-in-up relative z-10 ${
+        theme === 'light' ? 'bg-blue-50/50 border-blue-100 text-blue-800' : 'bg-blue-900/10 border-blue-900/50 text-blue-300'
+      }`}>
+        <InformationCircleIcon className="w-5 h-5 mt-0.5 flex-shrink-0" />
+        <div className="text-sm leading-relaxed">
+          <span className="font-bold">Report Summary for {dateRange}:</span> You have successfully completed <span className="font-extrabold underline decoration-blue-400/30 decoration-2 underline-offset-2">5 donations</span> totaling <span className="font-extrabold underline decoration-blue-400/30 decoration-2 underline-offset-2">220 kg</span> of rescued food. Your top partner in this period was <span className="font-bold">Save the Children</span>.
+        </div>
       </div>
 
-      {/* 2. CONȚINUT PRINCIPAL: TABEL + TOP PARTENERI */}
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-in-up relative z-0" style={{ animationDelay: '100ms' }}>
         
-        {/* SECȚIUNEA STÂNGĂ: Tabelul Istoric */}
+
         <div className={`lg:col-span-2 p-6 rounded-3xl border shadow-sm ${theme === 'light' ? 'bg-white border-gray-100' : 'bg-gray-800 border-gray-700'}`}>
           <div className="flex justify-between items-center mb-6">
             <h3 className={`text-xl font-extrabold ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>
@@ -122,22 +121,22 @@ const ImpactReports: React.FC = () => {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className={`border-b text-xs uppercase tracking-wider ${theme === 'light' ? 'border-gray-100 text-gray-400' : 'border-gray-700 text-gray-500'}`}>
-                  <th className="pb-3 font-bold">Date</th>
-                  <th className="pb-3 font-bold">Item Donated</th>
+                  <th className="pb-3 font-bold whitespace-nowrap">Date</th>
+                  <th className="pb-3 font-bold min-w-[150px]">Item Donated</th>
                   <th className="pb-3 font-bold">Qty</th>
-                  <th className="pb-3 font-bold">Beneficiary</th>
+                  <th className="pb-3 font-bold min-w-[150px]">Beneficiary</th>
                   <th className="pb-3 font-bold">Status</th>
                 </tr>
               </thead>
               <tbody className={`text-sm ${theme === 'light' ? 'text-gray-700' : 'text-gray-300'}`}>
                 {DONATION_HISTORY.map((row) => (
                   <tr key={row.id} className={`border-b last:border-0 transition-colors ${theme === 'light' ? 'border-gray-50 hover:bg-gray-50/50' : 'border-gray-700/50 hover:bg-gray-800/50'}`}>
-                    <td className="py-4 font-medium">{row.date}</td>
+                    <td className="py-4 font-medium whitespace-nowrap">{row.date}</td>
                     <td className="py-4 font-bold">{row.item}</td>
                     <td className="py-4 font-extrabold text-blue-500">{row.qty}</td>
                     <td className="py-4">{row.partner}</td>
                     <td className="py-4">
-                      <span className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wide ${theme === 'light' ? 'bg-emerald-50 text-emerald-600' : 'bg-emerald-900/30 text-emerald-400'}`}>
+                      <span className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wide whitespace-nowrap ${theme === 'light' ? 'bg-emerald-50 text-emerald-600' : 'bg-emerald-900/30 text-emerald-400'}`}>
                         {row.status}
                       </span>
                     </td>
@@ -148,7 +147,7 @@ const ImpactReports: React.FC = () => {
           </div>
         </div>
 
-        {/* SECȚIUNEA DREAPTĂ: Top Parteneri */}
+
         <div className={`p-6 rounded-3xl border shadow-sm ${theme === 'light' ? 'bg-white border-gray-100' : 'bg-gray-800 border-gray-700'}`}>
           <h3 className={`text-xl font-extrabold mb-2 ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>
             Top Partners
@@ -182,7 +181,7 @@ const ImpactReports: React.FC = () => {
           </div>
 
           <div className={`mt-6 pt-5 border-t text-xs font-medium text-center ${theme === 'light' ? 'border-gray-100 text-gray-500' : 'border-gray-700 text-gray-400'}`}>
-            Based on {dateRange} data.
+            Based on <span className="font-bold text-blue-500">{dateRange}</span> data.
           </div>
         </div>
 
