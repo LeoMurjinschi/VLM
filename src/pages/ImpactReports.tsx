@@ -1,15 +1,22 @@
 import React, { useState } from 'react';
 import { useTheme } from '../hooks/useTheme';
 import StatCard from '../components/UI/StatCard';
+import Select from '../components/UI/Select'; // <-- 1. IMPORTĂM COMPONENTA CUSTOM
 import { 
   ArrowDownTrayIcon, 
-  CalendarIcon, 
   DocumentArrowDownIcon,
   BuildingOfficeIcon
 } from '@heroicons/react/24/outline';
 import { toast } from 'react-toastify';
-// IMPORTĂM DATELE DE AICI:
 import { REPORT_STATS, TOP_PARTNERS, DONATION_HISTORY } from '../_mock/reports';
+
+// <-- 2. CREĂM ARRAY-UL DE OPȚIUNI PENTRU COMPONENTA SELECT
+const DATE_RANGE_OPTIONS = [
+  { value: 'Last 7 Days', label: 'Last 7 Days' },
+  { value: 'This Month', label: 'This Month' },
+  { value: 'Last Month', label: 'Last Month' },
+  { value: 'Year to Date', label: 'Year to Date (YTD)' },
+];
 
 const ImpactReports: React.FC = () => {
   const { theme } = useTheme();
@@ -18,10 +25,33 @@ const ImpactReports: React.FC = () => {
 
   const handleExport = (format: string) => {
     setIsExporting(true);
+
     setTimeout(() => {
-      toast.success(`Report exported as ${format} successfully! 📄`);
-      setIsExporting(false);
-    }, 1200);
+      try {
+        if (format === 'CSV') {
+          const headers = "Date,Item Donated,Quantity,Beneficiary,Status\n";
+          const rows = DONATION_HISTORY.map(row => 
+            `${row.date},${row.item},${row.qty},${row.partner},${row.status}`
+          ).join('\n');
+          
+          const csvContent = headers + rows;
+          const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.setAttribute('download', `FoodShare_Report_${dateRange.replace(/\s+/g, '_')}.csv`);
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        }
+
+        toast.success(`Report exported as ${format} successfully! 📄`);
+      } catch (error) {
+        toast.error(`Failed to export ${format} report.`);
+      } finally {
+        setIsExporting(false);
+      }
+    }, 1000);
   };
 
   return (
@@ -30,7 +60,7 @@ const ImpactReports: React.FC = () => {
     }`}>
       
       {/* HEADER & CONTROALE RAPORT */}
-      <div className={`pb-6 border-b relative z-20 ${theme === 'light' ? 'border-gray-100' : 'border-gray-700'}`}>
+      <div className={`pb-6 border-b relative z-40 ${theme === 'light' ? 'border-gray-100' : 'border-gray-700'}`}>
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
             <h1 className={`text-3xl md:text-4xl font-extrabold tracking-tight mb-2 ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>
@@ -41,27 +71,22 @@ const ImpactReports: React.FC = () => {
             </p>
           </div>
           
-          <div className="flex flex-col sm:flex-row gap-3">
-            {/* Selector de Perioadă */}
-            <div className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border ${theme === 'light' ? 'bg-white border-gray-200 text-gray-700' : 'bg-gray-800 border-gray-600 text-gray-200'}`}>
-              <CalendarIcon className="w-5 h-5 text-gray-400" />
-              <select 
-                value={dateRange} 
-                onChange={(e) => setDateRange(e.target.value)}
-                className="bg-transparent border-none focus:outline-none text-sm font-bold cursor-pointer"
-              >
-                <option value="Last 7 Days">Last 7 Days</option>
-                <option value="This Month">This Month</option>
-                <option value="Last Month">Last Month</option>
-                <option value="Year to Date">Year to Date (YTD)</option>
-              </select>
+          <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+            
+            {/* 3. FOLOSIM SELECT-UL CUSTOM AICI */}
+            <div className="relative z-50 w-full sm:w-56">
+              <Select 
+                options={DATE_RANGE_OPTIONS}
+                value={dateRange}
+                onChange={(value) => setDateRange(value)}
+              />
             </div>
 
             {/* Buton Export PDF */}
             <button 
               onClick={() => handleExport('PDF')}
               disabled={isExporting}
-              className={`flex items-center justify-center gap-2 px-5 py-2.5 text-white font-bold rounded-xl shadow-sm transition-all active:scale-[0.98] ${
+              className={`flex items-center justify-center gap-2 px-5 py-3 h-[46px] text-white font-bold rounded-xl shadow-sm transition-all active:scale-[0.98] w-full sm:w-auto ${
                 isExporting ? 'bg-blue-400 cursor-wait' : 'bg-blue-600 hover:bg-blue-700'
               }`}
             >
@@ -73,14 +98,14 @@ const ImpactReports: React.FC = () => {
       </div>
 
       {/* 1. KPI GRID */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6 animate-fade-in-up">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6 animate-fade-in-up relative z-10">
         {REPORT_STATS.map((stat, index) => (
           <StatCard key={index} stat={stat} />
         ))}
       </div>
 
       {/* 2. CONȚINUT PRINCIPAL: TABEL + TOP PARTENERI */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-in-up" style={{ animationDelay: '100ms' }}>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-in-up relative z-0" style={{ animationDelay: '100ms' }}>
         
         {/* SECȚIUNEA STÂNGĂ: Tabelul Istoric */}
         <div className={`lg:col-span-2 p-6 rounded-3xl border shadow-sm ${theme === 'light' ? 'bg-white border-gray-100' : 'bg-gray-800 border-gray-700'}`}>
