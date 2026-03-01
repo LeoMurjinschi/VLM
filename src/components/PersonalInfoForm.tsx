@@ -1,11 +1,16 @@
 import React from 'react';
 import { useTheme } from './../hooks/useTheme';
 import { UserCircleIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
-import ImageUpload from './UI/ImageUpload'; // <-- IMPORTĂM COMPONENTA NOUĂ
+import ImageUpload from './UI/ImageUpload';
 import type { User } from './../_mock';
 
+
+interface ExtendedUser extends User {
+  phone?: string;
+}
+
 interface PersonalInfoFormProps {
-  user: User;
+  user: ExtendedUser;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onAvatarChange: (newAvatarBase64: string) => void;
   onSave: (e: React.FormEvent) => void;
@@ -38,8 +43,11 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ user, onChange, onA
             <label className={`block text-sm font-semibold mb-2 ${theme === 'light' ? 'text-gray-700' : 'text-gray-300'}`}>Email Address</label>
             <input type="email" name="email" value={user.email} onChange={onChange} className={inputClass} required />
           </div>
+          <div className="sm:col-span-2">
+            <label className={`block text-sm font-semibold mb-2 ${theme === 'light' ? 'text-gray-700' : 'text-gray-300'}`}>Phone Number (Optional)</label>
+            <input type="tel" name="phone" value={user.phone || ''} onChange={onChange} className={inputClass} placeholder="+373 XXX XX XXX" />
+          </div>
         </div>
-
 
         <ImageUpload 
           label="Profile Picture"
@@ -48,19 +56,9 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ user, onChange, onA
           maxSizeMB={5}
         />
 
-       <div className="pt-2 flex justify-end">
-          <button 
-            type="submit" 
-            disabled={isSaving} 
-            className={`flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg transition-all active:scale-[0.98] disabled:opacity-70 ${
-              theme === 'light' ? 'shadow-blue-200/50' : 'shadow-black/50'
-            }`}
-          >
-            {isSaving ? (
-              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-            ) : (
-              <CheckCircleIcon className="w-5 h-5" />
-            )}
+        <div className="pt-2 flex justify-end">
+          <button type="submit" disabled={isSaving} className={`flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg transition-all active:scale-[0.98] disabled:opacity-70 ${theme === 'light' ? 'shadow-blue-200/50' : 'shadow-black/50'}`}>
+            {isSaving ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <CheckCircleIcon className="w-5 h-5" />}
             Save Changes
           </button>
         </div>
