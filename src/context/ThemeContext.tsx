@@ -42,7 +42,37 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   }, [theme]);
 
   const toggleTheme = () => {
-    setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
+    const css = document.createElement('style');
+    css.appendChild(
+      document.createTextNode(
+        `* {
+          -webkit-transition: none !important;
+          -moz-transition: none !important;
+          -o-transition: none !important;
+          -ms-transition: none !important;
+          transition: none !important;
+        }`
+      )
+    );
+    document.head.appendChild(css);
+
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    
+    const html = document.documentElement;
+    if (newTheme === 'dark') {
+      html.classList.add('dark');
+    } else {
+      html.classList.remove('dark');
+    }
+
+    setTheme(newTheme);
+
+    // Allow React to re-render, then browser to paint, then remove the style
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        document.head.removeChild(css);
+      });
+    });
   };
 
   return (

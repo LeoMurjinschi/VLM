@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root {
-
+  font-size: 14px;
   --bg-primary: #ffffff;
   --bg-secondary: #f9fafb;
   --bg-tertiary: #f3f4f6;
@@ -50,5 +50,6 @@ input[type='number']::-webkit-outer-spin-button {
 
 
 input[type='number'] {
+  appearance: textfield;
   -moz-appearance: textfield;
 }
