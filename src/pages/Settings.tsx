@@ -3,7 +3,13 @@ import { useTheme } from '../hooks/useTheme';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import { SpinnerLoader, ErrorState } from '../components/UI/StateIndicators';
-import { ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline';
+import { 
+  ArrowRightOnRectangleIcon, 
+  UserIcon, 
+  BriefcaseIcon, 
+  Cog6ToothIcon, 
+  ShieldCheckIcon 
+} from '@heroicons/react/24/outline';
 import { updateUserProfile, fetchUserPreferences, updateUserPreferences } from '../services/userService';
 
 
@@ -32,6 +38,16 @@ const Settings: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [isSavingPrefs, setIsSavingPrefs] = useState(false);
+
+  type TabId = 'profile' | 'business' | 'preferences' | 'security';
+  const [activeTab, setActiveTab] = useState<TabId>('profile');
+
+  const tabs = [
+    { id: 'profile' as TabId, label: 'Profile Settings', icon: UserIcon },
+    ...(user?.role?.toLowerCase() === 'donator' ? [{ id: 'business' as TabId, label: 'Business Details', icon: BriefcaseIcon }] : []),
+    { id: 'preferences' as TabId, label: 'Preferences', icon: Cog6ToothIcon },
+    { id: 'security' as TabId, label: 'Security', icon: ShieldCheckIcon },
+  ];
 
 
   useEffect(() => {
@@ -147,50 +163,81 @@ const Settings: React.FC = () => {
 
       <div className="flex flex-col gap-8">
         
+        <div className="flex flex-col md:flex-row gap-8">
+          {/* Sidebar */}
+          <div className="w-full md:w-64 flex-shrink-0 space-y-2">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-colors text-left ${
+                    isActive
+                      ? 'bg-blue-600 text-white shadow-md'
+                      : theme === 'light'
+                      ? 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 border border-transparent hover:border-gray-200'
+                      : 'text-gray-400 hover:bg-gray-800 hover:text-gray-100 border border-transparent hover:border-gray-700'
+                  }`}
+                >
+                  <Icon className={`w-5 h-5 ${isActive ? 'text-white' : ''}`} />
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
 
-        <div className="w-full max-w-sm mx-auto">
-          <ProfileSummary user={formData} />
+          {/* Content */}
+          <div className="flex-1 min-w-0">
+            {activeTab === 'profile' && (
+              <div className="animate-fade-in-up space-y-8">
+                <div className="w-full max-w-sm mx-auto">
+                  <ProfileSummary user={formData} />
+                </div>
+                <PersonalInfoForm 
+                  user={formData} 
+                  onChange={handleProfileChange} 
+                  onAvatarChange={handleAvatarChange} 
+                  onSave={handleSaveProfile} 
+                  isSaving={isSavingProfile} 
+                />
+              </div>
+            )}
+            
+            {activeTab === 'business' && user.role.toLowerCase() === 'donator' && (
+              <div className="space-y-6 animate-fade-in-up">
+                <BusinessProfileForm />
+                <PickupLocations />
+                <DocumentManager />
+              </div>
+            )}
+
+            {activeTab === 'preferences' && (
+              <div className="animate-fade-in-up">
+                <PreferencesForm 
+                  preferences={preferences} 
+                  onToggle={handleTogglePreference} 
+                  isSaving={isSavingPrefs} 
+                />
+              </div>
+            )}
+            
+            {activeTab === 'security' && (
+              <div className="animate-fade-in-up">
+                <SecuritySettings 
+                  onUpdatePassword={handlePasswordChange} 
+                />
+              </div>
+            )}
+          </div>
         </div>
 
-
-        <div className="w-full space-y-6">
-          
-  
-          <PersonalInfoForm 
-            user={formData} 
-            onChange={handleProfileChange} 
-            onAvatarChange={handleAvatarChange} 
-            onSave={handleSaveProfile} 
-            isSaving={isSavingProfile} 
-          />
-          
-
-          {user.role.toLowerCase() === 'donator' && (
-            <div className="space-y-6 animate-fade-in-up">
-              <BusinessProfileForm />
-              <PickupLocations />
-              <DocumentManager />
-            </div>
-          )}
-
-
-          <PreferencesForm 
-            preferences={preferences} 
-            onToggle={handleTogglePreference} 
-            isSaving={isSavingPrefs} 
-          />
-          
-          <SecuritySettings 
-            onUpdatePassword={handlePasswordChange} 
-          />
-          
-        </div>
-
-        <div className={`mt-8 pt-8 flex justify-center ${theme === 'light' ? 'border-t border-gray-200' : 'border-t border-gray-800'}`}>
+        <div className={`mt-4 pt-8 flex justify-center ${theme === 'light' ? 'border-t border-gray-200' : 'border-t border-gray-800'}`}>
           <button 
             onClick={handleLogout}
             className={`w-full max-w-sm flex items-center justify-center gap-2 px-4 py-3 font-bold rounded-xl transition-colors ${
-              theme === 'light' ? 'bg-red-50 text-red-600 hover:bg-red-100' : 'bg-red-900/20 text-red-400 hover:bg-red-900/40'
+              theme === 'light' ? 'bg-red-50 text-red-600 hover:bg-red-100 hover:shadow-sm' : 'bg-red-900/20 text-red-400 hover:bg-red-900/40 hover:shadow-sm'
             }`}
           >
             <ArrowRightOnRectangleIcon className="w-5 h-5" />
