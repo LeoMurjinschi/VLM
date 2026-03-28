@@ -18,7 +18,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
     <header className={`h-16 flex items-center justify-between px-4 sm:px-8 z-10 backdrop-blur-md transition-all duration-300 ${
       theme === 'light' 
         ? 'bg-white/80 border-gray-100' 
-        : 'bg-gray-800/80 border-gray-700'
+        : 'bg-gray-900/80 border-gray-700'
     } border-b`}>
         
         <div className="flex items-center md:hidden">

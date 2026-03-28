@@ -10,7 +10,7 @@ const DocumentManager: React.FC = () => {
   const [hygieneDoc, setHygieneDoc] = useState<UploadedDocument | null>(null);
 
   return (
-    <div className={`p-6 md:p-8 rounded-3xl border shadow-sm ${theme === 'light' ? 'bg-white border-gray-100' : 'bg-gray-800 border-gray-700'}`}>
+    <div className={`p-6 md:p-8 rounded-3xl border shadow-sm ${theme === 'light' ? 'bg-white border-gray-100' : 'bg-gray-900 border-gray-700'}`}>
       <div className="flex items-center gap-3 mb-6">
         <div className={`p-2 rounded-lg ${theme === 'light' ? 'bg-indigo-50 text-indigo-600' : 'bg-indigo-900/30 text-indigo-400'}`}>
           <DocumentCheckIcon className="w-6 h-6" />
@@ -22,7 +22,7 @@ const DocumentManager: React.FC = () => {
       </div>
 
       <div className="space-y-6">
-        <div className={`p-5 rounded-2xl border ${theme === 'light' ? 'bg-gray-50/50 border-gray-100' : 'bg-gray-800/50 border-gray-700'}`}>
+        <div className={`p-5 rounded-2xl border ${theme === 'light' ? 'bg-gray-50/50 border-gray-100' : 'bg-gray-900/50 border-gray-700'}`}>
           <DocumentUpload 
             label="Company Registration Certificate" 
             helperText="Upload your official business registration document. Max 10MB."
@@ -31,7 +31,7 @@ const DocumentManager: React.FC = () => {
           />
         </div>
 
-        <div className={`p-5 rounded-2xl border ${theme === 'light' ? 'bg-gray-50/50 border-gray-100' : 'bg-gray-800/50 border-gray-700'}`}>
+        <div className={`p-5 rounded-2xl border ${theme === 'light' ? 'bg-gray-50/50 border-gray-100' : 'bg-gray-900/50 border-gray-700'}`}>
           <DocumentUpload 
             label="Hygiene / Food Safety Certificate" 
             helperText="Required to prove your ability to safely handle and store food."

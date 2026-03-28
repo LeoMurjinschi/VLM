@@ -25,7 +25,7 @@ const MilestoneTracker: React.FC<MilestoneTrackerProps> = ({ milestone, onEdit, 
 
   return (
     <div className={`p-6 md:p-8 rounded-3xl border shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex flex-col md:flex-row items-center gap-6 animate-fade-in-up relative group ${
-      theme === 'light' ? 'bg-white border-gray-100' : 'bg-gray-800 border-gray-700'
+      theme === 'light' ? 'bg-white border-gray-100' : 'bg-gray-900 border-gray-700'
     }`}>
       
 

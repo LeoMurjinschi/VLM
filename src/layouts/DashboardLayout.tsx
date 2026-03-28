@@ -44,7 +44,7 @@ const DashboardLayout: React.FC = () => {
         <Header onMenuClick={() => setIsMobileMenuOpen(true)} />
 
         <main className={`flex-1 overflow-x-hidden overflow-y-auto p-4 md:p-8 pt-6 ${
-          theme === 'light' ? 'bg-gray-50/50' : 'bg-gray-800/50'
+          theme === 'light' ? 'bg-gray-50/50' : 'bg-gray-900/50'
         }`}>
           <div className="mx-auto max-w-7xl animate-fade-in-up">
             <Outlet /> 

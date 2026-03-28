@@ -153,7 +153,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
           className={`flex flex-col items-center justify-center w-full p-6 border-2 border-dashed rounded-xl cursor-pointer transition-all ${
             isDragging 
               ? (theme === 'light' ? 'border-blue-500 bg-blue-50' : 'border-blue-400 bg-blue-900/20')
-              : (theme === 'light' ? 'border-gray-300 hover:bg-gray-50 bg-white' : 'border-gray-600 hover:bg-gray-800 bg-gray-800/50')
+              : (theme === 'light' ? 'border-gray-300 hover:bg-gray-50 bg-white' : 'border-gray-600 hover:bg-gray-800 bg-gray-900/50')
           }`}
         >
           <div className="flex flex-col items-center justify-center pt-2 pb-3">

@@ -19,7 +19,7 @@ const StatCard: React.FC<StatCardProps> = ({ stat }) => {
       case 'emerald': return isLight ? 'bg-emerald-100 text-emerald-600' : 'bg-emerald-900/40 text-emerald-400';
       case 'teal': return isLight ? 'bg-teal-100 text-teal-600' : 'bg-teal-900/40 text-teal-400';
       case 'indigo': return isLight ? 'bg-indigo-100 text-indigo-600' : 'bg-indigo-900/40 text-indigo-400';
-      default: return isLight ? 'bg-gray-100 text-gray-600' : 'bg-gray-800 text-gray-400';
+      default: return isLight ? 'bg-gray-100 text-gray-600' : 'bg-gray-900 text-gray-400';
     }
   };
 
@@ -27,7 +27,7 @@ const StatCard: React.FC<StatCardProps> = ({ stat }) => {
 
   return (
     <div className={`p-6 rounded-3xl border shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-transform duration-300 hover:-translate-y-1 ${
-      theme === 'light' ? 'bg-white border-gray-100' : 'bg-gray-800 border-gray-700'
+      theme === 'light' ? 'bg-white border-gray-100' : 'bg-gray-900 border-gray-700'
     }`}>
       <div className="flex justify-between items-start mb-4">
         <div className={`p-3 rounded-2xl ${getColorClasses(stat.color)}`}>

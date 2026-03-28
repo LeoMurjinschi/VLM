@@ -40,14 +40,14 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
       <div className={`relative rounded-2xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col max-h-[85vh] animate-fade-in-up ${
         theme === 'light'
           ? 'bg-white'
-          : 'bg-gray-800'
+          : 'bg-gray-900'
       }`}>
         
 
         <div className={`flex justify-between items-center p-4 border-b z-10 ${
           theme === 'light'
             ? 'border-gray-100 bg-white'
-            : 'border-gray-700 bg-gray-800'
+            : 'border-gray-700 bg-gray-900'
         }`}>
           <h2 className={`text-lg font-extrabold ${
             theme === 'light' ? 'text-gray-900' : 'text-gray-100'

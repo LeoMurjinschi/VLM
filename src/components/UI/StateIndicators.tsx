@@ -14,7 +14,7 @@ export const SkeletonTableLoader: React.FC<SkeletonLoaderProps> = ({
 
   return (
     <div className={`p-6 rounded-3xl border shadow-sm ${
-      theme === 'light' ? 'bg-white border-gray-100' : 'bg-gray-800 border-gray-700'
+      theme === 'light' ? 'bg-white border-gray-100' : 'bg-gray-900 border-gray-700'
     }`}>
       <div className="space-y-4">
         {showHeader && (
@@ -70,7 +70,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
       className={`py-12 rounded-3xl border flex flex-col items-center justify-center ${
         theme === 'light'
           ? 'bg-gray-50/50 border-gray-100'
-          : 'bg-gray-800/50 border-gray-700'
+          : 'bg-gray-900/50 border-gray-700'
       }`}
     >
       {icon && <div className="mb-4 text-gray-400">{icon}</div>}

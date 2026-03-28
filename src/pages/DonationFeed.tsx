@@ -144,7 +144,7 @@ const DonationFeed: React.FC = () => {
               className={`pl-12 pr-4 py-3.5 w-full border rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all shadow-sm font-medium ${
                 theme === 'light'
                   ? 'bg-white border-gray-200 text-gray-700 shadow-gray-100'
-                  : 'bg-gray-800 border-gray-700 text-gray-100 shadow-gray-900'
+                  : 'bg-gray-900 border-gray-700 text-gray-100 shadow-gray-900'
               }`}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -160,7 +160,7 @@ const DonationFeed: React.FC = () => {
                   }`
                 : theme === 'light'
                 ? 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
-                : 'bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700'
+                : 'bg-gray-900 border-gray-700 text-gray-300 hover:bg-gray-700'
             }`}
           >
             <FunnelIcon className="h-6 w-6" />
@@ -205,7 +205,7 @@ const DonationFeed: React.FC = () => {
 
         <div
           className={`flex flex-col items-center justify-center min-h-[50vh] rounded-3xl border border-dashed relative z-0 ${
-            theme === 'light' ? 'bg-white border-gray-300' : 'bg-gray-800 border-gray-600'
+            theme === 'light' ? 'bg-white border-gray-300' : 'bg-gray-900 border-gray-600'
           }`}
         >
           <div

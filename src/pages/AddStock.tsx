@@ -194,7 +194,7 @@ const handleSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => 
         <div className={`rounded-2xl border shadow-sm overflow-hidden transition-all ${
           theme === 'light'
             ? 'bg-white border-gray-100'
-            : 'bg-gray-800 border-gray-700'
+            : 'bg-gray-900 border-gray-700'
         }`}>
           <form onSubmit={handleSubmit} className="p-6 md:p-8 space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

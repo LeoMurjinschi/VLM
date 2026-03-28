@@ -37,7 +37,7 @@ const DonationFilter: React.FC<DonationFilterProps> = ({
     <div className={`absolute right-0 top-full mt-3 w-[280px] sm:w-80 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.1)] border p-6 z-50 animate-fade-in-up ${
       theme === 'light'
         ? 'bg-white border-gray-100'
-        : 'bg-gray-800 border-gray-700'
+        : 'bg-gray-900 border-gray-700'
     }`}>
 
       <div className={`flex justify-between items-center mb-5 pb-3 border-b ${

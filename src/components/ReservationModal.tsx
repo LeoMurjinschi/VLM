@@ -111,7 +111,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, do
    
       <div className="space-y-3 mb-6">
         <div className={`flex items-center text-xs p-2.5 rounded-xl border shadow-sm ${
-          theme === 'light' ? 'bg-white border-gray-100 text-gray-700' : 'bg-gray-800 border-gray-600 text-gray-300'
+          theme === 'light' ? 'bg-white border-gray-100 text-gray-700' : 'bg-gray-900 border-gray-600 text-gray-300'
         }`}>
           <div className={`p-1.5 rounded-lg mr-3 ${theme === 'light' ? 'bg-blue-50' : 'bg-blue-900/30'}`}>
             <MapPinIcon className={`w-4 h-4 ${theme === 'light' ? 'text-blue-600' : 'text-blue-400'}`} />
@@ -127,7 +127,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, do
         </div>
         
         <div className={`flex items-center text-xs p-2.5 rounded-xl border shadow-sm ${
-          theme === 'light' ? 'bg-white border-gray-100 text-gray-700' : 'bg-gray-800 border-gray-600 text-gray-300'
+          theme === 'light' ? 'bg-white border-gray-100 text-gray-700' : 'bg-gray-900 border-gray-600 text-gray-300'
         }`}>
           <div className={`p-1.5 rounded-lg mr-3 ${theme === 'light' ? 'bg-orange-50' : 'bg-orange-900/30'}`}>
             <ClockIcon className={`w-4 h-4 ${theme === 'light' ? 'text-orange-500' : 'text-orange-400'}`} />
@@ -143,7 +143,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, do
 
     
       <div className={`mb-6 flex items-center justify-between p-3 border rounded-xl shadow-sm ${
-        theme === 'light' ? 'bg-white border-gray-200' : 'bg-gray-800 border-gray-600'
+        theme === 'light' ? 'bg-white border-gray-200' : 'bg-gray-900 border-gray-600'
       }`}>
         <div className="flex flex-col">
           <label className={`text-xs font-bold ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>
@@ -185,7 +185,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, do
             disabled={isMaxReached}
             className={`w-7 h-7 flex items-center justify-center rounded-md font-bold transition-all ${
               isMaxReached 
-                ? theme === 'light' ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-gray-800 text-gray-500 cursor-not-allowed'
+                ? theme === 'light' ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-gray-900 text-gray-500 cursor-not-allowed'
                 : 'bg-blue-600 text-white hover:bg-blue-700 shadow-sm'
             }`}
           >

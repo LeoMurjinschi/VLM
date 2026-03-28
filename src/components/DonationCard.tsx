@@ -28,7 +28,7 @@ const DonationCard: React.FC<DonationCardProps> = ({ donation, onReserve }) => {
       <div className={`group rounded-2xl border overflow-hidden hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all duration-300 flex flex-col h-full relative z-0 ${
         theme === 'light'
           ? 'bg-white border-gray-100'
-          : 'bg-gray-800 border-gray-700'
+          : 'bg-gray-900 border-gray-700'
       }`}>
         <div className="relative h-52 w-full overflow-hidden">
           <div className={`absolute inset-0 group-hover:bg-black/0 transition-colors z-10 ${

@@ -190,7 +190,7 @@ const CurrentInventory: React.FC = () => {
             className={`p-4 rounded-xl border ${
               theme === 'light'
                 ? 'bg-white border-gray-100'
-                : 'bg-gray-800 border-gray-700'
+                : 'bg-gray-900 border-gray-700'
             }`}
           >
             <div
@@ -209,7 +209,7 @@ const CurrentInventory: React.FC = () => {
             className={`p-4 rounded-xl border ${
               theme === 'light'
                 ? 'bg-white border-gray-100'
-                : 'bg-gray-800 border-gray-700'
+                : 'bg-gray-900 border-gray-700'
             }`}
           >
             <div
@@ -228,7 +228,7 @@ const CurrentInventory: React.FC = () => {
             className={`p-4 rounded-xl border ${
               theme === 'light'
                 ? 'bg-white border-gray-100'
-                : 'bg-gray-800 border-gray-700'
+                : 'bg-gray-900 border-gray-700'
             }`}
           >
             <div
@@ -266,7 +266,7 @@ const CurrentInventory: React.FC = () => {
               className={`pl-12 pr-4 py-3.5 w-full border rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all shadow-sm font-medium ${
                 theme === 'light'
                   ? 'bg-white border-gray-200 text-gray-700 shadow-gray-100'
-                  : 'bg-gray-800 border-gray-700 text-gray-100 shadow-gray-900'
+                  : 'bg-gray-900 border-gray-700 text-gray-100 shadow-gray-900'
               }`}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -282,7 +282,7 @@ const CurrentInventory: React.FC = () => {
                   : 'bg-gray-700 border-blue-500 text-blue-400 ring-2 ring-blue-900'
                 : theme === 'light'
                   ? 'bg-white border-gray-200 text-gray-700 hover:border-blue-400'
-                  : 'bg-gray-800 border-gray-700 text-gray-300 hover:border-blue-500'
+                  : 'bg-gray-900 border-gray-700 text-gray-300 hover:border-blue-500'
             }`}
           >
             <FunnelIcon className="w-5 h-5" />
@@ -297,7 +297,7 @@ const CurrentInventory: React.FC = () => {
           className={`p-6 rounded-2xl border shadow-sm animate-fade-in-up ${
             theme === 'light'
               ? 'bg-white border-gray-100'
-              : 'bg-gray-800 border-gray-700'
+              : 'bg-gray-900 border-gray-700'
           }`}
         >
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -407,7 +407,7 @@ const CurrentInventory: React.FC = () => {
           className={`flex flex-col items-center justify-center py-16 rounded-2xl border-2 border-dashed ${
             theme === 'light'
               ? 'bg-gray-50 border-gray-200'
-              : 'bg-gray-800 border-gray-700'
+              : 'bg-gray-900 border-gray-700'
           }`}
         >
           <ArchiveBoxIcon
