@@ -3,6 +3,7 @@ import { useTheme } from '../hooks/useTheme';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import { SpinnerLoader, ErrorState } from '../components/UI/StateIndicators';
+import { ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline';
 import { updateUserProfile, fetchUserPreferences, updateUserPreferences } from '../services/userService';
 
 
@@ -144,15 +145,15 @@ const Settings: React.FC = () => {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div className="flex flex-col gap-8">
         
 
-        <div className="md:col-span-1">
-          <ProfileSummary user={formData} onLogout={handleLogout} />
+        <div className="w-full max-w-sm mx-auto">
+          <ProfileSummary user={formData} />
         </div>
 
 
-        <div className="md:col-span-2 space-y-6">
+        <div className="w-full space-y-6">
           
   
           <PersonalInfoForm 
@@ -183,6 +184,18 @@ const Settings: React.FC = () => {
             onUpdatePassword={handlePasswordChange} 
           />
           
+        </div>
+
+        <div className={`mt-8 pt-8 flex justify-center ${theme === 'light' ? 'border-t border-gray-200' : 'border-t border-gray-800'}`}>
+          <button 
+            onClick={handleLogout}
+            className={`w-full max-w-sm flex items-center justify-center gap-2 px-4 py-3 font-bold rounded-xl transition-colors ${
+              theme === 'light' ? 'bg-red-50 text-red-600 hover:bg-red-100' : 'bg-red-900/20 text-red-400 hover:bg-red-900/40'
+            }`}
+          >
+            <ArrowRightOnRectangleIcon className="w-5 h-5" />
+            Sign Out
+          </button>
         </div>
       </div>
     </div>

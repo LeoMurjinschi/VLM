@@ -1,14 +1,12 @@
 import React from 'react';
 import { useTheme } from './../hooks/useTheme';
-import { ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline';
 import type { User } from './../_mock';
 
 interface ProfileSummaryProps {
   user: User;
-  onLogout: () => void;
 }
 
-const ProfileSummary: React.FC<ProfileSummaryProps> = ({ user, onLogout }) => {
+const ProfileSummary: React.FC<ProfileSummaryProps> = ({ user }) => {
   const { theme } = useTheme();
 
   return (
@@ -22,16 +20,6 @@ const ProfileSummary: React.FC<ProfileSummaryProps> = ({ user, onLogout }) => {
           {user.role}
         </span>
       </div>
-
-      <button 
-        onClick={onLogout}
-        className={`w-full flex items-center justify-center gap-2 px-4 py-3 font-bold rounded-xl transition-colors ${
-          theme === 'light' ? 'bg-red-50 text-red-600 hover:bg-red-100' : 'bg-red-900/20 text-red-400 hover:bg-red-900/40'
-        }`}
-      >
-        <ArrowRightOnRectangleIcon className="w-5 h-5" />
-        Sign Out
-      </button>
     </div>
   );
 };

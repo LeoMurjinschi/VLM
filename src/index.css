@@ -9,7 +9,7 @@
   --text-secondary: #6b7280;
   --text-tertiary: #9ca3af;
   --border-color: #e5e7eb;
-  --shadow-sm: rgba(0, 0, 0, 0.02);
+  --shadow-sm: rgba(0, 0, 0, 0.04);
   --shadow-md: rgba(0, 0, 0, 0.04);
 }
 
@@ -22,7 +22,7 @@ html.dark {
   --text-secondary: #d1d5db;
   --text-tertiary: #9ca3af;
   --border-color: #374151;
-  --shadow-sm: rgba(0, 0, 0, 0.3);
+  --shadow-sm: rgba(0, 0, 0, 0.5);
   --shadow-md: rgba(0, 0, 0, 0.5);
 }
 
