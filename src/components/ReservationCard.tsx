@@ -70,7 +70,7 @@ const ReservationCard: React.FC<ReservationCardProps> = ({
       </div>
 
       {/* Conținutul Cardului */}
-      <div className="p-6 flex flex-col flex-grow">
+      <div className="p-6 flex flex-col grow">
         
         {/* Donor Tag (Echivalentul categoriei din DonationCard) */}
         <div className="flex justify-between items-start mb-3">
@@ -115,7 +115,7 @@ const ReservationCard: React.FC<ReservationCardProps> = ({
           <button 
             onClick={onOpenMap}
             disabled={isConfirmed}
-            className={`flex-[1] flex items-center justify-center gap-2 px-3 py-2.5 font-bold rounded-xl transition-all duration-200 active:scale-[0.98]
+            className={`flex-1 flex items-center justify-center gap-2 px-3 py-2.5 font-bold rounded-xl transition-all duration-200 active:scale-[0.98]
               ${isConfirmed 
                 ? theme === 'light' 
                   ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
@@ -145,7 +145,7 @@ const ReservationCard: React.FC<ReservationCardProps> = ({
             `}
           >
             <CheckCircleIcon className="w-4 h-4" />
-            <span className="text-sm">{isConfirmed ? 'Confirmed' : 'Confirm'}</span>
+            <span className="text-sm">{isConfirmed ? 'Confirmed' : 'Pick Up'}</span>
           </button>
         </div>
 
