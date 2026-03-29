@@ -1,8 +1,9 @@
 import React from 'react';
-import { Bars3Icon, Cog8ToothIcon, BellIcon } from '@heroicons/react/24/outline';
+import { Bars3Icon, ChatBubbleLeftRightIcon, BellIcon } from '@heroicons/react/24/outline';
 import { useTheme } from '../hooks/useTheme';
 import { useAuth } from './../context/AuthContext';
 import { Link } from 'react-router-dom';
+import ThemeToggleButton from '../components/UI/ThemeToggleButton';
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -52,13 +53,17 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
              }`}></span>
            </button>
 
-           <Link to="/settings" className={`p-2 transition-colors ${
+           <button className={`p-2 transition-colors ${
              theme === 'light'
                ? 'text-gray-400 hover:text-blue-600'
                : 'text-gray-500 hover:text-blue-400'
            }`}>
-             <Cog8ToothIcon className="w-6 h-6" />
-           </Link>
+             <ChatBubbleLeftRightIcon className="w-6 h-6" />
+           </button>
+
+           <div className="flex items-center">
+             <ThemeToggleButton />
+           </div>
            
            <div className={`hidden sm:block h-6 w-px mx-1 ${
              theme === 'light' ? 'bg-gray-200' : 'bg-gray-700'

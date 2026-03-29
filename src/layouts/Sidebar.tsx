@@ -5,7 +5,6 @@ import {
   PlusCircleIcon, ArchiveBoxIcon, ChartBarIcon,
   XMarkIcon
 } from '@heroicons/react/24/outline';
-import ThemeToggleButton from '../components/UI/ThemeToggleButton';
 import { useTheme } from '../hooks/useTheme';
 
 interface NavItem {
@@ -90,16 +89,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
         </nav>
       </div>
 
-
-      <div className={`px-4 py-6 border-t ${
-        theme === 'light' 
-          ? 'border-gray-100' 
-          : 'border-gray-700'
-      }`}>
-        <div className="flex items-center justify-center">
-          <ThemeToggleButton />
-        </div>
-      </div>
     </div>
   );
 };
