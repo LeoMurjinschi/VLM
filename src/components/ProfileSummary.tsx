@@ -11,7 +11,7 @@ const ProfileSummary: React.FC<ProfileSummaryProps> = ({ user }) => {
 
   return (
     <div className="space-y-6">
-      <div className={`p-6 rounded-3xl border shadow-sm text-center ${theme === 'light' ? 'bg-white border-gray-100' : 'bg-gray-800 border-gray-700'}`}>
+      <div className={`p-6 rounded-3xl border shadow-sm text-center ${theme === 'light' ? 'bg-white border-gray-100' : 'bg-gray-900 border-gray-700'}`}>
         <div className="w-24 h-24 mx-auto mb-4 rounded-full overflow-hidden border-4 border-blue-100 dark:border-blue-900/50">
           <img src={user.avatar || 'https://ui-avatars.com/api/?name=User&background=0D8ABC&color=fff'} alt="Profile" className="w-full h-full object-cover" />
         </div>

@@ -12,7 +12,7 @@ const PreferencesForm: React.FC<PreferencesFormProps> = ({ preferences, onToggle
   const { theme } = useTheme();
 
   return (
-    <div className={`p-6 md:p-8 rounded-3xl border shadow-sm ${theme === 'light' ? 'bg-white border-gray-100' : 'bg-gray-800 border-gray-700'}`}>
+    <div className={`p-6 md:p-8 rounded-3xl border shadow-sm ${theme === 'light' ? 'bg-white border-gray-100' : 'bg-gray-900 border-gray-700'}`}>
       <div className="flex items-center gap-3 mb-6">
         <div className={`p-2 rounded-lg ${theme === 'light' ? 'bg-purple-50 text-purple-600' : 'bg-purple-900/30 text-purple-400'}`}>
           <BellIcon className="w-6 h-6" />

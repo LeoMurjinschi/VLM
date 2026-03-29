@@ -92,7 +92,7 @@ const DonorDashboard: React.FC = () => {
             </p>
           </div>
           <div className="flex gap-3">
-             <button onClick={openNewMilestoneModal} className={`flex items-center justify-center gap-2 px-4 py-3 font-bold rounded-xl shadow-sm transition-all active:scale-[0.98] ${theme === 'light' ? 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200' : 'bg-gray-800 text-gray-200 hover:bg-gray-700 border border-gray-600'}`}>
+             <button onClick={openNewMilestoneModal} className={`flex items-center justify-center gap-2 px-4 py-3 font-bold rounded-xl shadow-sm transition-all active:scale-[0.98] ${theme === 'light' ? 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200' : 'bg-gray-900 text-gray-200 hover:bg-gray-700 border border-gray-600'}`}>
                 <PlusIcon className="w-5 h-5" />
                 <span className="hidden sm:inline">Add Goal</span>
              </button>

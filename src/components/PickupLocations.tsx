@@ -19,7 +19,7 @@ const PickupLocations: React.FC = () => {
   const [newInstructions, setNewInstructions] = useState('');
 
   const inputClass = `w-full px-4 py-3 rounded-xl border focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors font-medium ${
-    theme === 'light' ? 'bg-white border-gray-200 text-gray-900 placeholder-gray-400' : 'bg-gray-800 border-gray-600 text-gray-100 placeholder-gray-500'
+    theme === 'light' ? 'bg-white border-gray-200 text-gray-900 placeholder-gray-400' : 'bg-gray-900 border-gray-600 text-gray-100 placeholder-gray-500'
   }`;
 
   const handleAddLocation = (e: React.FormEvent) => {
@@ -47,7 +47,7 @@ const PickupLocations: React.FC = () => {
   };
 
   return (
-    <div className={`p-6 md:p-8 rounded-3xl border shadow-sm ${theme === 'light' ? 'bg-white border-gray-100' : 'bg-gray-800 border-gray-700'}`}>
+    <div className={`p-6 md:p-8 rounded-3xl border shadow-sm ${theme === 'light' ? 'bg-white border-gray-100' : 'bg-gray-900 border-gray-700'}`}>
       <div className="flex items-center gap-3 mb-6">
         <div className={`p-2 rounded-lg ${theme === 'light' ? 'bg-orange-50 text-orange-600' : 'bg-orange-900/30 text-orange-400'}`}>
           <MapPinIcon className="w-6 h-6" />

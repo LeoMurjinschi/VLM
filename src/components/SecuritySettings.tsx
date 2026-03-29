@@ -22,7 +22,7 @@ const SecuritySettings: React.FC<SecuritySettingsProps> = ({ onUpdatePassword })
 
 
   const inputClass = `w-full px-4 py-3 rounded-xl border focus:outline-none focus:ring-2 transition-colors font-medium ${
-    theme === 'light' ? 'bg-white text-gray-900 placeholder-gray-400' : 'bg-gray-800 text-gray-100 placeholder-gray-500'
+    theme === 'light' ? 'bg-white text-gray-900 placeholder-gray-400' : 'bg-gray-900 text-gray-100 placeholder-gray-500'
   }`;
 
 
@@ -75,7 +75,7 @@ const SecuritySettings: React.FC<SecuritySettingsProps> = ({ onUpdatePassword })
   };
 
   return (
-    <div className={`p-6 md:p-8 rounded-3xl border shadow-sm ${theme === 'light' ? 'bg-white border-gray-100' : 'bg-gray-800 border-gray-700'}`}>
+    <div className={`p-6 md:p-8 rounded-3xl border shadow-sm ${theme === 'light' ? 'bg-white border-gray-100' : 'bg-gray-900 border-gray-700'}`}>
       <div className="flex items-center gap-3 mb-6">
         <div className={`p-2 rounded-lg ${theme === 'light' ? 'bg-emerald-50 text-emerald-600' : 'bg-emerald-900/30 text-emerald-400'}`}>
           <ShieldCheckIcon className="w-6 h-6" />
@@ -91,7 +91,7 @@ const SecuritySettings: React.FC<SecuritySettingsProps> = ({ onUpdatePassword })
           </div>
           <button 
             onClick={() => setIsFormOpen(true)}
-            className={`px-4 py-2 font-bold rounded-xl border transition-colors ${theme === 'light' ? 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50' : 'bg-gray-800 border-gray-600 text-gray-300 hover:bg-gray-700'}`}
+            className={`px-4 py-2 font-bold rounded-xl border transition-colors ${theme === 'light' ? 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50' : 'bg-gray-900 border-gray-600 text-gray-300 hover:bg-gray-700'}`}
           >
             Update
           </button>

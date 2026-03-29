@@ -16,7 +16,7 @@ const RecentActivity: React.FC = () => {
 
   return (
     <div className={`p-6 md:p-8 rounded-3xl border shadow-[0_8px_30px_rgb(0,0,0,0.04)] animate-fade-in-up delay-200 ${
-      theme === 'light' ? 'bg-white border-gray-100' : 'bg-gray-800 border-gray-700'
+      theme === 'light' ? 'bg-white border-gray-100' : 'bg-gray-900 border-gray-700'
     }`}>
       <h3 className={`text-xl font-extrabold mb-6 ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>
         Recent Activity
