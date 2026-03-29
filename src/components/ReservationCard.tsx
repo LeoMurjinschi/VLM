@@ -145,7 +145,7 @@ const ReservationCard: React.FC<ReservationCardProps> = ({
             `}
           >
             <CheckCircleIcon className="w-4 h-4" />
-            <span className="text-sm">{isConfirmed ? 'Confirmed' : 'Pick Up'}</span>
+            <span className="text-sm">{isConfirmed ? 'Confirmed' : 'Confirm'}</span>
           </button>
         </div>
 

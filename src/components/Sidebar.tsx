@@ -24,9 +24,9 @@ interface SidebarProps {
 }
 
 const navigation: NavItem[] = [
-  { name: 'My Reservations', href: '/', icon: Squares2X2Icon },
+  { name: 'Feed Page', href: '/', icon: Squares2X2Icon },
+  { name: 'My Reservations', href: '/pickups', icon: ExclamationTriangleIcon },
   { name: 'History & Status', href: '/history', icon: ClockIcon },
-  { name: 'Urgent Alerts', href: '/alerts', icon: ExclamationTriangleIcon },
   { name: 'Feedback & Rating', href: '/feedback', icon: StarIcon },
   { name: 'Safety Guide', href: '/safety', icon: BookOpenIcon },
   { name: 'Profile Settings', href: '/settings', icon: Cog8ToothIcon },
