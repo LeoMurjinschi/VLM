@@ -2,6 +2,8 @@ import React, { useState, useCallback } from 'react';
 import { PlusCircleIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 import { toast } from 'react-toastify';
 import Select from '../components/UI/Select';
+import ImageDragDrop from '../components/UI/ImageDragDrop';
+import CustomDatePicker from '../components/UI/CustomDatePicker';
 import { useTheme } from '../hooks/useTheme';
 import { addInventoryItem } from '../services/inventoryService';
 import { useInventory } from '../context/InventoryContext';
@@ -276,30 +278,22 @@ const handleSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => 
 
               <div>
                 <label htmlFor="expirationDate" className={`block text-sm font-semibold mb-2.5 ${theme === 'light' ? 'text-gray-800' : 'text-gray-200'}`}>
-                  Expiration Date & Time <span className="text-red-500">*</span>
+                  Expiration Date <span className="text-red-500">*</span>
                 </label>
-                <input
-                  type="datetime-local"
-                  id="expirationDate"
-                  name="expirationDate"
-                  value={formState.expirationDate}
-                  onChange={handleInputChange}
-                  className={getInputClass('expirationDate')}
-                />
+                <div className="relative z-10">
+                  <CustomDatePicker
+                    value={formState.expirationDate}
+                    onChange={(val) => handleSelectChange('expirationDate', val)}
+                    hasError={hasError('expirationDate')}
+                  />
+                </div>
               </div>
 
               <div className="md:col-span-2">
-                <label htmlFor="image" className={`block text-sm font-semibold mb-2.5 ${theme === 'light' ? 'text-gray-800' : 'text-gray-200'}`}>
-                  Image URL <span className="text-gray-400 font-normal">(optional)</span>
-                </label>
-                <input
-                  type="url"
-                  id="image"
-                  name="image"
+                <ImageDragDrop
                   value={formState.image}
-                  onChange={handleInputChange}
-                  placeholder="https://example.com/image.jpg"
-                  className={getInputClass('image')}
+                  onChange={(base64String) => handleSelectChange('image', base64String || '')}
+                  label="Image (optional)"
                 />
               </div>
 

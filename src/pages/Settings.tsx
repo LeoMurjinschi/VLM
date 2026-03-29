@@ -4,7 +4,6 @@ import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import { SpinnerLoader, ErrorState } from '../components/UI/StateIndicators';
 import { 
-  ArrowRightOnRectangleIcon, 
   UserIcon, 
   BriefcaseIcon, 
   Cog6ToothIcon, 
@@ -31,7 +30,7 @@ interface UserPreferences {
 
 const Settings: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
-  const { user, updateUser, logout } = useAuth(); 
+  const { user, updateUser } = useAuth(); 
   
   const [formData, setFormData] = useState(user);
   const [preferences, setPreferences] = useState<UserPreferences>({ theme: 'light', notifications: true, emailUpdates: true });
@@ -140,19 +139,13 @@ const Settings: React.FC = () => {
     });
   };
 
-  const handleLogout = useCallback(() => {
-    if (window.confirm('Are you sure you want to log out?')) {
-      logout();
-      toast.info('Logged out successfully.');
-    }
-  }, [logout]);
 
   if (loading) return <div className="pt-20"><SpinnerLoader /></div>;
   if (error) return <div className="pt-20"><ErrorState message={error} onRetry={() => window.location.reload()} /></div>;
   if (!formData || !user) return null;
 
   return (
-    <div className={`space-y-8 max-w-4xl mx-auto min-h-screen relative pb-10 ${theme === 'light' ? 'bg-gray-50' : 'bg-gray-900'}`}>
+    <div className={`space-y-8 max-w-7xl mx-auto min-h-screen relative pb-10 ${theme === 'light' ? 'bg-gray-50' : 'bg-gray-900'}`}>
       
 
       <div className={`pb-6 border-b ${theme === 'light' ? 'border-gray-100' : 'border-gray-700'}`}>
@@ -195,7 +188,7 @@ const Settings: React.FC = () => {
           <div className="flex-1 min-w-0">
             {activeTab === 'profile' && (
               <div className="animate-fade-in-up space-y-8">
-                <div className="w-full max-w-sm mx-auto">
+                <div className="w-full max-w-md">
                   <ProfileSummary user={formData} />
                 </div>
                 <PersonalInfoForm 
@@ -243,17 +236,7 @@ const Settings: React.FC = () => {
           </div>
         </div>
 
-        <div className={`mt-4 pt-8 flex justify-center ${theme === 'light' ? 'border-t border-gray-200' : 'border-t border-gray-800'}`}>
-          <button 
-            onClick={handleLogout}
-            className={`w-full max-w-sm flex items-center justify-center gap-2 px-4 py-3 font-bold rounded-xl transition-colors ${
-              theme === 'light' ? 'bg-red-50 text-red-600 hover:bg-red-100 hover:shadow-sm' : 'bg-red-900/20 text-red-400 hover:bg-red-900/40 hover:shadow-sm'
-            }`}
-          >
-            <ArrowRightOnRectangleIcon className="w-5 h-5" />
-            Sign Out
-          </button>
-        </div>
+
       </div>
     </div>
   );
