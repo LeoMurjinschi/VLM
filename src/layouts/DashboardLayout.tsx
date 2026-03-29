@@ -9,7 +9,7 @@ const DashboardLayout: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
-    <div className={`flex h-screen overflow-hidden relative ${theme === 'light' ? 'bg-gray-50' : 'bg-gray-900'}`}>
+    <div className="flex h-screen overflow-hidden relative" style={{ backgroundColor: 'var(--bg-primary)' }}>
       
 
       <aside className="hidden md:flex flex-shrink-0 w-56 z-20">
@@ -46,7 +46,7 @@ const DashboardLayout: React.FC = () => {
         <main className={`flex-1 overflow-x-hidden overflow-y-auto p-4 md:p-8 pt-6 ${
           theme === 'light' ? 'bg-gray-50/50' : 'bg-gray-900/50'
         }`}>
-          <div className="mx-auto max-w-7xl animate-fade-in-up">
+          <div className="mx-auto max-w-7xl">
             <Outlet /> 
           </div>
         </main>

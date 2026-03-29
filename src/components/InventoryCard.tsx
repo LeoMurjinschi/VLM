@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TrashIcon, PencilIcon, MinusIcon, PlusIcon, CheckIcon } from '@heroicons/react/24/outline';
+import { TrashIcon, PencilIcon, MinusIcon, PlusIcon, CheckIcon, MapPinIcon, ClockIcon } from '@heroicons/react/24/outline';
 import { useTheme } from '../hooks/useTheme';
 import type { InventoryItem } from '../_mock';
 import { toast } from 'react-toastify';
@@ -18,38 +18,38 @@ const InventoryCard: React.FC<InventoryCardProps> = ({
   onUpdateQuantity,
 }) => {
   const { theme } = useTheme();
-  
- 
   const [draftQuantity, setDraftQuantity] = useState<number | string>(item.quantity);
-
- 
   const hasChanges = Number(draftQuantity) !== item.quantity;
 
-  const getStatusColor = (status: string) => {
+  const getStatusStyle = (status: string) => {
     switch (status) {
-      case 'In Stock':
-        return 'bg-emerald-100 text-emerald-700 border-emerald-200';
-      case 'Low Stock':
-        return 'bg-amber-100 text-amber-700 border-amber-200';
-      case 'Expired':
-        return 'bg-red-100 text-red-700 border-red-200';
-      default:
-        return 'bg-gray-100 text-gray-600';
+      case 'In Stock': return 'bg-green-500/80 text-white';
+      case 'Low Stock': return 'bg-amber-500/80 text-white';
+      case 'Expired': return 'bg-red-500/80 text-white';
+      default: return 'bg-gray-500/80 text-white';
     }
+  };
+
+  const getCategoryColor = (category: string) => {
+    const lower = category.toLowerCase();
+    if (lower.includes('fruit')) return 'bg-orange-500/80 text-white';
+    if (lower.includes('baker')) return 'bg-amber-500/80 text-white';
+    if (lower.includes('veg')) return 'bg-green-600/80 text-white';
+    if (lower.includes('dairy')) return 'bg-blue-500/80 text-white';
+    if (lower.includes('cook')) return 'bg-red-500/80 text-white';
+    return 'bg-gray-500/80 text-white';
   };
 
   const getExpirationWarning = () => {
     const now = new Date().getTime();
     const expiration = new Date(item.expirationDate).getTime();
     const daysLeft = Math.ceil((expiration - now) / (1000 * 60 * 60 * 24));
-
     if (daysLeft < 0) return 'Expired';
     if (daysLeft <= 3) return `${daysLeft} day${daysLeft !== 1 ? 's' : ''} left`;
     return null;
   };
 
-const handleDelete = () => {
-    
+  const handleDelete = () => {
     const ConfirmDelete = ({ closeToast }: { closeToast?: () => void }) => (
       <div className="flex flex-col">
         <p className="text-sm font-semibold mb-3 text-gray-800">
@@ -77,7 +77,6 @@ const handleDelete = () => {
       </div>
     );
 
-    
     toast.warn(<ConfirmDelete />, {
       position: "top-center", 
       autoClose: false,      
@@ -87,18 +86,21 @@ const handleDelete = () => {
     });
   };
 
- 
+  const isKg = item.unit.toLowerCase() === 'kg';
+  const stepSize = isKg ? 0.1 : 1;
+
   const handleDecrement = () => {
     const current = Number(draftQuantity) || 0;
-    if (current > 0) setDraftQuantity(current - 1);
+    const next = Math.round((current - stepSize) * 10) / 10;
+    if (next >= 0) setDraftQuantity(next);
   };
 
   const handleIncrement = () => {
     const current = Number(draftQuantity) || 0;
-    setDraftQuantity(current + 1);
+    const next = Math.round((current + stepSize) * 10) / 10;
+    setDraftQuantity(next);
   };
 
-  
   const handleSaveQuantity = () => {
     const newQuantity = Number(draftQuantity);
     if (newQuantity < 0 || isNaN(newQuantity)) {
@@ -113,193 +115,140 @@ const handleDelete = () => {
   const expirationWarning = getExpirationWarning();
 
   return (
-    <div
-      className={`group rounded-2xl border overflow-hidden hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all duration-300 flex flex-col h-full relative z-0 ${
-        theme === 'light'
-          ? 'bg-white border-gray-100'
-          : 'bg-gray-900 border-gray-700'
-      }`}
-    >
-    
-      <div className="relative h-48 w-full overflow-hidden">
-        <div
-          className={`absolute inset-0 group-hover:bg-black/0 transition-colors z-10 ${
-            theme === 'light' ? 'bg-black/5' : 'bg-black/20'
-          }`}
-        />
+    <div className={`group relative rounded-2xl overflow-hidden flex flex-col transition-all duration-300 ease-out hover:-translate-y-1.5 hover:shadow-xl ${
+      theme === 'light'
+        ? 'bg-white border border-gray-200/80 shadow-sm hover:shadow-gray-200/60'
+        : 'bg-[#1a1a1a] border border-[#2e2e2e] shadow-sm hover:shadow-black/30'
+    } ${
+      expirationWarning ? 'ring-2 ring-amber-400/40' : ''
+    }`}>
+      
+      {/* Image section — fixed 200px */}
+      <div className="relative h-[200px] overflow-hidden bg-gray-100 dark:bg-gray-800 flex-shrink-0">
         <img
           src={item.image}
           alt={item.title}
-          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
-        <span
-          className={`absolute top-4 right-4 px-3 py-1.5 rounded-lg text-xs font-bold border ${getStatusColor(
-            item.status
-          )} shadow-sm z-20 backdrop-blur-sm`}
-        >
+        
+        {/* Category badge — top left */}
+        <span className={`absolute top-3 left-3 px-2.5 py-1 rounded-lg text-[11px] font-bold uppercase tracking-wide shadow-sm ${getCategoryColor(item.category)}`}>
+          {item.category}
+        </span>
+
+        {/* Status badge — top right */}
+        <span className={`absolute top-3 right-3 px-2.5 py-1 rounded-lg text-[11px] font-bold shadow-sm ${getStatusStyle(item.status)}`}>
           {item.status}
         </span>
+
+        {/* Expiry warning badge */}
+        {expirationWarning && (
+          <span className="absolute bottom-3 left-3 px-2 py-0.5 rounded-md bg-amber-500 text-white text-[10px] font-bold">
+            ⚠ {expirationWarning}
+          </span>
+        )}
       </div>
 
-
-      <div className="p-6 flex flex-col flex-grow">
-        <div className="flex justify-between items-start mb-3">
-          <span className="text-xs font-bold tracking-wide text-blue-600 bg-blue-50 px-2.5 py-1 rounded-md uppercase">
-            {item.category}
-          </span>
-          <span
-            className={`text-xs font-medium ${
-              theme === 'light' ? 'text-gray-400' : 'text-gray-500'
-            }`}
-          >
-            {item.addedAt}
-          </span>
-        </div>
-
-        <h3
-          className={`text-xl font-extrabold mb-2 leading-tight group-hover:text-blue-600 transition-colors ${
-            theme === 'light' ? 'text-gray-900' : 'text-gray-100'
-          }`}
-        >
+      {/* Card body */}
+      <div className="flex flex-col flex-grow p-4 pt-3.5">
+        {/* Title */}
+        <h3 className={`text-lg font-bold leading-snug mb-1.5 ${
+          theme === 'light' ? 'text-[#1a1a1a]' : 'text-white'
+        }`} style={{ fontSize: '18px' }}>
           {item.title}
         </h3>
 
-        <p
-          className={`text-sm mb-4 line-clamp-2 leading-relaxed ${
-            theme === 'light' ? 'text-gray-500' : 'text-gray-400'
-          }`}
-        >
+        {/* Description */}
+        <p className={`text-[13px] mb-3 line-clamp-2 leading-relaxed ${
+          theme === 'light' ? 'text-gray-500' : 'text-gray-400'
+        }`}>
           {item.description}
         </p>
 
-        <div
-          className={`mt-auto pt-4 border-t ${
-            theme === 'light' ? 'border-gray-50' : 'border-gray-700'
-          }`}
-        />
-
-
-        <div className="space-y-2.5 my-4">
-          <div
-            className={`flex items-center justify-between text-sm font-medium ${
-              theme === 'light' ? 'text-gray-600' : 'text-gray-300'
-            }`}
-          >
-            <span>Current Stock:</span>
-            <span className="text-lg font-bold text-blue-600">
-              {item.quantity} {item.unit}
+        {/* Info rows */}
+        <div className={`space-y-2 pt-3 border-t mb-4 ${
+          theme === 'light' ? 'border-gray-100' : 'border-[#2e2e2e]'
+        }`}>
+          <div className={`flex items-center text-[13px] ${
+            theme === 'light' ? 'text-gray-600' : 'text-gray-300'
+          }`}>
+            <MapPinIcon className="w-4 h-4 mr-2 text-[#16a34a] flex-shrink-0" />
+            <span className="truncate">{item.pickupLocation}</span>
+          </div>
+          <div className={`flex items-center text-[13px] ${
+            theme === 'light' ? 'text-gray-600' : 'text-gray-300'
+          }`}>
+            <ClockIcon className={`w-4 h-4 mr-2 flex-shrink-0 ${expirationWarning ? 'text-amber-500' : 'text-gray-400'}`} />
+            <span>
+              Expires: <span className={expirationWarning ? 'text-amber-500 font-semibold' : ''}>
+                {new Date(item.expirationDate).toLocaleDateString()}
+              </span>
             </span>
           </div>
-
-          <div
-            className={`flex items-center justify-between text-sm font-medium ${
-              theme === 'light' ? 'text-gray-600' : 'text-gray-300'
-            }`}
-          >
-            <span>Location:</span>
-            <span className="font-semibold text-right">
-              {item.pickupLocation}
+          <div className={`flex items-center justify-between text-sm font-semibold ${
+            theme === 'light' ? 'text-gray-700' : 'text-gray-300'
+          }`}>
+            <span>Stock:</span>
+            <span className="text-[#16a34a] font-bold">
+              {item.quantity} <span className="text-xs uppercase">{item.unit}</span>
             </span>
           </div>
-
-          {expirationWarning && (
-            <div
-              className={`flex items-center justify-between text-sm font-medium ${
-                expirationWarning === 'Expired'
-                  ? 'text-red-600'
-                  : 'text-amber-600'
-              }`}
-            >
-              <span>Expires:</span>
-              <span className="font-semibold">{expirationWarning}</span>
-            </div>
-          )}
         </div>
 
-
-        <div
-          className={`flex items-center gap-2 mb-4 p-3 rounded-xl ${
-            theme === 'light'
-              ? 'bg-gray-50 border border-gray-100'
-              : 'bg-gray-700 border border-gray-600'
-          }`}
-        >
-          <button
-            onClick={handleDecrement}
-            title="Decrease quantity"
-            className={`flex-shrink-0 p-2 rounded-lg transition-all duration-200 ${
-              theme === 'light'
-                ? 'bg-white border border-gray-200 text-gray-600 hover:text-red-600 hover:border-red-200 hover:bg-red-50'
-                : 'bg-gray-600 border border-gray-500 text-gray-300 hover:text-red-400 hover:border-red-500 hover:bg-red-900/30'
-            }`}
-          >
-            <MinusIcon className="w-5 h-5" />
-          </button>
-
- 
-          <div className="flex-1 flex items-center justify-center gap-1.5">
+        {/* Action Bar */}
+        <div className="flex items-center gap-2 mt-auto">
+          {/* Quantity stepper pill */}
+          <div className={`flex-1 flex items-center justify-center gap-1 p-1.5 rounded-xl border ${
+            theme === 'light' ? 'bg-gray-50 border-gray-200' : 'bg-[#262626] border-[#2e2e2e]'
+          }`}>
+            <button
+              onClick={handleDecrement}
+              className={`p-1.5 rounded-lg transition-all ${
+                theme === 'light' ? 'hover:bg-red-50 hover:text-red-600 text-gray-500' : 'hover:bg-red-900/30 hover:text-red-400 text-gray-400'
+              }`}
+            >
+              <MinusIcon className="w-4 h-4" />
+            </button>
             <input
               type="number"
               value={draftQuantity}
               onChange={(e) => setDraftQuantity(e.target.value)}
-              min="0"
-              className={`w-14 text-center font-extrabold text-sm bg-transparent border-b-2 focus:outline-none focus:border-blue-500 transition-colors hide-arrows ${
-                theme === 'light' 
-                  ? 'text-gray-900 border-gray-300' 
-                  : 'text-gray-100 border-gray-500'
+              className={`w-10 text-center font-bold text-sm bg-transparent focus:outline-none ${
+                theme === 'light' ? 'text-[#1a1a1a]' : 'text-white'
               }`}
             />
-            <span className={`text-xs font-bold uppercase tracking-wider ${theme === 'light' ? 'text-gray-400' : 'text-gray-500'}`}>
-              {item.unit}
-            </span>
+            <button
+              onClick={handleIncrement}
+              className={`p-1.5 rounded-lg transition-all ${
+                theme === 'light' ? 'hover:bg-green-50 hover:text-green-600 text-gray-500' : 'hover:bg-green-900/30 hover:text-green-400 text-gray-400'
+              }`}
+            >
+              <PlusIcon className="w-4 h-4" />
+            </button>
           </div>
 
           <button
-            onClick={handleIncrement}
-            title="Increase quantity"
-            className={`flex-shrink-0 p-2 rounded-lg transition-all duration-200 ${
-              theme === 'light'
-                ? 'bg-white border border-gray-200 text-gray-600 hover:text-emerald-600 hover:border-emerald-200 hover:bg-emerald-50'
-                : 'bg-gray-600 border border-gray-500 text-gray-300 hover:text-emerald-400 hover:border-emerald-500 hover:bg-emerald-900/30'
+            onClick={() => hasChanges ? handleSaveQuantity() : onEdit(item)}
+            className={`flex items-center justify-center p-2.5 rounded-xl transition-all active:scale-95 ${
+              hasChanges 
+                ? 'bg-[#16a34a] text-white shadow-md shadow-green-500/20' 
+                : theme === 'light' 
+                  ? 'bg-white border border-gray-200 hover:bg-gray-50 text-gray-500' 
+                  : 'bg-[#262626] border border-[#2e2e2e] hover:bg-gray-800 text-gray-400'
             }`}
           >
-            <PlusIcon className="w-5 h-5" />
-          </button>
-        </div>
-
-  
-        <div className="flex gap-2">
-
-          <button
-            onClick={() => {
-              if (hasChanges) {
-                handleSaveQuantity();
-              } else {
-                onEdit(item);
-              }
-            }}
-            className={`flex-1 flex items-center justify-center gap-2 px-3 py-2.5 font-bold rounded-lg transition-all duration-200 active:scale-[0.98] ${
-              hasChanges
-                ? 'bg-emerald-500 text-white hover:bg-emerald-600 shadow-md shadow-emerald-200/50'
-                : theme === 'light'
-                  ? 'bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200'
-                  : 'bg-blue-900/30 text-blue-400 hover:bg-blue-900/50 border border-blue-800'
-            }`}
-          >
-            {hasChanges ? <CheckIcon className="w-4 h-4" /> : <PencilIcon className="w-4 h-4" />}
-            <span className="text-xs uppercase tracking-wider">{hasChanges ? 'Save' : 'Edit'}</span>
+            {hasChanges ? <CheckIcon className="w-4.5 h-4.5" /> : <PencilIcon className="w-4.5 h-4.5" />}
           </button>
 
           <button
             onClick={handleDelete}
-            className={`flex-1 flex items-center justify-center gap-2 px-3 py-2.5 font-bold rounded-lg transition-all duration-200 active:scale-[0.98] ${
-              theme === 'light'
-                ? 'bg-red-50 text-red-600 hover:bg-red-100 border border-red-200'
-                : 'bg-red-900/30 text-red-400 hover:bg-red-900/50 border border-red-800'
+            className={`flex items-center justify-center p-2.5 rounded-xl transition-all active:scale-95 ${
+              theme === 'light' 
+                ? 'bg-white border border-gray-200 hover:bg-red-50 hover:text-red-600 text-gray-500' 
+                : 'bg-[#262626] border border-[#2e2e2e] hover:bg-red-900/30 hover:text-red-400 text-gray-400'
             }`}
           >
-            <TrashIcon className="w-4 h-4" />
-            <span className="text-xs uppercase tracking-wider">Delete</span>
+            <TrashIcon className="w-4.5 h-4.5" />
           </button>
         </div>
       </div>

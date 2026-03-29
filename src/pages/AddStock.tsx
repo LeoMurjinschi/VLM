@@ -332,11 +332,7 @@ const handleSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => 
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className={`flex items-center gap-2.5 px-6 py-3 text-white font-semibold rounded-xl transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md ${
-                  theme === 'light'
-                    ? 'bg-blue-600 hover:bg-blue-700'
-                    : 'bg-blue-600 hover:bg-blue-700'
-                }`}
+                className="flex items-center gap-2.5 px-6 py-3 font-semibold rounded-xl transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed btn-primary"
               >
                 {isSubmitting ? (
                   <>

@@ -59,7 +59,7 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ user, onChange, onA
         />
 
         <div className="pt-2 flex justify-end">
-          <button type="submit" disabled={isSaving} className={`flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg transition-all active:scale-[0.98] disabled:opacity-70 ${theme === 'light' ? 'shadow-blue-200/50' : 'shadow-black/50'}`}>
+          <button type="submit" disabled={isSaving} className="flex items-center gap-2 px-6 py-3 font-bold rounded-xl transition-all active:scale-[0.98] disabled:opacity-70 btn-primary">
             {isSaving ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <CheckCircleIcon className="w-5 h-5" />}
             Save Changes
           </button>

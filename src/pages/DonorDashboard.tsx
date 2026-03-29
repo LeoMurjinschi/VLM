@@ -78,21 +78,21 @@ const DonorDashboard: React.FC = () => {
   }, []);
 
   return (
-    <div className={`space-y-8 max-w-7xl mx-auto min-h-screen relative pb-10 ${theme === 'light' ? 'bg-gray-50' : 'bg-gray-900'}`}>
+    <div className="space-y-6 max-w-7xl mx-auto min-h-screen relative pb-10">
       
 
-      <div className={`pb-6 border-b relative z-20 ${theme === 'light' ? 'border-gray-100' : 'border-gray-700'}`}>
+      <div className={`pb-6 border-b relative z-20 ${theme === 'light' ? 'border-gray-200/60' : 'border-[#2e2e2e]'}`}>
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
           <div>
-            <h1 className={`text-3xl md:text-4xl font-extrabold tracking-tight mb-2 ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>
+            <h1 className={`text-3xl font-bold tracking-tight mb-2 ${theme === 'light' ? 'text-[#1a1a1a]' : 'text-white'}`} style={{ fontFamily: 'var(--font-display)' }}>
               Donor Impact Dashboard
             </h1>
-            <p className={`text-base md:text-lg leading-relaxed ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>
+            <p className={`text-[15px] leading-relaxed ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>
               Track your contribution to reducing food waste and helping the community.
             </p>
           </div>
           <div className="flex gap-3">
-             <button onClick={openNewMilestoneModal} className={`flex items-center justify-center gap-2 px-4 py-3 font-bold rounded-xl shadow-sm transition-all active:scale-[0.98] ${theme === 'light' ? 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200' : 'bg-gray-900 text-gray-200 hover:bg-gray-700 border border-gray-600'}`}>
+             <button onClick={openNewMilestoneModal} className="flex items-center justify-center gap-2 px-4 py-2.5 font-semibold rounded-xl transition-all active:scale-[0.98] bg-[#16a34a] text-white hover:bg-[#15803d] shadow-md shadow-green-500/20 text-sm">
                 <PlusIcon className="w-5 h-5" />
                 <span className="hidden sm:inline">Add Goal</span>
              </button>
