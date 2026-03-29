@@ -1,35 +1,41 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import DashboardLayout from './layouts/DashboardLayout';
+import DonationFeed from './pages/DonationFeed';
+import AddStock from './pages/AddStock';
+import CurrentInventory from './pages/CurrentInventory';
+import { ThemeProvider } from './context/ThemeContext';
+import { InventoryProvider } from './context/InventoryContext'; 
+import ToastProvider from './components/UI/ToastProvider';
+import DonorDashboard from './pages/DonorDashboard';
+import ImpactReports from './pages/ImpactReports';
+import Settings from './pages/Settings';
+import { AuthProvider } from './context/AuthContext';
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <ThemeProvider>
+      <AuthProvider>
+      <InventoryProvider>
+        <ToastProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<DashboardLayout />}>
+                <Route index element={<Navigate to="/feed" replace />} />
+                <Route path="feed" element={<DonationFeed />} />
+                <Route path="dashboard" element={<DonorDashboard />} />
+                <Route path="reports" element={<ImpactReports />} /> 
+                <Route path="add-stock" element={<AddStock />} />
+                <Route path="inventory" element={<CurrentInventory />} />
+                <Route path="settings" element={<Settings />} />
+                <Route path="*" element={<div className="p-10 text-center text-gray-500 font-bold">Page under construction 🚧</div>} />
+              </Route>
+            </Routes>
+          </BrowserRouter>
+        </ToastProvider>
+      </InventoryProvider>
+      </AuthProvider>
+    </ThemeProvider>
+  );
 }
 
-export default App
+export default App;
