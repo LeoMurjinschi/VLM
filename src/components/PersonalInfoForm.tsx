@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTheme } from './../hooks/useTheme';
 import { UserCircleIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
-import ImageUpload from './UI/ImageUpload';
+import ImageDragDrop from './UI/ImageDragDrop';
 import type { User } from './../_mock';
 
 
@@ -49,11 +49,13 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ user, onChange, onA
           </div>
         </div>
 
-        <ImageUpload 
+        <ImageDragDrop 
           label="Profile Picture"
           value={user.avatar} 
-          onChange={onAvatarChange} 
+          onChange={(val) => onAvatarChange(val || '')}
           maxSizeMB={5}
+          variant="avatar"
+          helperText="Max 5MB."
         />
 
         <div className="pt-2 flex justify-end">

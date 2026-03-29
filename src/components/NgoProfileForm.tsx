@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useTheme } from '../hooks/useTheme';
 import { BuildingOffice2Icon, HeartIcon, TruckIcon, CheckBadgeIcon } from '@heroicons/react/24/outline';
 import { toast } from 'react-toastify';
+import Select from './UI/Select';
 
 export const DONATION_CATEGORIES = ['Fresh Produce', 'Baked Goods', 'Prepared Hot Meals', 'Packaged Goods', 'Dairy & Refrigerated'];
 
@@ -144,15 +145,15 @@ const NgoProfileForm: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className={`block text-sm font-bold mb-2 ${theme === 'light' ? 'text-gray-700' : 'text-gray-300'}`}>Transport Type</label>
-              <select
+              <Select
+                options={[
+                  { value: 'car', label: 'Regular Car' },
+                  { value: 'van', label: 'Transport Van' },
+                  { value: 'refrigerated', label: 'Refrigerated Truck' }
+                ]}
                 value={formData.transportType}
-                onChange={(e) => setFormData({ ...formData, transportType: e.target.value })}
-                className={inputClasses}
-              >
-                <option value="car">Regular Car</option>
-                <option value="van">Transport Van</option>
-                <option value="refrigerated">Refrigerated Truck</option>
-              </select>
+                onChange={(value) => setFormData({ ...formData, transportType: value })}
+              />
             </div>
 
             <div>

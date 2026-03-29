@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useTheme } from './../hooks/useTheme';
-import { ShieldCheckIcon, KeyIcon } from '@heroicons/react/24/outline';
+import { ShieldCheckIcon, KeyIcon, ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline';
+import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 
 interface SecuritySettingsProps {
@@ -9,6 +10,7 @@ interface SecuritySettingsProps {
 
 const SecuritySettings: React.FC<SecuritySettingsProps> = ({ onUpdatePassword }) => {
   const { theme } = useTheme();
+  const { logout } = useAuth();
   
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -181,6 +183,30 @@ const SecuritySettings: React.FC<SecuritySettingsProps> = ({ onUpdatePassword })
           </div>
         </form>
       )}
+
+      {/* Sign Out Section */}
+      <div className={`mt-10 pt-8 border-t ${theme === 'light' ? 'border-gray-100' : 'border-gray-800'}`}>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h4 className={`text-base font-bold text-red-600 dark:text-red-500`}>Sign Out</h4>
+            <p className={`text-sm ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>Log out of your account on this device.</p>
+          </div>
+          <button 
+            onClick={() => {
+              if (window.confirm('Are you sure you want to log out?')) {
+                logout();
+                toast.info('Logged out successfully.');
+              }
+            }}
+            className={`flex items-center justify-center gap-2 px-6 py-2.5 font-bold rounded-xl transition-all ${
+              theme === 'light' ? 'bg-red-50 text-red-600 hover:bg-red-100' : 'bg-red-900/20 text-red-500 hover:bg-red-900/40'
+            }`}
+          >
+            <ArrowRightOnRectangleIcon className="w-5 h-5" />
+            Sign Out
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
