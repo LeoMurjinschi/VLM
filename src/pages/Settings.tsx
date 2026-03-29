@@ -20,6 +20,8 @@ import SecuritySettings from '../components/SecuritySettings';
 import BusinessProfileForm from '../components/BusinessProfileForm';
 import PickupLocations from '../components/PickupLocations';
 import DocumentManager from '../components/DocumentManager';
+import NgoProfileForm from '../components/NgoProfileForm';
+import NgoDocumentManager from '../components/NgoDocumentManager';
 
 interface UserPreferences {
   theme: 'light' | 'dark';
@@ -39,12 +41,13 @@ const Settings: React.FC = () => {
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [isSavingPrefs, setIsSavingPrefs] = useState(false);
 
-  type TabId = 'profile' | 'business' | 'preferences' | 'security';
+  type TabId = 'profile' | 'business' | 'ngo' | 'preferences' | 'security';
   const [activeTab, setActiveTab] = useState<TabId>('profile');
 
   const tabs = [
     { id: 'profile' as TabId, label: 'Profile Settings', icon: UserIcon },
     ...(user?.role?.toLowerCase() === 'donator' ? [{ id: 'business' as TabId, label: 'Business Details', icon: BriefcaseIcon }] : []),
+    ...(user?.role?.toLowerCase() === 'receiver' || user?.role?.toLowerCase() === 'ngo' ? [{ id: 'ngo' as TabId, label: 'Organization Details', icon: BriefcaseIcon }] : []),
     { id: 'preferences' as TabId, label: 'Preferences', icon: Cog6ToothIcon },
     { id: 'security' as TabId, label: 'Security', icon: ShieldCheckIcon },
   ];
@@ -210,6 +213,13 @@ const Settings: React.FC = () => {
                 <BusinessProfileForm />
                 <PickupLocations />
                 <DocumentManager />
+              </div>
+            )}
+
+            {activeTab === 'ngo' && (user.role.toLowerCase() === 'receiver' || user.role.toLowerCase() === 'ngo') && (
+              <div className="space-y-6 animate-fade-in-up">
+                <NgoProfileForm />
+                <NgoDocumentManager />
               </div>
             )}
 
