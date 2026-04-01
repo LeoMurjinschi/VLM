@@ -14,67 +14,89 @@ import TermsPage from './pages/public/TermsPage';
 import PrivacyPage from './pages/public/PrivacyPage';
 import CookiePage from './pages/public/CookiePage';
 import HelpCenterPage from './pages/public/HelpCenterPage';
+import { ThemeProvider } from './context/ThemeContext';
+import { InventoryProvider } from './context/InventoryContext'; 
+import ToastProvider from './components/ui/ToastProvider';
+import DashboardLayout from './layouts/DashboardLayout';
+import DonationFeed from './pages/DonationFeed';
+import DonorDashboard from './pages/DonorDashboard';
+import ImpactReports from './pages/ImpactReports';
+import AddStock from './pages/AddStock';
+import CurrentInventory from './pages/CurrentInventory';
+import Settings from './pages/Settings';
 
-const DonorDashboard = () => <div className="p-10 text-2xl font-bold">Donor Dashboard (Protected)</div>;
 const ReceiverDashboard = () => <div className="p-10 text-2xl font-bold">Receiver Dashboard (Protected)</div>;
 const AdminDashboard = () => <div className="p-10 text-2xl font-bold">Admin Dashboard (Protected)</div>;
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <ScrollToTop />
-        <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/signup" element={<SignUpPage />} />
-          <Route path="/about" element={<AboutPage />} />
-          <Route path="/careers" element={<CareersPage />} />
-          <Route path="/careers/apply/:jobId" element={<JobApplicationPage />} />
-          <Route path="/partners" element={<PartnersPage />} />
-          <Route path="/blog" element={<BlogPage />} />
-          <Route path="/terms" element={<TermsPage />} />
-          <Route path="/privacy" element={<PrivacyPage />} />
-          <Route path="/cookies" element={<CookiePage />} />
-          <Route path="/contact" element={<HelpCenterPage />} />
-          <Route path="/" element={<LandingPage />} />
+    <ThemeProvider>
+      <AuthProvider>
+        <InventoryProvider>
+          <ToastProvider>
+            <Router>
+              <ScrollToTop />
+              <Routes>
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/signup" element={<SignUpPage />} />
+                <Route path="/about" element={<AboutPage />} />
+                <Route path="/careers" element={<CareersPage />} />
+                <Route path="/careers/apply/:jobId" element={<JobApplicationPage />} />
+                <Route path="/partners" element={<PartnersPage />} />
+                <Route path="/blog" element={<BlogPage />} />
+                <Route path="/terms" element={<TermsPage />} />
+                <Route path="/privacy" element={<PrivacyPage />} />
+                <Route path="/cookies" element={<CookiePage />} />
+                <Route path="/contact" element={<HelpCenterPage />} />
+                <Route path="/" element={<LandingPage />} />
 
-          <Route
-            path="/donor/*"
-            element={
-              <ProtectedRoute allowedRoles={['donor']}>
-                <Routes>
+                <Route
+                  path="/donor/*"
+                  element={
+                    <ProtectedRoute allowedRoles={['donor']}>
+                      <DashboardLayout />
+                    </ProtectedRoute>
+                  }
+                >
+                  <Route index element={<Navigate to="feed" replace />} />
+                  <Route path="feed" element={<DonationFeed />} />
                   <Route path="dashboard" element={<DonorDashboard />} />
-                </Routes>
-              </ProtectedRoute>
-            }
-          />
+                  <Route path="reports" element={<ImpactReports />} />
+                  <Route path="add-stock" element={<AddStock />} />
+                  <Route path="inventory" element={<CurrentInventory />} />
+                  <Route path="settings" element={<Settings />} />
+                  <Route path="*" element={<div className="p-10 text-center text-gray-500 font-bold">Page under construction 🚧</div>} />
+                </Route>
 
-          <Route
-            path="/receiver/*"
-            element={
-              <ProtectedRoute allowedRoles={['receiver']}>
-                <Routes>
-                  <Route path="dashboard" element={<ReceiverDashboard />} />
-                </Routes>
-              </ProtectedRoute>
-            }
-          />
+                <Route
+                  path="/receiver/*"
+                  element={
+                    <ProtectedRoute allowedRoles={['receiver']}>
+                      <Routes>
+                        <Route path="dashboard" element={<ReceiverDashboard />} />
+                      </Routes>
+                    </ProtectedRoute>
+                  }
+                />
 
-          <Route
-            path="/admin/*"
-            element={
-              <ProtectedRoute allowedRoles={['admin']}>
-                <Routes>
-                  <Route path="dashboard" element={<AdminDashboard />} />
-                </Routes>
-              </ProtectedRoute>
-            }
-          />
+                <Route
+                  path="/admin/*"
+                  element={
+                    <ProtectedRoute allowedRoles={['admin']}>
+                      <Routes>
+                        <Route path="dashboard" element={<AdminDashboard />} />
+                      </Routes>
+                    </ProtectedRoute>
+                  }
+                />
 
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </Router>
-    </AuthProvider>
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </Router>
+          </ToastProvider>
+        </InventoryProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 

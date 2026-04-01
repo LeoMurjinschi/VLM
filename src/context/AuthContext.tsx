@@ -1,5 +1,4 @@
-import { createContext, useContext, useState } from 'react';
-import type { ReactNode } from 'react';
+import { createContext, useContext, useState, type ReactNode } from 'react';
 
 export type Role = 'donor' | 'receiver' | 'admin' | null;
 
@@ -8,6 +7,7 @@ interface User {
     name: string;
     email: string;
     role: Role;
+    avatar?: string;
 }
 
 interface AuthContextType {

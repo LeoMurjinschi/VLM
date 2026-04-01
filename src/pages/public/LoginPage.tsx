@@ -6,6 +6,7 @@ import { InputField } from '../../components/ui/InputField';
 import { AuthButton } from '../../components/ui/AuthButton';
 import { useAuth} from '../../context/AuthContext';
 import type { Role } from '../../context/AuthContext';
+import usersMock from '../../_mock/users.json';
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -24,14 +25,26 @@ const LoginPage = () => {
 
     await new Promise(resolve => setTimeout(resolve, 1000));
 
-    if (formData.email === 'admin@test.com') {
-      navigate('/admin/dashboard');
-    } else if (formData.email === 'donor@test.com') {
-      navigate('/donor/dashboard');
-    } else if (formData.email === 'receiver@test.com') {
-      navigate('/receiver/dashboard');
+    const user = usersMock.find(u => u.email === formData.email && u.password === formData.password);
+
+    if (user) {
+      login({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role as Role,
+        avatar: user.avatar
+      });
+
+      if (user.role === 'admin') {
+        navigate('/admin/dashboard');
+      } else if (user.role === 'donor') {
+        navigate('/donor/dashboard');
+      } else if (user.role === 'receiver') {
+        navigate('/receiver/dashboard');
+      }
     } else {
-      setError('Invalid credentials (Try admin@test.com, donor@test.com)');
+      setError('Date de autentificare incorecte (Verifică users.json pentru email/parolă)');
       setIsLoading(false);
     }
   };
@@ -94,7 +107,6 @@ const LoginPage = () => {
           </a>
         </div>
 
-        {/* Submit Button */}
         <AuthButton 
           type="submit" 
           fullWidth 

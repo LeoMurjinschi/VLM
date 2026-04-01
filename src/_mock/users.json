@@ -1,0 +1,50 @@
+[
+  {
+    "id": "donor1",
+    "name": "Donor Company 1",
+    "email": "donor1@test.com",
+    "password": "password123",
+    "role": "donor",
+    "avatar": "https://i.pravatar.cc/150?u=donor1"
+  },
+  {
+    "id": "donor2",
+    "name": "Donor Bakery 2",
+    "email": "donor2@test.com",
+    "password": "password123",
+    "role": "donor",
+    "avatar": "https://i.pravatar.cc/150?u=donor2"
+  },
+  {
+    "id": "donor3",
+    "name": "Donor Supermarket 3",
+    "email": "donor3@test.com",
+    "password": "password123",
+    "role": "donor",
+    "avatar": "https://i.pravatar.cc/150?u=donor3"
+  },
+  {
+    "id": "receiver1",
+    "name": "Receiver Charity 1",
+    "email": "rec1@test.com",
+    "password": "password123",
+    "role": "receiver",
+    "avatar": "https://i.pravatar.cc/150?u=receiver1"
+  },
+  {
+    "id": "receiver2",
+    "name": "Receiver Shelter 2",
+    "email": "rec2@test.com",
+    "password": "password123",
+    "role": "receiver",
+    "avatar": "https://i.pravatar.cc/150?u=receiver2"
+  },
+  {
+    "id": "receiver3",
+    "name": "Receiver Community 3",
+    "email": "rec3@test.com",
+    "password": "password123",
+    "role": "receiver",
+    "avatar": "https://i.pravatar.cc/150?u=receiver3"
+  }
+]
