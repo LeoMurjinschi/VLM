@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Mail, Lock, LogIn } from 'lucide-react';
 import { AuthLayout } from '../../components/auth/AuthLayout';
 import { InputField } from '../../components/ui/InputField';
@@ -11,6 +11,7 @@ import usersMock from '../../_mock/users.json';
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { login } = useAuth();
   const { theme } = useTheme();
   const [isLoading, setIsLoading] = useState(false);
@@ -63,6 +64,14 @@ const LoginPage = () => {
       title="Welcome back" 
       subtitle="Please sign in to access your account."
     >
+      {searchParams.get('reset') === 'success' && (
+        <div className={`p-4 rounded-xl text-sm font-medium mb-6 flex items-center gap-2 ${
+          theme === 'light' ? 'bg-[#F0FAF4] text-[#16a34a] border border-green-100' : 'bg-[#16a34a]/10 text-green-400 border border-green-900/30'
+        }`}>
+          Parola a fost modificată cu succes!
+        </div>
+      )}
+
       <form className="space-y-6" onSubmit={handleSubmit}>
         
         <InputField
@@ -108,11 +117,11 @@ const LoginPage = () => {
               Remember me
             </label>
           </div>
-          <a href="#" className={`font-semibold hover:underline ${
+          <Link to="/forgot-password" className={`font-semibold hover:underline ${
             theme === 'light' ? 'text-[#16a34a]' : 'text-green-500'
           }`}>
             Forgot password?
-          </a>
+          </Link>
         </div>
 
         <AuthButton 
