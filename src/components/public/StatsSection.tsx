@@ -1,18 +1,22 @@
-import {STATS} from '../../data/mockData';
+import { STATS } from '../../data/mockData';
+import { useTheme } from '../../hooks/useTheme';
 
 const StatsSection = () => {
+  const { theme } = useTheme();
   return (
-    <section className="bg-blue-600 py-16">
+    <section className={`py-16 transition-colors duration-300 ${
+      theme === 'light' ? 'bg-[#16a34a]' : 'bg-[#15803d]'
+    }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 text-center md:text-left">
           {STATS.map((stat, index) => (
             <div 
               key={stat.id} 
               className={`flex flex-col md:flex-row items-center md:items-start gap-4 ${
-                index !== STATS.length - 1 ? 'lg:border-r lg:border-blue-500' : ''
+                index !== STATS.length - 1 ? 'lg:border-r lg:border-green-500' : ''
               }`}
             >
-              <div className="p-3 bg-white/10 rounded-xl backdrop-blur-sm">
+              <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
                 <stat.icon size={28} className="text-white"/>
               </div>
               
@@ -20,10 +24,10 @@ const StatsSection = () => {
                 <p className="text-3xl font-black text-white tracking-tight mb-1">
                   {stat.value}
                 </p>
-                <p className="text-sm font-bold text-blue-100 uppercase tracking-wider mb-1">
+                <p className="text-sm font-bold text-green-100 uppercase tracking-wider mb-1">
                   {stat.label}
                 </p>
-                <p className="text-xs text-blue-200 font-medium max-w-[150px] text-center md:text-left">
+                <p className="text-xs text-green-200 font-medium max-w-[150px] text-center md:text-left">
                   {stat.description}
                 </p>
               </div>
