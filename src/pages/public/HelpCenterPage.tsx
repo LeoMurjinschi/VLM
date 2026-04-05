@@ -5,10 +5,12 @@ import Footer from '../../components/layout/Footer';
 import { AuthButton } from '../../components/ui/AuthButton';
 import { InputField } from '../../components/ui/InputField';
 import { FAQS } from '../../data/mockData';
+import { useTheme } from '../../hooks/useTheme';
 
 const HelpCenterPage = () => {
   const [activeCategory, setActiveCategory] = useState('All');
   const [openFaqId, setOpenFaqId] = useState<number | null>(null);
+  const { theme } = useTheme();
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSent, setIsSent] = useState(false);
@@ -32,11 +34,13 @@ const HelpCenterPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col font-sans text-gray-900">
+    <div className={`min-h-screen flex flex-col font-sans transition-colors duration-300 ${
+        theme === 'light' ? 'bg-gray-50 text-gray-900' : 'bg-[#121212] text-gray-100'
+    }`}>
       <Navbar />
 
       <main className="flex-grow">
-        <section className="bg-blue-600 text-white py-20">
+        <section className={`py-20 text-white ${theme === 'light' ? 'bg-[#16a34a]' : 'bg-[#15803d]'}`}>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-6 backdrop-blur-sm">
               <LifeBuoy size={32} className="text-white" />
@@ -44,16 +48,18 @@ const HelpCenterPage = () => {
             <h1 className="text-4xl md:text-5xl font-black mb-6 tracking-tight">
               How can we help you?
             </h1>
-            <p className="text-xl text-blue-100 max-w-2xl mx-auto">
+            <p className="text-xl text-green-100 max-w-2xl mx-auto">
               Search our FAQs or get in touch with our support team.
             </p>
           </div>
         </section>
 
-        <section className="py-20 bg-white border-b border-gray-200">
+        <section className={`py-20 border-b transition-colors duration-300 ${
+            theme === 'light' ? 'bg-white border-gray-200' : 'bg-[#1a1a1a] border-[#2e2e2e]'
+        }`}>
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-black text-gray-900 mb-6">Frequently Asked Questions</h2>
+              <h2 className={`text-3xl font-black mb-6 ${theme === 'light' ? 'text-gray-900' : 'text-white'}`}>Frequently Asked Questions</h2>
               
               <div className="flex flex-wrap justify-center gap-3">
                 {categories.map(category => (
@@ -62,8 +68,8 @@ const HelpCenterPage = () => {
                     onClick={() => setActiveCategory(category)}
                     className={`px-5 py-2 rounded-full text-sm font-bold transition-all ${
                       activeCategory === category 
-                        ? 'bg-blue-600 text-white shadow-md' 
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        ? (theme === 'light' ? 'bg-[#16a34a] text-white shadow-md' : 'bg-[#16a34a] text-white shadow-md') 
+                        : (theme === 'light' ? 'bg-gray-100 text-gray-600 hover:bg-gray-200' : 'bg-[#222222] text-gray-400 hover:bg-[#2e2e2e]')
                     }`}
                   >
                     {category}
@@ -76,22 +82,26 @@ const HelpCenterPage = () => {
               {filteredFaqs.map((faq) => (
                 <div 
                   key={faq.id} 
-                  className="border border-gray-200 rounded-2xl overflow-hidden bg-white hover:border-blue-200 transition-colors"
+                  className={`border rounded-2xl overflow-hidden transition-colors ${
+                      theme === 'light' ? 'bg-white border-gray-200 hover:border-[#16a34a]' : 'bg-[#1a1a1a] border-[#2e2e2e] hover:border-green-500'
+                  }`}
                 >
                   <button
                     onClick={() => toggleFaq(faq.id)}
                     className="w-full text-left px-6 py-5 flex items-center justify-between focus:outline-none"
                   >
-                    <span className="font-bold text-gray-900 pr-8">{faq.question}</span>
+                    <span className={`font-bold pr-8 ${theme === 'light' ? 'text-gray-900' : 'text-white'}`}>{faq.question}</span>
                     {openFaqId === faq.id ? (
-                      <ChevronUp size={20} className="text-blue-600 flex-shrink-0" />
+                      <ChevronUp size={20} className={theme === 'light' ? 'text-[#16a34a] flex-shrink-0' : 'text-green-400 flex-shrink-0'} />
                     ) : (
                       <ChevronDown size={20} className="text-gray-400 flex-shrink-0" />
                     )}
                   </button>
                   
                   {openFaqId === faq.id && (
-                    <div className="px-6 pb-6 text-gray-600 leading-relaxed border-t border-gray-50 pt-4">
+                    <div className={`px-6 pb-6 leading-relaxed border-t pt-4 ${
+                        theme === 'light' ? 'text-gray-600 border-gray-50' : 'text-gray-400 border-[#222222]'
+                    }`}>
                       {faq.answer}
                     </div>
                   )}
@@ -101,55 +111,65 @@ const HelpCenterPage = () => {
           </div>
         </section>
 
-        <section className="py-20 bg-gray-50">
+        <section className={`py-20 ${theme === 'light' ? 'bg-gray-50' : 'bg-[#121212]'}`}>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
-              <h2 className="text-3xl font-black text-gray-900">Still need help?</h2>
-              <p className="text-gray-500 mt-2">Send us a message and our team will get back to you shortly.</p>
+              <h2 className={`text-3xl font-black ${theme === 'light' ? 'text-gray-900' : 'text-white'}`}>Still need help?</h2>
+              <p className={`mt-2 ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>Send us a message and our team will get back to you shortly.</p>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 max-w-6xl mx-auto">
               
               <div className="lg:col-span-1 space-y-6">
-                <div className="bg-white p-6 rounded-2xl border border-gray-200 flex items-start gap-4">
-                  <div className="bg-blue-50 p-3 rounded-xl text-blue-600">
+                <div className={`p-6 rounded-2xl border flex items-start gap-4 ${
+                    theme === 'light' ? 'bg-white border-gray-200' : 'bg-[#1a1a1a] border-[#2e2e2e]'
+                }`}>
+                  <div className={`p-3 rounded-xl ${theme === 'light' ? 'bg-[#F0FAF4] text-[#16a34a]' : 'bg-[#16a34a]/10 text-green-400'}`}>
                     <Mail size={24} />
                   </div>
                   <div>
-                    <h3 className="font-bold text-gray-900 mb-1">Email Us</h3>
-                    <p className="text-gray-500 text-sm">support@foodshare.md</p>
+                    <h3 className={`font-bold mb-1 ${theme === 'light' ? 'text-gray-900' : 'text-white'}`}>Email Us</h3>
+                    <p className={`text-sm ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>support@foodshare.md</p>
                   </div>
                 </div>
 
-                <div className="bg-white p-6 rounded-2xl border border-gray-200 flex items-start gap-4">
-                  <div className="bg-green-50 p-3 rounded-xl text-green-600">
+                <div className={`p-6 rounded-2xl border flex items-start gap-4 ${
+                    theme === 'light' ? 'bg-white border-gray-200' : 'bg-[#1a1a1a] border-[#2e2e2e]'
+                }`}>
+                  <div className={`p-3 rounded-xl ${theme === 'light' ? 'bg-[#F0FAF4] text-[#16a34a]' : 'bg-[#16a34a]/10 text-green-400'}`}>
                     <Phone size={24} />
                   </div>
                   <div>
-                    <h3 className="font-bold text-gray-900 mb-1">Call Us</h3>
-                    <p className="text-gray-500 text-sm">+373 22 123 456<br/>Mon-Fri, 9am - 5pm</p>
+                    <h3 className={`font-bold mb-1 ${theme === 'light' ? 'text-gray-900' : 'text-white'}`}>Call Us</h3>
+                    <p className={`text-sm ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>+373 22 123 456<br/>Mon-Fri, 9am - 5pm</p>
                   </div>
                 </div>
 
-                <div className="bg-white p-6 rounded-2xl border border-gray-200 flex items-start gap-4">
-                  <div className="bg-orange-50 p-3 rounded-xl text-orange-600">
+                <div className={`p-6 rounded-2xl border flex items-start gap-4 ${
+                    theme === 'light' ? 'bg-white border-gray-200' : 'bg-[#1a1a1a] border-[#2e2e2e]'
+                }`}>
+                  <div className={`p-3 rounded-xl ${theme === 'light' ? 'bg-[#F0FAF4] text-[#16a34a]' : 'bg-[#16a34a]/10 text-green-400'}`}>
                     <MapPin size={24} />
                   </div>
                   <div>
-                    <h3 className="font-bold text-gray-900 mb-1">Visit Us</h3>
-                    <p className="text-gray-500 text-sm">Strada Ștefan cel Mare 128,<br/>Chișinău, Moldova</p>
+                    <h3 className={`font-bold mb-1 ${theme === 'light' ? 'text-gray-900' : 'text-white'}`}>Visit Us</h3>
+                    <p className={`text-sm ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>Strada Ștefan cel Mare 128,<br/>Chișinău, Moldova</p>
                   </div>
                 </div>
               </div>
 
-              <div className="lg:col-span-2 bg-white rounded-3xl p-8 md:p-12 border border-gray-200 shadow-sm">
+              <div className={`lg:col-span-2 rounded-3xl p-8 md:p-12 border shadow-sm ${
+                  theme === 'light' ? 'bg-white border-gray-200' : 'bg-[#1a1a1a] border-[#2e2e2e]'
+              }`}>
                 {isSent ? (
                   <div className="h-full flex flex-col items-center justify-center text-center py-12">
-                    <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-6">
-                      <MessageCircle size={40} className="text-green-600" />
+                    <div className={`w-20 h-20 rounded-full flex items-center justify-center mb-6 ${
+                        theme === 'light' ? 'bg-[#F0FAF4]' : 'bg-[#16a34a]/10'
+                    }`}>
+                      <MessageCircle size={40} className={theme === 'light' ? 'text-[#16a34a]' : 'text-green-400'} />
                     </div>
-                    <h3 className="text-2xl font-black text-gray-900 mb-4">Message Sent!</h3>
-                    <p className="text-gray-600 mb-8 max-w-md">
+                    <h3 className={`text-2xl font-black mb-4 ${theme === 'light' ? 'text-gray-900' : 'text-white'}`}>Message Sent!</h3>
+                    <p className={`mb-8 max-w-md ${theme === 'light' ? 'text-gray-600' : 'text-gray-400'}`}>
                       Thank you for reaching out. A member of our support team will reply to your email within 24 hours.
                     </p>
                     <AuthButton onClick={() => setIsSent(false)} variant="outline">
@@ -166,14 +186,16 @@ const HelpCenterPage = () => {
                     <InputField label="Subject" required placeholder="How can we help?" />
                     
                     <div>
-                      <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">
+                      <label className={`block text-xs font-bold mb-1 uppercase tracking-wide ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>
                         Message
                       </label>
                       <textarea
                         required
                         rows={6}
                         placeholder="Describe your issue in detail..."
-                        className="block w-full rounded-xl border border-gray-200 bg-gray-50 p-3 text-gray-900 focus:border-blue-500 focus:bg-white focus:ring-blue-500 transition-all placeholder:text-gray-400 sm:text-sm resize-none"
+                        className={`block w-full rounded-xl p-3 transition-all focus:border-[#16a34a] focus:ring-[#16a34a] sm:text-sm resize-none ${
+                            theme === 'light' ? 'bg-gray-50 border-gray-200 text-gray-900 focus:bg-white placeholder:text-gray-400' : 'bg-[#222222] border-[#2e2e2e] text-white focus:bg-[#1a1a1a] placeholder:text-gray-500'
+                        }`}
                       ></textarea>
                     </div>
 

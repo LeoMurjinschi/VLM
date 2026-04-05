@@ -6,10 +6,12 @@ import Footer from '../../components/layout/Footer';
 import { InputField } from '../../components/ui/InputField';
 import { AuthButton } from '../../components/ui/AuthButton';
 import { OPEN_POSITIONS } from '../../data/mockData';
+import { useTheme } from '../../hooks/useTheme';
 
 const JobApplicationPage = () => {
     const { jobId } = useParams();
     const navigate = useNavigate();
+    const { theme } = useTheme();
 
     const [isLoading, setIsLoading] = useState(false);
     const [isSubmitted, setIsSubmitted] = useState(false);
@@ -42,8 +44,8 @@ const JobApplicationPage = () => {
 
     if (!isGeneral && !selectedJob) {
         return (
-            <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">Job not found</h2>
+            <div className={`min-h-screen flex flex-col items-center justify-center p-4 ${theme === 'light' ? 'bg-gray-50' : 'bg-[#121212]'}`}>
+                <h2 className={`text-2xl font-bold mb-4 ${theme === 'light' ? 'text-gray-900' : 'text-white'}`}>Job not found</h2>
                 <AuthButton onClick={() => navigate('/careers')}>Back to Careers</AuthButton>
             </div>
         );
@@ -134,18 +136,24 @@ const JobApplicationPage = () => {
 
     if (isSubmitted) {
         return (
-            <div className="min-h-screen bg-gray-50 flex flex-col font-sans text-gray-900">
+            <div className={`min-h-screen flex flex-col font-sans transition-colors duration-300 ${
+                theme === 'light' ? 'bg-gray-50 text-gray-900' : 'bg-[#121212] text-gray-100'
+            }`}>
                 <Navbar />
                 <main className="flex-grow flex items-center justify-center py-20 px-4">
-                    <div className="bg-white p-8 rounded-2xl shadow-xl border border-gray-100 max-w-md text-center">
-                        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                            <CheckCircle className="text-green-600" size={32} />
+                    <div className={`p-8 rounded-2xl shadow-xl border max-w-md text-center ${
+                        theme === 'light' ? 'bg-white border-gray-100' : 'bg-[#1a1a1a] border-[#2e2e2e]'
+                    }`}>
+                        <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 ${
+                            theme === 'light' ? 'bg-[#F0FAF4]' : 'bg-[#16a34a]/10'
+                        }`}>
+                            <CheckCircle className={theme === 'light' ? 'text-[#16a34a]' : 'text-green-400'} size={32} />
                         </div>
-                        <h2 className="text-2xl font-black text-gray-900 mb-2">Application Submitted!</h2>
-                        <p className="text-gray-600 mb-6 leading-relaxed">
+                        <h2 className={`text-2xl font-black mb-2 ${theme === 'light' ? 'text-gray-900' : 'text-white'}`}>Application Submitted!</h2>
+                        <p className={`mb-6 leading-relaxed ${theme === 'light' ? 'text-gray-600' : 'text-gray-400'}`}>
                             You will get a response in 24–48 hours.
                         </p>
-                        <p className="text-sm text-gray-400">Redirecting to home page...</p>
+                        <p className={`text-sm ${theme === 'light' ? 'text-gray-400' : 'text-gray-500'}`}>Redirecting to home page...</p>
                     </div>
                 </main>
                 <Footer />
@@ -154,7 +162,9 @@ const JobApplicationPage = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col font-sans text-gray-900">
+        <div className={`min-h-screen flex flex-col font-sans transition-colors duration-300 ${
+            theme === 'light' ? 'bg-gray-50 text-gray-900' : 'bg-[#121212] text-gray-100'
+        }`}>
             <Navbar />
 
             <main className="flex-grow py-12 px-4 sm:px-6 lg:px-8">
@@ -162,22 +172,26 @@ const JobApplicationPage = () => {
 
                     <button
                         onClick={() => navigate('/careers')}
-                        className="flex items-center text-sm font-bold text-blue-600 hover:text-blue-700 mb-8 transition-colors"
+                        className={`flex items-center text-sm font-bold mb-8 transition-colors ${
+                            theme === 'light' ? 'text-[#16a34a] hover:text-[#15803d]' : 'text-green-400 hover:text-green-300'
+                        }`}
                     >
                         <ArrowLeft size={16} className="mr-2" />
                         Back to Open Positions
                     </button>
 
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                        <div className="bg-blue-600 p-8 text-white">
-                            <span className="inline-block py-1 px-3 rounded-full bg-blue-500 text-white text-xs font-bold mb-4 tracking-wide uppercase">
+                    <div className={`rounded-2xl shadow-sm border overflow-hidden ${
+                        theme === 'light' ? 'bg-white border-gray-100' : 'bg-[#1a1a1a] border-[#2e2e2e]'
+                    }`}>
+                        <div className={`p-8 text-white ${theme === 'light' ? 'bg-[#16a34a]' : 'bg-[#15803d]'}`}>
+                            <span className="inline-block py-1 px-3 rounded-full bg-black/20 text-white text-xs font-bold mb-4 tracking-wide uppercase">
                                 {isGeneral ? 'General Application' : 'Job Application'}
                             </span>
                             <h1 className="text-3xl font-black mb-2">
                                 {isGeneral ? "Let's work together" : `Apply for ${selectedJob?.title}`}
                             </h1>
                             {!isGeneral && selectedJob && (
-                                <div className="flex items-center gap-2 text-blue-100 text-sm">
+                                <div className="flex items-center gap-2 text-green-50 text-sm">
                                     <Briefcase size={16} />
                                     <span>{selectedJob.department}</span>
                                     <span className="mx-2">•</span>
@@ -237,25 +251,41 @@ const JobApplicationPage = () => {
                                     />
                                 </div>
 
-                                <div className={`p-5 rounded-xl border border-dashed ${cvError ? 'bg-red-50 border-red-300' : 'bg-gray-50 border-gray-200'}`}>
-                                    <h3 className={`text-sm font-bold mb-1 flex items-center gap-2 ${cvError ? 'text-red-900' : 'text-gray-900'}`}>
-                                        <FileUp size={16} className={cvError ? 'text-red-500' : 'text-blue-600'} /> Upload CV / Resume
+                                <div className={`p-5 rounded-xl border border-dashed ${
+                                    cvError 
+                                    ? (theme === 'light' ? 'bg-red-50 border-red-300' : 'bg-red-900/10 border-red-900/30') 
+                                    : (theme === 'light' ? 'bg-[#F0FAF4] border-green-200' : 'bg-[#16a34a]/5 border-green-900/30')
+                                }`}>
+                                    <h3 className={`text-sm font-bold mb-1 flex items-center gap-2 ${
+                                        cvError 
+                                        ? (theme === 'light' ? 'text-red-900' : 'text-red-400') 
+                                        : (theme === 'light' ? 'text-green-900' : 'text-green-400')
+                                    }`}>
+                                        <FileUp size={16} className={cvError ? 'text-red-500' : (theme === 'light' ? 'text-[#16a34a]' : 'text-green-400')} /> Upload CV / Resume
                                     </h3>
-                                    <p className={`text-xs mb-3 ${cvError ? 'text-red-700' : 'text-gray-500'}`}>
+                                    <p className={`text-xs mb-3 ${
+                                        cvError 
+                                        ? (theme === 'light' ? 'text-red-700' : 'text-red-300') 
+                                        : (theme === 'light' ? 'text-green-700' : 'text-green-300')
+                                    }`}>
                                         Please upload your CV in PDF format (Max 5MB).
                                     </p>
 
                                     {cvFile ? (
-                                        <div className="flex items-center gap-3 bg-white border border-blue-200 rounded-lg p-3">
-                                            <Upload size={16} className="text-blue-500 flex-shrink-0" />
+                                        <div className={`flex items-center gap-3 border rounded-lg p-3 ${
+                                            theme === 'light' ? 'bg-white border-green-200' : 'bg-[#1a1a1a] border-[#2e2e2e]'
+                                        }`}>
+                                            <Upload size={16} className={theme === 'light' ? 'text-[#16a34a] flex-shrink-0' : 'text-green-400 flex-shrink-0'} />
                                             <div className="flex-1 min-w-0">
-                                                <p className="text-sm font-medium text-gray-800 truncate">{cvFile.name}</p>
-                                                <p className="text-xs text-gray-500">{(cvFile.size / 1024).toFixed(1)} KB</p>
+                                                <p className={`text-sm font-medium truncate ${theme === 'light' ? 'text-gray-800' : 'text-gray-200'}`}>{cvFile.name}</p>
+                                                <p className={`text-xs ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>{(cvFile.size / 1024).toFixed(1)} KB</p>
                                             </div>
                                             <button
                                                 type="button"
                                                 onClick={removeCv}
-                                                className="p-1 rounded-full hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors"
+                                                className={`p-1 rounded-full text-gray-400 transition-colors ${
+                                                    theme === 'light' ? 'hover:bg-red-50 hover:text-red-500' : 'hover:bg-red-900/20 hover:text-red-400'
+                                                }`}
                                             >
                                                 <X size={16} />
                                             </button>
@@ -268,9 +298,15 @@ const JobApplicationPage = () => {
                                                 onChange={handleFileChange}
                                                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                                             />
-                                            <div className={`bg-white border rounded-lg p-3 text-center transition-colors group-hover:border-blue-400 ${cvError ? 'border-red-300' : 'border-gray-200'}`}>
-                                                <span className="text-sm text-blue-600 font-bold">Choose a file</span>
-                                                <span className="text-sm text-gray-500 ml-1">or drag it here</span>
+                                            <div className={`border rounded-lg p-3 text-center transition-colors ${
+                                                cvError 
+                                                ? (theme === 'light' ? 'bg-white border-red-300' : 'bg-[#1a1a1a] border-red-900/30') 
+                                                : (theme === 'light' ? 'bg-white border-green-200 group-hover:border-[#16a34a]' : 'bg-[#1a1a1a] border-[#2e2e2e] group-hover:border-green-500')
+                                            }`}>
+                                                <span className={`text-sm font-bold ${
+                                                    cvError ? 'text-red-500' : (theme === 'light' ? 'text-[#16a34a]' : 'text-green-400')
+                                                }`}>Choose a file</span>
+                                                <span className={`text-sm ml-1 ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>or drag it here</span>
                                             </div>
                                         </div>
                                     )}
@@ -281,7 +317,7 @@ const JobApplicationPage = () => {
                                 </div>
 
                                 <div>
-                                    <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">
+                                    <label className={`block text-xs font-bold mb-1 uppercase tracking-wide ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>
                                         Cover Letter (Optional)
                                     </label>
                                     <textarea
@@ -290,11 +326,13 @@ const JobApplicationPage = () => {
                                         placeholder="Tell us why you'd be a great fit for this role..."
                                         value={formData.coverLetter}
                                         onChange={handleChange}
-                                        className="block w-full rounded-xl border border-gray-200 bg-gray-50 p-3 text-gray-900 focus:border-blue-500 focus:bg-white focus:ring-blue-500 transition-all placeholder:text-gray-400 sm:text-sm resize-none"
+                                        className={`block w-full rounded-xl p-3 transition-all focus:border-[#16a34a] focus:ring-[#16a34a] sm:text-sm resize-none ${
+                                            theme === 'light' ? 'bg-gray-50 border-gray-200 text-gray-900 focus:bg-white placeholder:text-gray-400' : 'bg-[#222222] border-[#2e2e2e] text-white focus:bg-[#1a1a1a] placeholder:text-gray-500'
+                                        }`}
                                     ></textarea>
                                 </div>
 
-                                <div className="pt-4 border-t border-gray-100">
+                                <div className={`pt-4 border-t ${theme === 'light' ? 'border-gray-100' : 'border-[#2e2e2e]'}`}>
                                     <AuthButton type="submit" fullWidth isLoading={isLoading}>
                                         Submit Application
                                     </AuthButton>
