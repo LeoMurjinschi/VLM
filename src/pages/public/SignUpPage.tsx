@@ -7,9 +7,11 @@ import {
 import { AuthLayout } from '../../components/auth/AuthLayout';
 import { InputField } from '../../components/ui/InputField';
 import { AuthButton } from '../../components/ui/AuthButton';
+import { useTheme } from '../../hooks/useTheme';
 
 const SignupPage = () => {
   const [searchParams] = useSearchParams();
+  const { theme } = useTheme();
   const initialRole = searchParams.get('role') === 'receiver' ? 'receiver' : 'donor';
   const [role, setRole] = useState<'donor' | 'receiver'>(initialRole);
   const [isLoading, setIsLoading] = useState(false);
@@ -144,17 +146,17 @@ const SignupPage = () => {
 
   if (isSubmitted) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
-        <div className="bg-white p-8 rounded-2xl shadow-xl max-w-md text-center border border-gray-100">
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <CheckCircle className="text-green-600" size={32} />
+      <div className={`min-h-screen flex flex-col items-center justify-center p-4 ${theme === 'light' ? 'bg-gray-50' : 'bg-[#121212]'}`}>
+        <div className={`p-8 rounded-2xl shadow-xl max-w-md text-center border ${theme === 'light' ? 'bg-white border-gray-100' : 'bg-[#1a1a1a] border-[#2e2e2e]'}`}>
+          <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 ${theme === 'light' ? 'bg-[#F0FAF4]' : 'bg-[#16a34a]/10'}`}>
+            <CheckCircle className={theme === 'light' ? 'text-[#16a34a]' : 'text-green-400'} size={32} />
           </div>
-          <h2 className="text-2xl font-black text-gray-900 mb-2">Application Received!</h2>
-          <p className="text-gray-600 mb-6 leading-relaxed">
+          <h2 className={`text-2xl font-black mb-2 ${theme === 'light' ? 'text-gray-900' : 'text-white'}`}>Application Received!</h2>
+          <p className={`mb-6 leading-relaxed ${theme === 'light' ? 'text-gray-600' : 'text-gray-400'}`}>
             Thank you for registering <strong>{formData.orgName}</strong>.
             Your documents have been sent to our administration team for verification.
           </p>
-          <div className="bg-blue-50 p-4 rounded-xl text-sm text-blue-800 mb-8 text-left border border-blue-100">
+          <div className={`p-4 rounded-xl text-sm mb-8 text-left border ${theme === 'light' ? 'bg-[#F0FAF4] text-green-800 border-green-100' : 'bg-[#16a34a]/10 text-green-300 border-green-900/30'}`}>
             <strong className="block mb-1">What happens next?</strong>
             Verification usually takes 24-48 hours. You will receive an email confirmation once your account is active.
           </div>
@@ -174,16 +176,17 @@ const SignupPage = () => {
       <form onSubmit={handleSubmit} className="space-y-6" noValidate>
 
         <div>
-          <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wide">
+           <label className={`block text-xs font-bold mb-2 uppercase tracking-wide ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>
             I represent a:
           </label>
           <div className="grid grid-cols-2 gap-4">
             <button
               type="button"
               onClick={() => setRole('donor')}
-              className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all duration-200 ${role === 'donor'
-                ? 'border-blue-600 bg-blue-50 text-blue-700 shadow-sm'
-                : 'border-gray-200 hover:border-blue-300 text-gray-500 hover:bg-gray-50'
+               className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all duration-200 ${
+                role === 'donor'
+                ? (theme === 'light' ? 'border-[#16a34a] bg-[#F0FAF4] text-[#16a34a] shadow-sm' : 'border-green-500 bg-[#16a34a]/10 text-green-400 shadow-sm')
+                : (theme === 'light' ? 'border-gray-200 hover:border-green-300 text-gray-500 hover:bg-gray-50' : 'border-[#2e2e2e] hover:border-green-800 text-gray-400 hover:bg-[#222]')
                 }`}
             >
               <Store className="mb-2" size={24} />
@@ -192,9 +195,10 @@ const SignupPage = () => {
             <button
               type="button"
               onClick={() => setRole('receiver')}
-              className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all duration-200 ${role === 'receiver'
-                ? 'border-blue-600 bg-blue-50 text-blue-700 shadow-sm'
-                : 'border-gray-200 hover:border-blue-300 text-gray-500 hover:bg-gray-50'
+               className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all duration-200 ${
+                role === 'receiver'
+                ? (theme === 'light' ? 'border-[#16a34a] bg-[#F0FAF4] text-[#16a34a] shadow-sm' : 'border-green-500 bg-[#16a34a]/10 text-green-400 shadow-sm')
+                : (theme === 'light' ? 'border-gray-200 hover:border-green-300 text-gray-500 hover:bg-gray-50' : 'border-[#2e2e2e] hover:border-green-800 text-gray-400 hover:bg-[#222]')
                 }`}
             >
               <Heart className="mb-2" size={24} />
@@ -203,10 +207,10 @@ const SignupPage = () => {
           </div>
         </div>
 
-        <div className="border-t border-gray-100 my-4"></div>
+        <div className={`border-t my-4 ${theme === 'light' ? 'border-gray-100' : 'border-[#2e2e2e]'}`}></div>
 
         <div className="space-y-4">
-          <h3 className="text-sm font-black text-gray-900 uppercase tracking-wide">
+          <h3 className={`text-sm font-black uppercase tracking-wide ${theme === 'light' ? 'text-gray-900' : 'text-white'}`}>
             Organization Details
           </h3>
 
@@ -246,7 +250,7 @@ const SignupPage = () => {
         </div>
 
         <div className="space-y-4">
-          <h3 className="text-sm font-black text-gray-900 uppercase tracking-wide mt-2">
+          <h3 className={`text-sm font-black uppercase tracking-wide mt-2 ${theme === 'light' ? 'text-gray-900' : 'text-white'}`}>
             Login Credentials
           </h3>
 
@@ -289,18 +293,18 @@ const SignupPage = () => {
             />
 
             {(passwordFocused || formData.password.length > 0) && (
-              <div className="mt-2 p-3 bg-gray-50 rounded-xl border border-gray-200 space-y-1.5">
+              <div className={`mt-2 p-3 rounded-xl border space-y-1.5 ${theme === 'light' ? 'bg-gray-50 border-gray-200' : 'bg-[#222] border-[#2e2e2e]'}`}>
                 <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">
                   Password requirements
                 </p>
                 {Object.entries(passwordCriteria).map(([key, met]) => (
                   <div key={key} className="flex items-center gap-2">
                     {met ? (
-                      <CheckCircle size={14} className="text-green-500 flex-shrink-0" />
+                      <CheckCircle size={14} className="text-[#16a34a] flex-shrink-0" />
                     ) : (
-                      <XCircle size={14} className="text-gray-300 flex-shrink-0" />
+                      <XCircle size={14} className="text-gray-400 flex-shrink-0" />
                     )}
-                    <span className={`text-xs ${met ? 'text-green-700 font-medium' : 'text-gray-500'}`}>
+                    <span className={`text-xs ${met ? (theme === 'light' ? 'text-green-700 font-medium' : 'text-green-400 font-medium') : 'text-gray-500'}`}>
                       {passwordCriteriaLabels[key]}
                     </span>
                   </div>
@@ -310,26 +314,42 @@ const SignupPage = () => {
           </div>
         </div>
 
-        <div className={`p-5 rounded-xl border border-dashed ${documentError ? 'bg-red-50 border-red-300' : 'bg-blue-50 border-blue-100'}`}>
-          <h3 className={`text-sm font-bold mb-1 flex items-center gap-2 ${documentError ? 'text-red-900' : 'text-blue-900'}`}>
+        <div className={`p-5 rounded-xl border border-dashed ${
+          documentError 
+            ? (theme === 'light' ? 'bg-red-50 border-red-300' : 'bg-red-900/20 border-red-900/50') 
+            : (theme === 'light' ? 'bg-[#F0FAF4] border-green-200' : 'bg-[#16a34a]/5 border-green-900/30')
+        }`}>
+          <h3 className={`text-sm font-bold mb-1 flex items-center gap-2 ${
+            documentError 
+              ? (theme === 'light' ? 'text-red-900' : 'text-red-400') 
+              : (theme === 'light' ? 'text-green-900' : 'text-green-400')
+          }`}>
             <FileUp size={16} />
             Verification Documents
           </h3>
-          <p className={`text-xs mb-3 leading-relaxed ${documentError ? 'text-red-700' : 'text-blue-700'}`}>
+          <p className={`text-xs mb-3 leading-relaxed ${
+            documentError 
+              ? (theme === 'light' ? 'text-red-700' : 'text-red-300') 
+              : (theme === 'light' ? 'text-green-700' : 'text-green-300')
+          }`}>
             Upload the <strong>Certificate of Registration</strong> to prove legal existence.
           </p>
 
           {document ? (
-            <div className="flex items-center gap-3 bg-white border border-blue-200 rounded-lg p-3">
-              <Upload size={16} className="text-blue-500 flex-shrink-0" />
+             <div className={`flex items-center gap-3 border rounded-lg p-3 ${
+              theme === 'light' ? 'bg-white border-green-200' : 'bg-[#1a1a1a] border-[#2e2e2e]'
+            }`}>
+              <Upload size={16} className={`flex-shrink-0 ${theme === 'light' ? 'text-[#16a34a]' : 'text-green-400'}`} />
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-800 truncate">{document.name}</p>
-                <p className="text-xs text-gray-500">{(document.size / 1024).toFixed(1)} KB</p>
+                <p className={`text-sm font-medium truncate ${theme === 'light' ? 'text-gray-800' : 'text-gray-200'}`}>{document.name}</p>
+                <p className={`text-xs ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>{(document.size / 1024).toFixed(1)} KB</p>
               </div>
               <button
                 type="button"
                 onClick={removeDocument}
-                className="p-1 rounded-full hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors"
+                className={`p-1 rounded-full transition-colors ${
+                  theme === 'light' ? 'hover:bg-red-50 text-gray-400 hover:text-red-500' : 'hover:bg-red-900/30 text-gray-500 hover:text-red-400'
+                }`}
               >
                 <X size={16} />
               </button>
@@ -342,9 +362,12 @@ const SignupPage = () => {
                 onChange={handleFileChange}
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
               />
-              <div className={`bg-white border rounded-lg p-3 text-center transition-colors group-hover:border-blue-400 ${documentError ? 'border-red-300' : 'border-blue-200'
+              <div className={`border rounded-lg p-3 text-center transition-colors ${
+                documentError 
+                  ? (theme === 'light' ? 'border-red-300 bg-white' : 'border-red-900/50 bg-[#1a1a1a]') 
+                  : (theme === 'light' ? 'border-green-200 bg-white group-hover:border-[#16a34a]' : 'border-[#2e2e2e] bg-[#1a1a1a] group-hover:border-green-500')
                 }`}>
-                <span className="text-sm text-gray-600 font-medium">Click to upload PDF / JPG / PNG (max 5MB)</span>
+                <span className={`text-sm font-medium ${theme === 'light' ? 'text-gray-600' : 'text-gray-400'}`}>Click to upload PDF / JPG / PNG (max 5MB)</span>
               </div>
             </div>
           )}
@@ -366,9 +389,11 @@ const SignupPage = () => {
       </form>
 
       <div className="mt-6 text-center text-sm">
-        <p className="text-gray-600">
+        <p className={theme === 'light' ? 'text-gray-600' : 'text-gray-400'}>
           Already verified?{' '}
-          <Link to="/login" className="font-bold text-blue-600 hover:text-blue-500 transition-colors">
+          <Link to="/login" className={`font-bold transition-colors ${
+            theme === 'light' ? 'text-[#16a34a] hover:text-[#15803d]' : 'text-green-400 hover:text-green-300'
+          }`}>
             Log In here
           </Link>
         </p>

@@ -5,12 +5,14 @@ import { AuthLayout } from '../../components/auth/AuthLayout';
 import { InputField } from '../../components/ui/InputField';
 import { AuthButton } from '../../components/ui/AuthButton';
 import { useAuth} from '../../context/AuthContext';
+import { useTheme } from '../../hooks/useTheme';
 import type { Role } from '../../context/AuthContext';
 import usersMock from '../../_mock/users.json';
 
 const LoginPage = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
+  const { theme } = useTheme();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
@@ -86,7 +88,9 @@ const LoginPage = () => {
         />
 
         {error && (
-          <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg border border-red-100 font-medium">
+          <div className={`text-sm p-3 rounded-lg border font-medium ${
+            theme === 'light' ? 'bg-red-50 text-red-600 border-red-100' : 'bg-red-900/20 text-red-400 border-red-900/30'
+          }`}>
             {error}
           </div>
         )}
@@ -96,13 +100,17 @@ const LoginPage = () => {
             <input
               id="remember-me"
               type="checkbox"
-              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded cursor-pointer"
+              className={`h-4 w-4 rounded cursor-pointer focus:ring-[#16a34a] text-[#16a34a] ${
+                theme === 'light' ? 'border-gray-300' : 'border-[#2e2e2e] bg-[#222222]'
+              }`}
             />
-            <label htmlFor="remember-me" className="ml-2 block text-gray-700 cursor-pointer">
+            <label htmlFor="remember-me" className={`ml-2 block cursor-pointer ${theme === 'light' ? 'text-gray-700' : 'text-gray-300'}`}>
               Remember me
             </label>
           </div>
-          <a href="#" className="font-semibold text-blue-600 hover:text-blue-500">
+          <a href="#" className={`font-semibold hover:underline ${
+            theme === 'light' ? 'text-[#16a34a]' : 'text-green-500'
+          }`}>
             Forgot password?
           </a>
         </div>
@@ -119,9 +127,11 @@ const LoginPage = () => {
       </form>
 
       <div className="mt-6 text-center text-sm">
-        <p className="text-gray-600">
+        <p className={theme === 'light' ? 'text-gray-600' : 'text-gray-400'}>
           Don't have an account?{' '}
-          <Link to="/signup" className="font-bold text-blue-600 hover:text-blue-500 transition-colors">
+          <Link to="/signup" className={`font-bold transition-colors ${
+            theme === 'light' ? 'text-[#16a34a] hover:text-[#15803d]' : 'text-green-400 hover:text-green-300'
+          }`}>
             Register Organization
           </Link>
         </p>
