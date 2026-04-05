@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useTheme } from '../hooks/useTheme';
-import Select from '../components/UI/Select';
+import Select from '../components/ui/Select';
 import { 
   ArrowDownTrayIcon, 
   DocumentArrowDownIcon,
@@ -16,7 +16,7 @@ import {
   generateImpactSummary,
 } from '../services/reportsService';
 import type { DonationRecord, Partner, ReportFilters } from '../types/reports';
-import { SkeletonTableLoader, EmptyState, ErrorState, SpinnerLoader } from '../components/UI/StateIndicators';
+import { SkeletonTableLoader, EmptyState, ErrorState, SpinnerLoader } from '../components/ui/StateIndicators';
 
 const DATE_RANGE_OPTIONS = [
   { value: 'Last 7 Days', label: 'Last 7 Days' },

@@ -110,7 +110,7 @@ export const updateInventoryItem = async (
 };
 
 
-export const deleteInventoryItem = async (id: string): Promise<boolean> => {
+export const deleteInventoryItem = async (_id: string): Promise<boolean> => {
   await simulateNetworkDelay(500);
 
   if (simulateRandomError()) {

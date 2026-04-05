@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useTheme } from '../hooks/useTheme';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
-import { SpinnerLoader, ErrorState } from '../components/UI/StateIndicators';
+import { SpinnerLoader, ErrorState } from '../components/ui/StateIndicators';
 import { 
   UserIcon, 
   BriefcaseIcon, 
@@ -89,8 +89,8 @@ const Settings: React.FC = () => {
 
     setIsSavingProfile(true);
     try {
-      const updatedUser = await updateUserProfile(user.id, formData);
-      updateUser(updatedUser); 
+      await updateUserProfile(user.id, formData as any);
+      updateUser(formData as any);
       toast.success('Profile updated successfully! ✅');
     } catch (err) {
       toast.error('Failed to update profile. Server error.');
@@ -126,7 +126,7 @@ const Settings: React.FC = () => {
   }, [preferences, toggleTheme, user?.id]);
 
 
-  const handlePasswordChange = async (oldPw: string, newPw: string) => {
+  const handlePasswordChange = async (oldPw: string, _newPw: string) => {
     return new Promise<void>((resolve, reject) => {
       setTimeout(() => {
 
@@ -189,10 +189,10 @@ const Settings: React.FC = () => {
             {activeTab === 'profile' && (
               <div className="animate-fade-in-up space-y-8">
                 <div className="w-full max-w-md">
-                  <ProfileSummary user={formData} />
+                  <ProfileSummary user={formData as any} />
                 </div>
                 <PersonalInfoForm 
-                  user={formData} 
+                  user={formData as any} 
                   onChange={handleProfileChange} 
                   onAvatarChange={handleAvatarChange} 
                   onSave={handleSaveProfile} 
@@ -201,7 +201,7 @@ const Settings: React.FC = () => {
               </div>
             )}
             
-            {activeTab === 'business' && user.role.toLowerCase() === 'donator' && (
+            {activeTab === 'business' && (user.role ?? '').toLowerCase() === 'donator' && (
               <div className="space-y-6 animate-fade-in-up">
                 <BusinessProfileForm />
                 <PickupLocations />
@@ -209,7 +209,7 @@ const Settings: React.FC = () => {
               </div>
             )}
 
-            {activeTab === 'ngo' && (user.role.toLowerCase() === 'receiver' || user.role.toLowerCase() === 'ngo') && (
+            {activeTab === 'ngo' && ((user.role ?? '').toLowerCase() === 'receiver' || (user.role ?? '').toLowerCase() === 'ngo') && (
               <div className="space-y-6 animate-fade-in-up">
                 <NgoProfileForm />
                 <NgoDocumentManager />
