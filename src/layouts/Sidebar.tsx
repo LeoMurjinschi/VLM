@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import {
   HomeIcon, ClipboardDocumentListIcon,
   PlusCircleIcon, ArchiveBoxIcon, ChartBarIcon,
@@ -57,9 +57,9 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
             const isActive = location.pathname === item.href;
 
             return (
-              <a
+              <Link
                 key={item.name}
-                href={item.href}
+                to={item.href}
                 onClick={onClose}
                 className={`
                   group relative flex items-center px-3 py-2.5 text-[13px] font-medium rounded-lg transition-all duration-200
@@ -88,7 +88,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
                 <span className="truncate">
                   {item.name}
                 </span>
-              </a>
+              </Link>
             );
           })}
         </nav>
