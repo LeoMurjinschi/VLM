@@ -1,13 +1,13 @@
 import React, { useState, useCallback } from 'react';
 import { PlusCircleIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 import { toast } from 'react-toastify';
-import Select from '../components/UI/Select';
-import ImageDragDrop from '../components/UI/ImageDragDrop';
-import CustomDatePicker from '../components/UI/CustomDatePicker';
+import Select from '../components/ui/Select';
+import ImageDragDrop from '../components/ui/ImageDragDrop';
+import CustomDatePicker from '../components/ui/CustomDatePicker';
 import { useTheme } from '../hooks/useTheme';
 import { addInventoryItem } from '../services/inventoryService';
 import { useInventory } from '../context/InventoryContext';
-import type { InventoryItem } from '../_mock';
+
 
 interface FormState {
   title: string;

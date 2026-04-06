@@ -1,4 +1,3 @@
-
 import type { InventoryItem } from '../_mock';
 import { MOCK_INVENTORY } from '../_mock';
 
@@ -111,7 +110,7 @@ export const updateInventoryItem = async (
 };
 
 
-export const deleteInventoryItem = async (id: string): Promise<boolean> => {
+export const deleteInventoryItem = async (_id: string): Promise<boolean> => {
   await simulateNetworkDelay(500);
 
   if (simulateRandomError()) {

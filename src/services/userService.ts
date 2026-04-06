@@ -1,4 +1,3 @@
-
 import type { User } from '../_mock';
 import { MOCK_USER } from '../_mock';
 
@@ -24,7 +23,7 @@ export const fetchCurrentUser = async (): Promise<User> => {
 };
 
 export const updateUserProfile = async (
-  userId: string,
+  _userId: string,
   updates: Partial<User>
 ): Promise<User> => {
   await simulateNetworkDelay();
@@ -55,8 +54,8 @@ export const fetchUserPreferences = async (): Promise<{
 };
 
 export const updateUserPreferences = async (
-  userId: string,
-  preferences: {
+  _userId: string,
+  _preferences: {
     theme?: 'light' | 'dark';
     notifications?: boolean;
     emailUpdates?: boolean;

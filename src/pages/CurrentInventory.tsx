@@ -3,10 +3,10 @@ import { ArchiveBoxIcon, MagnifyingGlassIcon, FunnelIcon } from '@heroicons/reac
 import InventoryCard from '../components/InventoryCard';
 import { fetchInventory, getInventoryStats } from '../services/inventoryService';
 import { useTheme } from '../hooks/useTheme';
-import Select from '../components/UI/Select';
-import { SpinnerLoader, ErrorState } from '../components/UI/StateIndicators';
+import Select from '../components/ui/Select';
+import { SpinnerLoader, ErrorState } from '../components/ui/StateIndicators';
 import { toast } from 'react-toastify';
-import EmptyBasketSVG from '../components/UI/EmptyBasketSVG';
+import EmptyBasketSVG from '../components/ui/EmptyBasketSVG';
 import type { InventoryItem } from '../_mock';
 
 const CATEGORY_OPTIONS = [

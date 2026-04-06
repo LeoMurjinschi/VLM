@@ -1,7 +1,6 @@
-
 import type { Donation } from '../_mock';
-import type { ReportFilters } from '../types/reports';
 import { MOCK_DONATIONS } from '../_mock';
+
 
 const SIMULATED_LATENCY_MS = 800;
 
@@ -64,7 +63,7 @@ export const fetchDonations = async (
   return results.slice(startIndex, endIndex);
 };
 
-export const reserveDonation = async (donationId: string): Promise<boolean> => {
+export const reserveDonation = async (_donationId: string): Promise<boolean> => {
   await simulateNetworkDelay(500);
 
   if (simulateRandomError()) {

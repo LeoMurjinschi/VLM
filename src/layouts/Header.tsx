@@ -21,7 +21,6 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
         : 'bg-[#1a1a1a] border-[#2e2e2e] shadow-[0_1px_3px_rgba(0,0,0,0.3)]'
     }`}>
         
-        {/* Left: Logo + mobile menu */}
         <div className="flex items-center gap-3">
           <button 
             onClick={onMenuClick} 
@@ -34,7 +33,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
             <Bars3Icon className="w-5 h-5" />
           </button>
 
-          <Link to="/feed" className="flex items-center gap-1.5">
+          <Link to="/donor/feed" className="flex items-center gap-1.5">
             <span className="text-lg">🌿</span>
             <span className={`text-xl font-bold tracking-tight ${
               theme === 'light' ? 'text-[#1a1a1a]' : 'text-white'
@@ -44,9 +43,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
           </Link>
         </div>
 
-        {/* Right: Actions */}
         <div className="flex items-center gap-2 sm:gap-4">
-           {/* Notification bell */}
            <button className={`p-2 rounded-lg transition-colors relative ${
              theme === 'light'
                ? 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
@@ -56,7 +53,6 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
              <span className="absolute top-1.5 right-1.5 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-white dark:ring-[#1a1a1a]"></span>
            </button>
 
-           {/* Chat icon */}
            <button className={`p-2 rounded-lg transition-colors ${
              theme === 'light'
                ? 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
@@ -65,13 +61,11 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
              <ChatBubbleLeftRightIcon className="w-5 h-5" />
            </button>
            
-           {/* Separator */}
            <div className={`hidden sm:block h-6 w-px ${
              theme === 'light' ? 'bg-gray-200' : 'bg-gray-700'
            }`}></div>
-
-           {/* User profile */}
-           <Link to="/settings" className={`flex items-center gap-3 cursor-pointer p-1.5 rounded-xl transition-colors ${
+           
+           <Link to="/donor/settings" className={`flex items-center gap-3 cursor-pointer p-1.5 rounded-xl transition-colors ${
              theme === 'light'
                ? 'hover:bg-gray-50'
                : 'hover:bg-gray-800'

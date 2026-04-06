@@ -1,4 +1,3 @@
-
 import type { DashboardStats, ChartData, RecentActivityItem } from '../_mock';
 import {
   MOCK_DASHBOARD_STATS,
