@@ -5,7 +5,6 @@ import { AuthLayout } from '../../components/auth/AuthLayout';
 import { InputField } from '../../components/ui/InputField';
 import { AuthButton } from '../../components/ui/AuthButton';
 import { useTheme } from '../../hooks/useTheme';
-import usersMock from '../../_mock/users.json';
 
 const ForgotPasswordPage = () => {
     const { theme } = useTheme();
@@ -16,11 +15,11 @@ const ForgotPasswordPage = () => {
     
     const [email, setEmail] = useState('');
     const [code, setCode] = useState('');
-    const [generatedCode, setGeneratedCode] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     
     const [error, setError] = useState('');
+    const [successMessage, setSuccessMessage] = useState('');
     const [passwordFocused, setPasswordFocused] = useState(false);
 
     const passwordCriteria = {
@@ -39,50 +38,83 @@ const ForgotPasswordPage = () => {
         special: 'At least one special character (!@#$...)',
     };
 
+    // =============================================
+    // STEP 1: Trimite codul de verificare pe email
+    // =============================================
     const handleSendCode = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
+        setSuccessMessage('');
         
         if (!email) {
             setError('Please enter your email address.');
             return;
         }
 
-        const userExists = usersMock.find(u => u.email === email);
-        if (!userExists) {
-            setError('This email is not registered with FoodShare.');
-            return;
-        }
-
         setIsLoading(true);
-        // Simulate network delay
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        const newCode = Math.random().toString(36).substring(2, 8).toUpperCase();
-        setGeneratedCode(newCode);
-        
-        setIsLoading(false);
-        setStep(2);
 
-        // Simulate sending email by showing it to the user directly
-        alert(`[SIMULARE EMAIL]\nUn cod de resetare a parolei a fost trimis la ${email}.\nCodul este: ${newCode}`);
+        try {
+            const response = await fetch('/api/send-verification-code', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                setStep(2);
+                setSuccessMessage(`A verification code has been sent to ${email}. Check your inbox (and spam folder).`);
+            } else {
+                setError(data.error || 'Failed to send verification code.');
+            }
+        } catch (err) {
+            setError('A network error occurred. Please try again.');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
+    // =============================================
+    // STEP 2: Verifică codul pe server
+    // =============================================
     const handleVerifyCode = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
+        setSuccessMessage('');
 
-        if (code !== generatedCode) {
-            setError('Invalid code. Please try again.');
+        if (!code) {
+            setError('Please enter the verification code.');
             return;
         }
 
         setIsLoading(true);
-        await new Promise(resolve => setTimeout(resolve, 800));
-        setIsLoading(false);
-        setStep(3);
+
+        try {
+            const response = await fetch('/api/verify-code', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, code }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                setStep(3);
+                setSuccessMessage('Code verified successfully! Now set your new password.');
+            } else {
+                setError(data.error || 'Invalid verification code.');
+            }
+        } catch (err) {
+            setError('A network error occurred. Please try again.');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
+    // =============================================
+    // STEP 3: Resetare parolă (existent, neschimbat)
+    // =============================================
     const handleResetPassword = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
@@ -142,6 +174,14 @@ const ForgotPasswordPage = () => {
                     theme === 'light' ? 'bg-red-50 text-red-600' : 'bg-red-900/20 text-red-400 border border-red-900/50'
                 }`}>
                     {error}
+                </div>
+            )}
+
+            {successMessage && (
+                <div className={`p-4 rounded-xl text-sm font-medium mb-6 ${
+                    theme === 'light' ? 'bg-green-50 text-green-700' : 'bg-green-900/20 text-green-400 border border-green-900/50'
+                }`}>
+                    {successMessage}
                 </div>
             )}
 
