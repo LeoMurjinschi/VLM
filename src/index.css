@@ -1,6 +1,9 @@
 /* Noua metodă pentru Tailwind v4 */
 @import "tailwindcss";
 
+html {
+  scroll-behavior: smooth;
+}
 @variant dark (&:is(.dark *));
 
 @theme {
@@ -38,13 +41,7 @@ html.dark {
   --shadow-md: rgba(0, 0, 0, 0.6);
 }
 
-* {
-  color-scheme: light;
-}
 
-html.dark * {
-  color-scheme: dark;
-}
 
 body {
   margin: 0;
@@ -55,7 +52,6 @@ body {
   position: relative;
 }
 
-/* Lightweight grain texture — uses a tiny repeating PNG instead of expensive SVG filter */
 body::before {
   content: "";
   position: fixed;
@@ -79,7 +75,6 @@ input[type='number'] {
   -moz-appearance: textfield;
 }
 
-/* Custom UI Utilities */
 @layer utilities {
   .glass {
     @apply bg-white/70 backdrop-blur-md border border-white/20 dark:bg-gray-900/70 dark:border-gray-700/30;
@@ -95,7 +90,6 @@ input[type='number'] {
   }
 }
 
-/* Animations */
 @keyframes gradient {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }

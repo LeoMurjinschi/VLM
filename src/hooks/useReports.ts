@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import type { DonationRecord, Partner, ReportFilters } from '../types/reports';
+import type { DonationRecord, Partner, ReportFilters } from '../types/reports.ts';
 import {
   fetchDonationHistory,
   fetchTopPartners,
   generateImpactSummary,
-} from '../services/reportsService';
+} from '../services/reportsService.ts';
 
 interface UseFetchState<T> {
   data: T[] | null;

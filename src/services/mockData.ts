@@ -1,4 +1,4 @@
-import type { DonationRecord, Partner, ReportStats } from '../types/reports';
+import type { DonationRecord, Partner, ReportStats } from '../types/reports.ts';
 
 export const MOCK_REPORT_STATS: ReportStats[] = [
   {
