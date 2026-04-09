@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 // Poți pune asta într-un fișier separat (ex: types.ts) sau direct în fișierul principal
 export interface HistoryRecord {
   id: string;
@@ -40,8 +39,6 @@ export const mockHistoryData: HistoryRecord[] = [
     image: 'https://images.unsplash.com/photo-1628088062854-d1870b4553da?auto=format&fit=crop&q=80&w=300&h=300',
   }
 ];
-=======
-
 export interface DonationRecord {
   id: string;
   date: string;
@@ -452,4 +449,3 @@ export const MOCK_USER: User = {
   avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop',
   avatarInitial: 'M',
 };
->>>>>>> 70661552ed75a7b09d5225a951f264947d53ef3d

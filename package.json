@@ -10,15 +10,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-<<<<<<< HEAD
-    "@heroicons/react": "^2.2.0",
-=======
-    "@emotion/react": "^11.14.0",
-    "@emotion/styled": "^11.14.1",
-    "@heroicons/react": "^2.2.0",
-    "@mui/icons-material": "^7.3.8",
-    "@mui/material": "^7.3.8",
->>>>>>> 70661552ed75a7b09d5225a951f264947d53ef3d
     "@tailwindcss/vite": "^4.1.18",
     "framer-motion": "^12.38.0",
     "gh-pages": "^6.3.0",
@@ -26,17 +17,7 @@
     "lucide-react": "^0.564.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-<<<<<<< HEAD
-    "react-leaflet": "^5.0.0",
-    "react-router-dom": "^7.13.0",
-    "react-toastify": "^11.0.5",
-    "tailwindcss": "^4.2.2"
-=======
-    "react-router-dom": "^7.13.0",
-    "react-toastify": "^11.0.5",
-    "recharts": "^3.7.0",
     "tailwindcss": "^4.1.18"
->>>>>>> 70661552ed75a7b09d5225a951f264947d53ef3d
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

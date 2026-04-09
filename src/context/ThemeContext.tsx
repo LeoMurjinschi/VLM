@@ -1,13 +1,6 @@
-<<<<<<< HEAD
 import React, { createContext, useState, useEffect, type ReactNode } from 'react';
 
 type Theme = 'light' | 'dark';
-=======
-import React, { createContext, useEffect, useState } from 'react';
-import type { ReactNode } from 'react';
-
-export type Theme = 'light' | 'dark';
->>>>>>> 70661552ed75a7b09d5225a951f264947d53ef3d
 
 interface ThemeContextType {
   theme: Theme;
@@ -16,7 +9,6 @@ interface ThemeContextType {
 
 export const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-<<<<<<< HEAD
 export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   // Verificăm dacă utilizatorul are deja o preferință salvată, altfel punem 'light'
   const [theme, setTheme] = useState<Theme>(() => {
@@ -40,7 +32,25 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
   const toggleTheme = () => {
     setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
-=======
+  };
+
+  return (
+    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+};import React, { createContext, useEffect, useState } from 'react';
+import type { ReactNode } from 'react';
+
+export type Theme = 'light' | 'dark';
+
+interface ThemeContextType {
+  theme: Theme;
+  toggleTheme: () => void;
+}
+
+export const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+
 interface ThemeProviderProps {
   children: ReactNode;
 }
@@ -104,7 +114,6 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
         document.head.removeChild(css);
       });
     });
->>>>>>> 70661552ed75a7b09d5225a951f264947d53ef3d
   };
 
   return (
@@ -112,8 +121,4 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
       {children}
     </ThemeContext.Provider>
   );
-<<<<<<< HEAD
 };
-=======
-};
->>>>>>> 70661552ed75a7b09d5225a951f264947d53ef3d

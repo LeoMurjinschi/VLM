@@ -1,5 +1,4 @@
 import { useContext } from 'react';
-<<<<<<< HEAD
 import { ThemeContext } from '../context/ThemeContext'; // Ajustează calea către contextul tău
 
 // Definim ce tipuri de date conține contextul
@@ -18,8 +17,7 @@ export const useTheme = (): ThemeContextType => {
   }
   
   return context; // TypeScript știe acum că returnează garantat { theme, toggleTheme }
-};
-=======
+};import { useContext } from 'react';
 import { ThemeContext } from '../context/ThemeContext';
 
 export const useTheme = () => {
@@ -29,4 +27,3 @@ export const useTheme = () => {
   }
   return context;
 };
->>>>>>> 70661552ed75a7b09d5225a951f264947d53ef3d

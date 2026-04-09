@@ -1,33 +1,6 @@
 /* Noua metodă pentru Tailwind v4 */
 @import "tailwindcss";
 
-<<<<<<< HEAD
-@layer base {
-    body {
-        @apply bg-gray-50 text-gray-900 transition-colors duration-300;
-    }
-
-    .dark body {
-        @apply bg-gray-900 text-gray-100;
-    }
-}
-
-/* Scrollbar premium */
-::-webkit-scrollbar {
-    width: 6px;
-}
-
-::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-    @apply bg-gray-300 rounded-full;
-}
-
-.dark ::-webkit-scrollbar-thumb {
-    @apply bg-gray-700;
-=======
 @variant dark (&:is(.dark *));
 
 @theme {
@@ -162,5 +135,4 @@ input[type='number'] {
 
 .animate-success-pop {
   animation: success-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
->>>>>>> 70661552ed75a7b09d5225a951f264947d53ef3d
 }

@@ -2,7 +2,6 @@ import React from 'react';
 import { SunIcon, MoonIcon } from '@heroicons/react/24/outline';
 import { useTheme } from '../../hooks/useTheme';
 
-<<<<<<< HEAD
 const ThemeToggleButton: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
 
@@ -37,8 +36,10 @@ const ThemeToggleButton: React.FC = () => {
   );
 };
 
-export default ThemeToggleButton;
-=======
+export default ThemeToggleButton;import React from 'react';
+import { SunIcon, MoonIcon } from '@heroicons/react/24/outline';
+import { useTheme } from '../../hooks/useTheme';
+
 interface ThemeToggleButtonProps {
   className?: string;
 }
@@ -67,4 +68,3 @@ const ThemeToggleButton: React.FC<ThemeToggleButtonProps> = ({ className = '' })
 };
 
 export default ThemeToggleButton;
->>>>>>> 70661552ed75a7b09d5225a951f264947d53ef3d
