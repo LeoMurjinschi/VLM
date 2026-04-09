@@ -4,7 +4,7 @@ import { toast } from 'react-toastify';
 import { MapPinIcon, XMarkIcon, ExclamationTriangleIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import SortDropdown from '../components/SortDropdown';
 import PageLayout from '../components/PageLayout';
-import ReservationCard from '../components/ReservationCard';
+import FeedCard from '../components/Feedcard';
 
 const QUICK_FILTERS = ['All', '🚨 Urgent', '🥦 Veggies', '🍲 Cooked Meals', '🥐 Bakery', '🥛 Dairy', '🥫 Canned'];
 
@@ -162,7 +162,7 @@ const Dashboard: React.FC = () => {
                     isCompleting ? 'opacity-0 scale-90 translate-y-4 pointer-events-none' : 'opacity-100 scale-100'
                   }`}
                 >
-                  <ReservationCard 
+                  <FeedCard 
                     title={item.title}
                     donor={item.donor}
                     quantity={item.quantity}

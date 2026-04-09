@@ -19,7 +19,7 @@ const INITIAL_MESSAGES: Record<number, ChatMessage[]> = {
   1: [
     { id: 1, senderId: 1, text: 'Zdarova, ai vre-o 5 litri de piva?', time: '10:00 AM' },
     { id: 2, senderId: 'me', text: 'Cum bai voi beti fara mine?', time: '10:05 AM' },
-    { id: 3, senderId: 1, text: 'Pai hai vina si tu', time: '10:06 AM' },
+    { id: 3, senderId: 1, text: 'Pai hai vina si tuu', time: '10:06 AM' },
     { id: 4, senderId: 1, text: 'In caminul 2, ma suni cand ajungi', time: '10:15 AM' },
   ],
   2: [

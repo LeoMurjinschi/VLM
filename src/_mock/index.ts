@@ -9,7 +9,7 @@ export interface HistoryRecord {
   image: string;
 }
 
-// Câteva date de test pentru a vedea cum arată designul
+
 export const mockHistoryData: HistoryRecord[] = [
   {
     id: 'h1',
