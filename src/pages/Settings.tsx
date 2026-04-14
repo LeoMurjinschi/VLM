@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useTheme } from '../hooks/useTheme';
+import { useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import { SpinnerLoader, ErrorState } from '../components/UI/StateIndicators';
@@ -7,7 +8,8 @@ import {
   UserIcon, 
   BriefcaseIcon, 
   Cog6ToothIcon, 
-  ShieldCheckIcon 
+  ShieldCheckIcon,
+  ExclamationCircleIcon
 } from '@heroicons/react/24/outline';
 import { updateUserProfile, fetchUserPreferences, updateUserPreferences } from '../services/userService';
 
@@ -21,6 +23,7 @@ import PickupLocations from '../components/PickupLocations';
 import DocumentManager from '../components/DocumentManager';
 import NgoProfileForm from '../components/NgoProfileForm';
 import NgoDocumentManager from '../components/NgoDocumentManager';
+import ReportProblemForm from '../components/ReportProblemForm';
 
 interface UserPreferences {
   theme: 'light' | 'dark';
@@ -31,6 +34,7 @@ interface UserPreferences {
 const Settings: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
   const { user, updateUser } = useAuth(); 
+  const location = useLocation();
   
   const [formData, setFormData] = useState(user);
   const [preferences, setPreferences] = useState<UserPreferences>({ theme: 'light', notifications: true, emailUpdates: true });
@@ -40,7 +44,7 @@ const Settings: React.FC = () => {
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [isSavingPrefs, setIsSavingPrefs] = useState(false);
 
-  type TabId = 'profile' | 'business' | 'ngo' | 'preferences' | 'security';
+  type TabId = 'profile' | 'business' | 'ngo' | 'preferences' | 'security' | 'support';
   const [activeTab, setActiveTab] = useState<TabId>('profile');
 
   const tabs = [
@@ -49,8 +53,14 @@ const Settings: React.FC = () => {
     ...(user?.role?.toLowerCase() === 'receiver' || user?.role?.toLowerCase() === 'ngo' ? [{ id: 'ngo' as TabId, label: 'Organization Details', icon: BriefcaseIcon }] : []),
     { id: 'preferences' as TabId, label: 'Preferences', icon: Cog6ToothIcon },
     { id: 'security' as TabId, label: 'Security', icon: ShieldCheckIcon },
+    { id: 'support' as TabId, label: 'Report a Problem', icon: ExclamationCircleIcon },
   ];
 
+  useEffect(() => {
+    if (location.state && (location.state as any).activeTab) {
+      setActiveTab((location.state as any).activeTab);
+    }
+  }, [location.state]);
 
   useEffect(() => {
     const loadPrefs = async () => {
@@ -161,7 +171,7 @@ const Settings: React.FC = () => {
         
         <div className="flex flex-col md:flex-row gap-8">
           {/* Sidebar */}
-          <div className="w-full md:w-64 flex-shrink-0 space-y-2">
+          <div className="w-full md:w-64 shrink-0 space-y-2">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -231,6 +241,12 @@ const Settings: React.FC = () => {
                 <SecuritySettings 
                   onUpdatePassword={handlePasswordChange} 
                 />
+              </div>
+            )}
+
+            {activeTab === 'support' && (
+              <div className="animate-fade-in-up">
+                <ReportProblemForm />
               </div>
             )}
           </div>

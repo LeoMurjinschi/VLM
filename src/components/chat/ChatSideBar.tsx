@@ -10,9 +10,10 @@ interface ChatSidebarProps {
   onSelectContact: (id: number) => void;
   isMobileVisible: boolean;
   theme: 'light' | 'dark';
+  mutedContacts: number[];
 }
 
-const ChatSidebar: React.FC<ChatSidebarProps> = ({ contacts, activeChatId, onSelectContact, isMobileVisible, theme }) => {
+const ChatSidebar: React.FC<ChatSidebarProps> = ({ contacts, activeChatId, onSelectContact, isMobileVisible, theme, mutedContacts }) => {
   const [searchQuery, setSearchQuery] = useState('');
 
   // Logica de filtrare: caută ignorând literele mari/mici, în nume sau în rol
@@ -23,18 +24,18 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ contacts, activeChatId, onSel
 
   return (
     <div className={`w-full md:w-80 lg:w-96 flex-col border-r ${
-      theme === 'light' ? 'border-gray-200 bg-gray-50/50' : 'border-gray-700 bg-gray-900/20'
+      theme === 'light' ? 'border-gray-200 bg-gray-50/50' : 'border-gray-800 bg-[#1a1a1a]'
     } ${!isMobileVisible ? 'hidden md:flex' : 'flex h-full'}`}>
       
-      <div className={`p-4 sm:p-5 border-b flex items-center gap-3 ${theme === 'light' ? 'border-gray-200' : 'border-gray-700'}`}>
-        <ChatBubbleLeftEllipsisIcon className={`w-7 h-7 ${theme === 'light' ? 'text-blue-600' : 'text-blue-400'}`} />
+      <div className={`p-4 sm:p-5 border-b flex items-center gap-3 ${theme === 'light' ? 'border-gray-200' : 'border-gray-800'}`}>
+        <ChatBubbleLeftEllipsisIcon className={`w-7 h-7 ${theme === 'light' ? 'text-[#16a34a]' : 'text-[#16a34a]'}`} />
         <h2 className={`text-xl font-extrabold ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>Messages</h2>
       </div>
 
       {/* Căutare Funcțională */}
       <div className="p-4 border-b border-transparent">
         <div className={`flex items-center px-4 py-2.5 rounded-xl border transition-colors ${
-          theme === 'light' ? 'bg-white border-gray-200 focus-within:border-blue-400' : 'bg-gray-800 border-gray-700 focus-within:border-blue-500'
+          theme === 'light' ? 'bg-white border-gray-200 focus-within:border-green-400' : 'bg-[#222222] border-gray-800 focus-within:border-[#16a34a]'
         }`}>
           <MagnifyingGlassIcon className={`w-5 h-5 mr-2 ${theme === 'light' ? 'text-gray-400' : 'text-gray-500'}`} />
           <input 
@@ -56,6 +57,7 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ contacts, activeChatId, onSel
               isActive={activeChatId === contact.id}
               onClick={() => onSelectContact(contact.id)}
               theme={theme}
+              isMuted={mutedContacts.includes(contact.id)}
             />
           ))
         ) : (

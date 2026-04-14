@@ -45,7 +45,6 @@ import MyPickups from './pages/MyPickUps';
 import ReservationHistory from './pages/ReservationHistory';
 import FeedbackRating from './pages/FeedbackRating';
 import SafetyGuide from './pages/SafetyGuide';
-import ProfileSettings from './pages/ProfileSettings';
 import NotificationHistory from './pages/NotificationHistory';
 import Messages from './pages/Messages';
 
@@ -117,6 +116,7 @@ function App() {
                   <Route path="add-stock" element={<AddStock />} />
                   <Route path="inventory" element={<CurrentInventory />} />
                   <Route path="settings" element={<Settings />} />
+                  <Route path="notifications" element={<NotificationHistory />} />
                   <Route path="*" element={<div className="p-10 text-center text-gray-500 font-bold">Page under construction 🚧</div>} />
                 </Route>
 

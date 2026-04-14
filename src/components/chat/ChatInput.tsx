@@ -19,8 +19,8 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, theme }) => {
   };
 
   return (
-    <div className={`p-4 border-t ${theme === 'light' ? 'bg-white border-gray-200' : 'bg-gray-800 border-gray-700'}`}>
-      <form onSubmit={handleSubmit} className={`flex items-end gap-2 p-1.5 rounded-2xl border ${theme === 'light' ? 'bg-gray-50 border-gray-200 focus-within:border-blue-400' : 'bg-gray-900/50 border-gray-700 focus-within:border-blue-500'}`}>
+    <div className={`p-4 border-t ${theme === 'light' ? 'bg-white border-gray-200' : 'bg-[#1a1a1a] border-gray-800'}`}>
+      <form onSubmit={handleSubmit} className={`flex items-end gap-2 p-1.5 rounded-2xl border ${theme === 'light' ? 'bg-gray-50 border-gray-200 focus-within:border-green-400' : 'bg-[#222222] border-gray-800 focus-within:border-[#16a34a]'}`}>
         <textarea 
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
@@ -39,8 +39,8 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, theme }) => {
           disabled={!newMessage.trim()}
           className={`shrink-0 p-3 rounded-xl transition-colors ${
             newMessage.trim() 
-              ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-md' 
-              : (theme === 'light' ? 'bg-gray-200 text-gray-400' : 'bg-gray-700 text-gray-500')
+              ? 'bg-[#16a34a] text-white hover:bg-green-700 shadow-md' 
+              : (theme === 'light' ? 'bg-gray-200 text-gray-400' : 'bg-[#222222] text-gray-500')
           }`}
         >
           <PaperAirplaneIcon className="w-5 h-5" />

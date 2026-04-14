@@ -26,15 +26,23 @@ const ALL_NOTIFICATIONS = [
 
 const NotificationHistory: React.FC = () => {
   const { theme } = useTheme();
-  // Am adaugat mai multe filtre
+  const [notifications, setNotifications] = useState(ALL_NOTIFICATIONS);
   const [filter, setFilter] = useState<'all' | 'unread' | 'urgent' | 'security'>('all');
 
-  const filteredNotifications = ALL_NOTIFICATIONS.filter(notif => {
+  const filteredNotifications = notifications.filter(notif => {
     if (filter === 'unread') return notif.unread;
     if (filter === 'urgent') return notif.type === 'urgent';
     if (filter === 'security') return notif.type === 'security';
     return true;
   });
+
+  const markAllAsRead = () => {
+    setNotifications(prev => prev.map(n => ({ ...n, unread: false })));
+  };
+
+  const markAsRead = (id: number) => {
+    setNotifications(prev => prev.map(n => n.id === id ? { ...n, unread: false } : n));
+  };
 
   // Funcție inteligentă care returnează iconița și culoarea potrivită
   const getIconForType = (type: string) => {
@@ -45,7 +53,7 @@ const NotificationHistory: React.FC = () => {
       case 'system': return <Cog8ToothIcon className="w-6 h-6 text-gray-500 dark:text-gray-400" />;
       case 'success': return <CheckCircleIcon className="w-6 h-6 text-emerald-500" />;
       case 'warning': return <InformationCircleIcon className="w-6 h-6 text-orange-500" />;
-      default: return <InformationCircleIcon className="w-6 h-6 text-blue-500" />;
+      default: return <InformationCircleIcon className="w-6 h-6 text-[#16a34a]" />;
     }
   };
 
@@ -54,47 +62,64 @@ const NotificationHistory: React.FC = () => {
       <div className={`w-full max-w-4xl mx-auto min-h-screen pb-12 ${theme === 'light' ? 'bg-gray-50' : 'bg-gray-900'}`}>
         
         {/* Header Pagina */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
-          <div>
-            <div className="flex items-center gap-3 mb-2">
-              <BellAlertIcon className={`w-8 h-8 ${theme === 'light' ? 'text-blue-600' : 'text-blue-400'}`} />
-              <h1 className={`text-3xl font-extrabold tracking-tight ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>
-                Notification History
-              </h1>
-            </div>
-            <p className={`text-base ${theme === 'light' ? 'text-gray-600' : 'text-gray-400'}`}>
-              View all your past alerts, security updates, and messages.
-            </p>
+        <div className="mb-6">
+          <div className="flex items-center gap-3 mb-2">
+            <BellAlertIcon className={`w-8 h-8 ${theme === 'light' ? 'text-[#16a34a]' : 'text-green-400'}`} />
+            <h1 className={`text-3xl font-extrabold tracking-tight ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>
+              Notification History
+            </h1>
           </div>
+          <p className={`text-base ${theme === 'light' ? 'text-gray-600' : 'text-gray-400'}`}>
+            View all your past alerts, security updates, and messages.
+          </p>
+        </div>
 
-          {/* Filtre */}
-          <div className={`flex items-center gap-1 p-1 rounded-xl border overflow-x-auto scrollbar-hide ${theme === 'light' ? 'bg-white border-gray-200' : 'bg-gray-800 border-gray-700'}`}>
+        {/* Filters and Actions Bar */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+          {/* Pills Wrapper */}
+          <div className={`flex items-center gap-1 p-1 rounded-xl border overflow-x-auto scrollbar-hide ${theme === 'light' ? 'bg-white border-gray-200' : 'bg-[#1a1a1a] border-gray-800'}`}>
             <FunnelIcon className={`w-5 h-5 ml-2 mr-1 shrink-0 ${theme === 'light' ? 'text-gray-400' : 'text-gray-500'}`} />
             {(['all', 'unread', 'urgent', 'security'] as const).map((f) => (
               <button
                 key={f}
                 onClick={() => setFilter(f)}
-                className={`px-4 py-1.5 rounded-lg text-sm font-bold capitalize transition-colors shrink-0 ${
+                className={`px-4 py-1.5 rounded-lg text-sm font-bold capitalize transition-all shrink-0 ${
                   filter === f 
-                    ? (theme === 'light' ? 'bg-blue-50 text-blue-700' : 'bg-blue-900/40 text-blue-400')
-                    : (theme === 'light' ? 'text-gray-500 hover:bg-gray-50' : 'text-gray-400 hover:bg-gray-700')
+                    ? 'bg-[#16a34a] text-white shadow-md'
+                    : (theme === 'light' ? 'text-gray-500 hover:bg-gray-50' : 'text-gray-400 hover:bg-[#222222] hover:text-gray-200')
                 }`}
               >
                 {f}
               </button>
             ))}
           </div>
+
+          {/* Mark as read button */}
+          {notifications.some(n => n.unread) && (
+            <button 
+              onClick={markAllAsRead}
+              className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all shrink-0 ${
+                theme === 'light' 
+                  ? 'bg-[#16a34a]/10 text-[#16a34a] hover:bg-[#16a34a]/20 border border-[#16a34a]/20' 
+                  : 'bg-[#16a34a]/10 text-[#16a34a] hover:bg-[#16a34a]/20 border border-[#16a34a]/20'
+              }`}
+            >
+              <CheckCircleIcon className="w-5 h-5" />
+              Mark all as read
+            </button>
+          )}
         </div>
 
         {/* Lista de Notificari */}
-        <div className={`rounded-3xl border overflow-hidden shadow-sm ${theme === 'light' ? 'bg-white border-gray-200' : 'bg-gray-800 border-gray-700'}`}>
+        <div className={`rounded-3xl border overflow-hidden shadow-sm ${theme === 'light' ? 'bg-white border-gray-200' : 'bg-[#1a1a1a] border-gray-800'}`}>
           {filteredNotifications.length > 0 ? (
-            <div className="divide-y divide-gray-100 dark:divide-gray-700/50">
+            <div className={`divide-y ${theme === 'light' ? 'divide-gray-100' : 'divide-gray-800'}`}>
               {filteredNotifications.map((notif) => (
                 <div 
                   key={notif.id} 
+                  onClick={() => markAsRead(notif.id)}
                   className={`p-5 sm:p-6 flex flex-col sm:flex-row sm:items-start gap-4 transition-colors ${
-                    notif.unread ? (theme === 'light' ? 'bg-blue-50/30' : 'bg-blue-900/10') : ''
+                    notif.unread ? (theme === 'light' ? 'bg-[#16a34a]/5' : 'bg-[#16a34a]/10') : ''
                   } hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer`}
                 >
                   {/* Iconița Dinamică */}
@@ -106,7 +131,7 @@ const NotificationHistory: React.FC = () => {
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-1">
                       <h3 className={`text-base font-bold flex items-center gap-2 ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>
                         {notif.title}
-                        {notif.unread && <span className="w-2 h-2 rounded-full bg-blue-500"></span>}
+                        {notif.unread && <span className="w-2 h-2 rounded-full bg-[#16a34a]"></span>}
                       </h3>
                       <span className={`text-xs font-bold uppercase tracking-wider whitespace-nowrap ${theme === 'light' ? 'text-gray-400' : 'text-gray-500'}`}>
                         {notif.date} • {notif.time}
