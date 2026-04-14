@@ -1,15 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useTheme } from '../hooks/useTheme';
-import { useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
-import { SpinnerLoader, ErrorState } from '../components/UI/StateIndicators';
+import { SpinnerLoader, ErrorState } from '../components/ui/StateIndicators';
 import { 
   UserIcon, 
   BriefcaseIcon, 
   Cog6ToothIcon, 
-  ShieldCheckIcon,
-  ExclamationCircleIcon
+  ShieldCheckIcon 
 } from '@heroicons/react/24/outline';
 import { updateUserProfile, fetchUserPreferences, updateUserPreferences } from '../services/userService';
 
@@ -23,7 +21,6 @@ import PickupLocations from '../components/PickupLocations';
 import DocumentManager from '../components/DocumentManager';
 import NgoProfileForm from '../components/NgoProfileForm';
 import NgoDocumentManager from '../components/NgoDocumentManager';
-import ReportProblemForm from '../components/ReportProblemForm';
 
 interface UserPreferences {
   theme: 'light' | 'dark';
@@ -34,7 +31,6 @@ interface UserPreferences {
 const Settings: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
   const { user, updateUser } = useAuth(); 
-  const location = useLocation();
   
   const [formData, setFormData] = useState(user);
   const [preferences, setPreferences] = useState<UserPreferences>({ theme: 'light', notifications: true, emailUpdates: true });
@@ -44,7 +40,7 @@ const Settings: React.FC = () => {
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [isSavingPrefs, setIsSavingPrefs] = useState(false);
 
-  type TabId = 'profile' | 'business' | 'ngo' | 'preferences' | 'security' | 'support';
+  type TabId = 'profile' | 'business' | 'ngo' | 'preferences' | 'security';
   const [activeTab, setActiveTab] = useState<TabId>('profile');
 
   const tabs = [
@@ -53,14 +49,8 @@ const Settings: React.FC = () => {
     ...(user?.role?.toLowerCase() === 'receiver' || user?.role?.toLowerCase() === 'ngo' ? [{ id: 'ngo' as TabId, label: 'Organization Details', icon: BriefcaseIcon }] : []),
     { id: 'preferences' as TabId, label: 'Preferences', icon: Cog6ToothIcon },
     { id: 'security' as TabId, label: 'Security', icon: ShieldCheckIcon },
-    { id: 'support' as TabId, label: 'Report a Problem', icon: ExclamationCircleIcon },
   ];
 
-  useEffect(() => {
-    if (location.state && (location.state as any).activeTab) {
-      setActiveTab((location.state as any).activeTab);
-    }
-  }, [location.state]);
 
   useEffect(() => {
     const loadPrefs = async () => {
@@ -155,11 +145,11 @@ const Settings: React.FC = () => {
   if (!formData || !user) return null;
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto min-h-screen relative pb-10 bg-transparent">
+    <div className={`space-y-8 max-w-7xl mx-auto min-h-screen relative pb-10 ${theme === 'light' ? 'bg-gray-50' : 'bg-gray-900'}`}>
       
 
       <div className={`pb-6 border-b ${theme === 'light' ? 'border-gray-100' : 'border-gray-700'}`}>
-        <h1 className={`text-3xl md:text-4xl font-bold tracking-tight mb-2 ${theme === 'light' ? 'text-[#1a1a1a]' : 'text-gray-100'}`} style={{ fontFamily: 'var(--font-display)' }}>
+        <h1 className={`text-3xl md:text-4xl font-extrabold tracking-tight mb-2 ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>
           Account Settings
         </h1>
         <p className={`text-base font-medium ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>
@@ -171,7 +161,7 @@ const Settings: React.FC = () => {
         
         <div className="flex flex-col md:flex-row gap-8">
           {/* Sidebar */}
-          <div className="w-full md:w-64 shrink-0 space-y-2">
+          <div className="w-full md:w-64 flex-shrink-0 space-y-2">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -181,10 +171,10 @@ const Settings: React.FC = () => {
                   onClick={() => setActiveTab(tab.id)}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-colors text-left ${
                     isActive
-                      ? 'bg-[#16a34a] text-white shadow-md'
+                      ? 'bg-blue-600 text-white shadow-md'
                       : theme === 'light'
-                      ? 'text-gray-600 hover:bg-[#16a34a]/10 hover:text-[#16a34a] border border-transparent'
-                      : 'text-gray-400 hover:bg-[#222222] hover:text-[#16a34a] border border-transparent'
+                      ? 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 border border-transparent hover:border-gray-200'
+                      : 'text-gray-400 hover:bg-gray-800 hover:text-gray-100 border border-transparent hover:border-gray-700'
                   }`}
                 >
                   <Icon className={`w-5 h-5 ${isActive ? 'text-white' : ''}`} />
@@ -241,12 +231,6 @@ const Settings: React.FC = () => {
                 <SecuritySettings 
                   onUpdatePassword={handlePasswordChange} 
                 />
-              </div>
-            )}
-
-            {activeTab === 'support' && (
-              <div className="animate-fade-in-up">
-                <ReportProblemForm />
               </div>
             )}
           </div>

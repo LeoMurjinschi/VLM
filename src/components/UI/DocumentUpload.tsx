@@ -114,10 +114,10 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
 
       {value ? (
         <div className={`flex items-center justify-between p-4 rounded-xl border ${
-          theme === 'light' ? 'bg-[#16a34a]/5 border-[#16a34a]/20' : 'bg-[#16a34a]/10 border-[#16a34a]/30'
+          theme === 'light' ? 'bg-emerald-50/50 border-emerald-200' : 'bg-emerald-900/10 border-emerald-800'
         }`}>
           <div className="flex items-center gap-3 overflow-hidden">
-            <div className={`p-2 rounded-lg ${theme === 'light' ? 'bg-[#16a34a]/10 text-[#16a34a]' : 'bg-[#16a34a]/20 text-[#16a34a]'}`}>
+            <div className={`p-2 rounded-lg ${theme === 'light' ? 'bg-emerald-100 text-emerald-600' : 'bg-emerald-900/40 text-emerald-400'}`}>
               <DocumentTextIcon className="w-6 h-6" />
             </div>
             <div className="truncate">
@@ -125,7 +125,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
                 {value.name}
               </p>
               <div className="flex items-center gap-2 mt-0.5">
-                <CheckCircleIcon className={`w-3.5 h-3.5 ${theme === 'light' ? 'text-[#16a34a]' : 'text-green-400'}`} />
+                <CheckCircleIcon className={`w-3.5 h-3.5 ${theme === 'light' ? 'text-emerald-500' : 'text-emerald-400'}`} />
                 <span className={`text-xs font-medium ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>
                   {formatSize(value.size)} • Uploaded
                 </span>
@@ -152,20 +152,20 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
           onDrop={handleDrop}
           className={`flex flex-col items-center justify-center w-full p-6 border-2 border-dashed rounded-xl cursor-pointer transition-all ${
             isDragging 
-              ? (theme === 'light' ? 'border-[#16a34a] bg-[#16a34a]/5' : 'border-[#16a34a] bg-[#16a34a]/20')
-              : (theme === 'light' ? 'border-gray-300 hover:bg-gray-50 bg-white' : 'border-[#2e2e2e] hover:bg-[#222222] bg-[#1a1a1a]')
+              ? (theme === 'light' ? 'border-blue-500 bg-blue-50' : 'border-blue-400 bg-blue-900/20')
+              : (theme === 'light' ? 'border-gray-300 hover:bg-gray-50 bg-white' : 'border-gray-600 hover:bg-gray-800 bg-gray-900/50')
           }`}
         >
           <div className="flex flex-col items-center justify-center pt-2 pb-3">
             <div className={`p-3 mb-3 rounded-full ${
               isDragging 
-                ? (theme === 'light' ? 'bg-[#16a34a]/10 text-[#16a34a]' : 'bg-[#16a34a]/20 text-[#16a34a]')
-                : (theme === 'light' ? 'bg-gray-100 text-gray-500' : 'bg-[#222222] text-gray-400')
+                ? (theme === 'light' ? 'bg-blue-100 text-blue-600' : 'bg-blue-900/40 text-blue-400')
+                : (theme === 'light' ? 'bg-gray-100 text-gray-500' : 'bg-gray-700 text-gray-400')
             }`}>
               <DocumentArrowUpIcon className="w-6 h-6" />
             </div>
             <p className={`mb-1 text-sm font-bold ${theme === 'light' ? 'text-gray-700' : 'text-gray-300'}`}>
-              <span className={theme === 'light' ? 'text-[#16a34a]' : 'text-[#16a34a]'}>Click to upload</span> or drag and drop
+              <span className={theme === 'light' ? 'text-blue-600' : 'text-blue-400'}>Click to upload</span> or drag and drop
             </p>
             <p className={`text-xs font-medium ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>
               {helperText} (Max {maxSizeMB}MB)

@@ -3,7 +3,7 @@ import { useLocation, Link } from 'react-router-dom';
 import {
   HomeIcon, ClipboardDocumentListIcon,
   PlusCircleIcon, ArchiveBoxIcon, ChartBarIcon,
-  XMarkIcon, SunIcon, MoonIcon, ChatBubbleLeftRightIcon
+  XMarkIcon, SunIcon, MoonIcon
 } from '@heroicons/react/24/outline';
 import { useTheme } from '../hooks/useTheme';
 
@@ -12,12 +12,11 @@ interface SidebarProps {
 }
 
 const navigation = [
-  { name: 'Donation Feed', href: '/donor/feed', icon: HomeIcon },
-  { name: 'Dashboard', href: '/donor/dashboard', icon: ChartBarIcon },
-  { name: 'Add Stock', href: '/donor/add-stock', icon: PlusCircleIcon },
-  { name: 'Inventory', href: '/donor/inventory', icon: ArchiveBoxIcon },
-  { name: 'Messages', href: '/donor/messages', icon: ChatBubbleLeftRightIcon },
-  { name: 'Impact Reports', href: '/donor/reports', icon: ClipboardDocumentListIcon },
+  { name: 'Donation Feed', href: '/donor/feed', icon: HomeIcon, emoji: '🍽️' },
+  { name: 'Dashboard', href: '/donor/dashboard', icon: ChartBarIcon, emoji: '📊' },
+  { name: 'Add Stock', href: '/donor/add-stock', icon: PlusCircleIcon, emoji: '➕' },
+  { name: 'Inventory', href: '/donor/inventory', icon: ArchiveBoxIcon, emoji: '📦' },
+  { name: 'Impact Reports', href: '/donor/reports', icon: ClipboardDocumentListIcon, emoji: '📋' },
 ];
 
 const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
@@ -76,6 +75,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
                   }
                 `}
               >
+                <span className="mr-2.5 text-sm flex-shrink-0">{item.emoji}</span>
                 <item.icon
                   className={`mr-2.5 h-[18px] w-[18px] flex-shrink-0 transition-colors
                     ${isActive 
@@ -106,6 +106,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
             }
           `}
         >
+          <span className="mr-2.5 text-sm flex-shrink-0">{theme === 'light' ? '🌙' : '☀️'}</span>
           {theme === 'light' ? (
             <MoonIcon className={`mr-2.5 h-[18px] w-[18px] flex-shrink-0 transition-colors ${theme === 'light' ? 'text-gray-400 group-hover:text-gray-600' : 'text-gray-500 group-hover:text-gray-300'}`} />
           ) : (

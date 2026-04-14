@@ -3,7 +3,6 @@ import { Bars3Icon, ChatBubbleLeftRightIcon, BellIcon } from '@heroicons/react/2
 import { useTheme } from '../hooks/useTheme';
 import { useAuth } from './../context/AuthContext';
 import { Link } from 'react-router-dom';
-import NotificationBell from '../components/NotificationBell';
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -16,10 +15,10 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
   const userInitial = user?.name ? user.name.charAt(0).toUpperCase() : 'U';
 
   return (
-    <header className={`h-16 flex items-center justify-between px-4 sm:px-8 z-20 transition-all duration-300 border-b backdrop-blur-xl ${
+    <header className={`h-16 flex items-center justify-between px-4 sm:px-8 z-20 transition-all duration-300 border-b ${
       theme === 'light' 
-        ? 'bg-white/70 border-gray-200/50 shadow-[0_4px_30px_rgba(0,0,0,0.03)]' 
-        : 'bg-[#111111]/70 border-[#2e2e2e]/50 shadow-[0_4px_30px_rgba(0,0,0,0.2)]'
+        ? 'bg-white border-gray-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.04)]' 
+        : 'bg-[#1a1a1a] border-[#2e2e2e] shadow-[0_1px_3px_rgba(0,0,0,0.3)]'
     }`}>
         
         <div className="flex items-center gap-3">
@@ -45,15 +44,22 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
         </div>
 
         <div className="flex items-center gap-2 sm:gap-4">
-           <NotificationBell />
+           <button className={`p-2 rounded-lg transition-colors relative ${
+             theme === 'light'
+               ? 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+               : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800'
+           }`}>
+             <BellIcon className="w-5 h-5" />
+             <span className="absolute top-1.5 right-1.5 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-white dark:ring-[#1a1a1a]"></span>
+           </button>
 
-           <Link to="/donor/messages" className={`p-2 rounded-lg transition-colors ${
+           <button className={`p-2 rounded-lg transition-colors ${
              theme === 'light'
                ? 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
                : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800'
            }`}>
              <ChatBubbleLeftRightIcon className="w-5 h-5" />
-           </Link>
+           </button>
            
            <div className={`hidden sm:block h-6 w-px ${
              theme === 'light' ? 'bg-gray-200' : 'bg-gray-700'

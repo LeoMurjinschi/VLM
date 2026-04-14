@@ -14,8 +14,8 @@ const BusinessProfileForm: React.FC = () => {
     operatingHours: 'Mon-Fri: 08:00 - 22:00, Sat-Sun: 09:00 - 20:00'
   });
 
-  const inputClass = `w-full px-4 py-3 rounded-xl border focus:outline-none focus:ring-2 focus:ring-[#16a34a]/30 focus:border-[#16a34a] transition-colors font-medium ${
-    theme === 'light' ? 'bg-white border-gray-200 text-gray-900 placeholder-gray-400' : 'bg-[#222222] border-[#2e2e2e] text-gray-100 placeholder-gray-500'
+  const inputClass = `w-full px-4 py-3 rounded-xl border focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors font-medium ${
+    theme === 'light' ? 'bg-white border-gray-200 text-gray-900 placeholder-gray-400' : 'bg-gray-900 border-gray-600 text-gray-100 placeholder-gray-500'
   }`;
 
   const handleSave = (e: React.FormEvent) => {
@@ -29,12 +29,12 @@ const BusinessProfileForm: React.FC = () => {
   };
 
   return (
-    <div className={`p-6 md:p-8 rounded-3xl border shadow-sm ${theme === 'light' ? 'bg-white border-gray-200/60' : 'bg-[#1a1a1a] border-[#2e2e2e]'}`}>
+    <div className={`p-6 md:p-8 rounded-3xl border shadow-sm ${theme === 'light' ? 'bg-white border-gray-100' : 'bg-gray-900 border-gray-700'}`}>
       <div className="flex items-center gap-3 mb-6">
-        <div className={`p-2 rounded-lg ${theme === 'light' ? 'bg-[#16a34a]/10 text-[#16a34a]' : 'bg-[#16a34a]/20 text-[#16a34a]'}`}>
+        <div className={`p-2 rounded-lg ${theme === 'light' ? 'bg-blue-50 text-blue-600' : 'bg-blue-900/30 text-blue-400'}`}>
           <BuildingStorefrontIcon className="w-6 h-6" />
         </div>
-        <h2 className={`text-xl font-bold ${theme === 'light' ? 'text-[#1a1a1a]' : 'text-gray-100'}`} style={{ fontFamily: 'var(--font-display)' }}>Business Profile</h2>
+        <h2 className={`text-xl font-extrabold ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>Business Profile</h2>
       </div>
 
       <form onSubmit={handleSave} className="space-y-5">
@@ -54,7 +54,7 @@ const BusinessProfileForm: React.FC = () => {
         </div>
 
         <div className="pt-2 flex justify-end">
-          <button type="submit" disabled={isSaving} className={`flex items-center gap-2 px-6 py-3 bg-[#16a34a] hover:bg-green-700 text-white font-bold rounded-xl transition-all active:scale-[0.98] disabled:opacity-70 ${theme === 'light' ? 'shadow-[#16a34a]/20' : 'shadow-black/50'}`}>
+          <button type="submit" disabled={isSaving} className={`flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all active:scale-[0.98] disabled:opacity-70 ${theme === 'light' ? 'shadow-blue-200/50' : 'shadow-black/50'}`}>
             {isSaving ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <CheckCircleIcon className="w-5 h-5" />}
             Save Business Info
           </button>
