@@ -155,7 +155,7 @@ const Settings: React.FC = () => {
   if (!formData || !user) return null;
 
   return (
-    <div className={`space-y-8 max-w-7xl mx-auto min-h-screen relative pb-10 ${theme === 'light' ? 'bg-gray-50' : 'bg-gray-900'}`}>
+    <div className="space-y-8 max-w-7xl mx-auto min-h-screen relative pb-10 bg-transparent">
       
 
       <div className={`pb-6 border-b ${theme === 'light' ? 'border-gray-100' : 'border-gray-700'}`}>

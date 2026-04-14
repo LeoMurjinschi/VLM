@@ -28,11 +28,11 @@ const FeedbackRating: React.FC = () => {
 
   return (
     <PageLayout>
-      <div className={`max-w-4xl mx-auto min-h-screen w-full pb-10 ${theme === 'light' ? 'bg-gray-50' : 'bg-gray-900'}`}>
+      <div className={`max-w-4xl mx-auto min-h-screen w-full pb-10 bg-transparent`}>
         
         {/* Header-ul Paginii */}
         <div className={`p-6 md:p-8 rounded-3xl mb-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 ${
-          theme === 'light' ? 'bg-white shadow-sm border border-gray-100' : 'bg-gray-800 border border-gray-700'
+          theme === 'light' ? 'bg-white shadow-sm border border-gray-100' : 'bg-[#1a1a1a] border border-[#2e2e2e]'
         }`}>
           <div>
             <h1 className={`text-3xl font-bold tracking-tight mb-2 ${theme === 'light' ? 'text-[#1a1a1a]' : 'text-gray-100'}`} style={{ fontFamily: 'var(--font-display)' }}>
@@ -43,7 +43,7 @@ const FeedbackRating: React.FC = () => {
             </p>
           </div>
           
-          <div className={`flex items-center gap-3 px-5 py-3 rounded-2xl ${theme === 'light' ? 'bg-[#16a34a]/10 text-[#16a34a]' : 'bg-[#16a34a]/20 text-[#16a34a]'}`}>
+          <div className={`flex items-center gap-3 px-5 py-3 rounded-2xl ${theme === 'light' ? 'bg-[#16a34a]/10 text-[#16a34a]' : 'bg-[#16a34a]/20 text-green-400'}`}>
             <CheckBadgeIcon className="w-8 h-8" />
             <div>
               <div className="text-2xl font-black leading-none">{completedReviews.length}</div>
@@ -85,7 +85,7 @@ const FeedbackRating: React.FC = () => {
                 <PendingReviewCard key={item.id} item={item} onSubmit={handleSubmitReview} />
               ))
             ) : (
-              <div className={`text-center py-20 rounded-2xl border-2 border-dashed ${theme === 'light' ? 'border-gray-200 text-gray-400' : 'border-gray-700 text-gray-500'}`}>
+              <div className={`text-center py-20 rounded-2xl border-2 border-dashed ${theme === 'light' ? 'border-gray-200 text-gray-400' : 'border-[#2e2e2e] text-gray-500'}`}>
                 <p className="font-bold text-lg">All caught up!</p>
                 <p className="text-sm">You have no pending reviews.</p>
               </div>
@@ -96,7 +96,7 @@ const FeedbackRating: React.FC = () => {
                 <CompletedReviewCard key={item.id} item={item} />
               ))
             ) : (
-              <div className={`text-center py-20 rounded-2xl border-2 border-dashed ${theme === 'light' ? 'border-gray-200 text-gray-400' : 'border-gray-700 text-gray-500'}`}>
+              <div className={`text-center py-20 rounded-2xl border-2 border-dashed ${theme === 'light' ? 'border-gray-200 text-gray-400' : 'border-[#2e2e2e] text-gray-500'}`}>
                 <p className="text-sm">No review history yet.</p>
               </div>
             )

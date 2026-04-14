@@ -46,7 +46,7 @@ const CompletedReviewCard: React.FC<{ item: FeedbackRecord }> = ({ item }) => {
 
         {item.comment && (
           <div className={`p-3 rounded-xl text-sm italic border-l-2 ${
-            theme === 'light' ? 'bg-gray-50 text-gray-600 border-gray-300' : 'bg-gray-900/50 text-gray-400 border-gray-600'
+            theme === 'light' ? 'bg-gray-50 text-gray-600 border-gray-300' : 'bg-[#222222] text-gray-400 border-[#2e2e2e]'
           }`}>
             "{item.comment}"
           </div>

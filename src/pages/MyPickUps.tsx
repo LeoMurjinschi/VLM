@@ -76,7 +76,7 @@ const MyPickups: React.FC = () => {
 
   return (
     <PageLayout>
-      <div className={`w-full space-y-6 max-w-7xl mx-auto min-h-screen relative pb-10 ${theme === 'light' ? 'bg-gray-50' : 'bg-gray-900'}`}>
+      <div className={`w-full space-y-6 max-w-7xl mx-auto min-h-screen relative pb-10 bg-transparent`}>
         
         {/* HEADER & CONTROLS (Fără tab-uri) */}
         <div className={`flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-6 border-b relative z-20 ${
@@ -113,7 +113,7 @@ const MyPickups: React.FC = () => {
               {activeList.length > 0 && (
                 <button 
                   onClick={handleCompleteAll}
-                  className="w-full sm:w-auto px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-xl shadow-sm transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                  className="w-full sm:w-auto px-6 py-2.5 bg-[#16a34a] hover:bg-[#15803d] text-white text-sm font-bold rounded-xl shadow-sm transition-all active:scale-[0.98] flex items-center justify-center gap-2"
                 >
                   <CheckBadgeIcon className="w-5 h-5" />
                   Complete All
@@ -152,7 +152,7 @@ const MyPickups: React.FC = () => {
           </div>
         ) : (
           <div className={`flex flex-col items-center justify-center min-h-[50vh] rounded-2xl border border-dashed relative z-0 ${
-            theme === 'light' ? 'bg-white border-gray-300' : 'bg-[#1a1a1a] border-gray-600'
+            theme === 'light' ? 'bg-white border-gray-300' : 'bg-[#1a1a1a] border-[#2e2e2e]'
           }`}>
             <div className={`p-6 rounded-2xl mb-4 ${
               theme === 'light' ? 'bg-emerald-50' : 'bg-emerald-900/10'
@@ -186,7 +186,7 @@ const MyPickups: React.FC = () => {
               theme === 'light' ? 'bg-white' : 'bg-[#1a1a1a]'
             }`}>
               {/* Map Section - Full Bleed Top */}
-              <div className="relative w-full h-[55vh] min-h-[300px] shrink-0 bg-gray-100 dark:bg-gray-800">
+              <div className="relative w-full h-[55vh] min-h-[300px] shrink-0 bg-gray-100 dark:bg-[#1a1a1a]">
                 <iframe 
                   src={selectedPickupForMap.mapEmbedUrl}
                   width="100%" 

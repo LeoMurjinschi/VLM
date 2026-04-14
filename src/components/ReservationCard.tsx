@@ -55,7 +55,7 @@ const ReservationCard: React.FC<ReservationCardProps> = ({
     `}>
       
       {/* Image section */}
-      <div className="relative h-[200px] overflow-hidden bg-gray-100 dark:bg-gray-800 flex-shrink-0">
+      <div className="relative h-[200px] overflow-hidden bg-gray-100 dark:bg-[#222222] flex-shrink-0">
         <img
           src={image}
           alt={title}
@@ -132,7 +132,7 @@ const ReservationCard: React.FC<ReservationCardProps> = ({
           className={`flex-1 py-2.5 rounded-xl font-semibold text-sm transition-all active:scale-[0.98] flex items-center justify-center gap-1.5 ${
             theme === 'light'
               ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              : 'bg-gray-800 text-gray-200 hover:bg-gray-700'
+              : 'bg-[#222222] text-gray-200 hover:bg-gray-800'
           }`}
         >
           <MapIcon className="w-4 h-4" /> Map
@@ -145,7 +145,7 @@ const ReservationCard: React.FC<ReservationCardProps> = ({
             isConfirmed
               ? theme === 'light'
                 ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                : 'bg-gray-800 text-gray-500 cursor-not-allowed'
+                : 'bg-[#222222] text-gray-500 cursor-not-allowed'
               : 'bg-[#16a34a] text-white hover:bg-[#15803d] shadow-md shadow-green-500/20'
           }`}
         >

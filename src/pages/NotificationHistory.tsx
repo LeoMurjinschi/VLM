@@ -59,7 +59,7 @@ const NotificationHistory: React.FC = () => {
 
   return (
     <PageLayout>
-      <div className={`w-full max-w-4xl mx-auto min-h-screen pb-12 ${theme === 'light' ? 'bg-gray-50' : 'bg-gray-900'}`}>
+      <div className={`w-full max-w-4xl mx-auto min-h-screen pb-12 bg-transparent`}>
         
         {/* Header Pagina */}
         <div className="mb-6">
@@ -77,7 +77,7 @@ const NotificationHistory: React.FC = () => {
         {/* Filters and Actions Bar */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           {/* Pills Wrapper */}
-          <div className={`flex items-center gap-1 p-1 rounded-xl border overflow-x-auto scrollbar-hide ${theme === 'light' ? 'bg-white border-gray-200' : 'bg-[#1a1a1a] border-gray-800'}`}>
+          <div className={`flex items-center gap-1 p-1 rounded-xl border overflow-x-auto scrollbar-hide ${theme === 'light' ? 'bg-white border-gray-200' : 'bg-[#1a1a1a] border-[#2e2e2e]'}`}>
             <FunnelIcon className={`w-5 h-5 ml-2 mr-1 shrink-0 ${theme === 'light' ? 'text-gray-400' : 'text-gray-500'}`} />
             {(['all', 'unread', 'urgent', 'security'] as const).map((f) => (
               <button
@@ -111,9 +111,9 @@ const NotificationHistory: React.FC = () => {
         </div>
 
         {/* Lista de Notificari */}
-        <div className={`rounded-3xl border overflow-hidden shadow-sm ${theme === 'light' ? 'bg-white border-gray-200' : 'bg-[#1a1a1a] border-gray-800'}`}>
+        <div className={`rounded-3xl border overflow-hidden shadow-sm ${theme === 'light' ? 'bg-white border-gray-200' : 'bg-[#1a1a1a] border-[#2e2e2e]'}`}>
           {filteredNotifications.length > 0 ? (
-            <div className={`divide-y ${theme === 'light' ? 'divide-gray-100' : 'divide-gray-800'}`}>
+            <div className={`divide-y ${theme === 'light' ? 'divide-gray-100' : 'divide-[#2e2e2e]'}`}>
               {filteredNotifications.map((notif) => (
                 <div 
                   key={notif.id} 
@@ -123,7 +123,7 @@ const NotificationHistory: React.FC = () => {
                   } hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer`}
                 >
                   {/* Iconița Dinamică */}
-                  <div className={`p-3 rounded-full shrink-0 ${theme === 'light' ? 'bg-gray-50' : 'bg-gray-900/50'}`}>
+                  <div className={`p-3 rounded-full shrink-0 ${theme === 'light' ? 'bg-gray-50' : 'bg-[#222222]'}`}>
                     {getIconForType(notif.type)}
                   </div>
                   

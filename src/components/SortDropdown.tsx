@@ -1,5 +1,6 @@
 import React from 'react';
 import { ArrowUpDown } from 'lucide-react';
+import { useTheme } from '../hooks/useTheme';
 
 interface SortOption {
   value: string;
@@ -19,12 +20,18 @@ const SortDropdown: React.FC<SortDropdownProps> = ({
   value, 
   onChange 
 }) => {
+  const { theme } = useTheme();
+
   return (
-    <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-xl border border-gray-200 shadow-sm">
-      <ArrowUpDown size={18} className="text-gray-400" />
+    <div className={`flex items-center gap-2 px-3 py-2 rounded-xl border shadow-sm transition-colors ${
+      theme === 'light' ? 'bg-white border-gray-200' : 'bg-[#1a1a1a] border-[#2e2e2e]'
+    }`}>
+      <ArrowUpDown size={18} className={theme === 'light' ? 'text-gray-400' : 'text-gray-500'} />
       
       {label && (
-        <span className="text-sm font-medium text-gray-600 hidden sm:inline">
+        <span className={`text-sm font-medium hidden sm:inline ${
+          theme === 'light' ? 'text-gray-600' : 'text-gray-400'
+        }`}>
           {label}
         </span>
       )}
@@ -32,10 +39,12 @@ const SortDropdown: React.FC<SortDropdownProps> = ({
       <select 
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="bg-transparent text-sm font-bold text-gray-800 focus:outline-none cursor-pointer"
+        className={`bg-transparent text-sm font-bold focus:outline-none cursor-pointer border-none outline-none ${
+          theme === 'light' ? 'text-gray-800' : 'text-gray-100'
+        }`}
       >
         {options.map((option) => (
-          <option key={option.value} value={option.value}>
+          <option key={option.value} value={option.value} className={theme === 'light' ? 'text-gray-800 bg-white' : 'text-gray-100 bg-[#1a1a1a]'}>
             {option.label}
           </option>
         ))}
