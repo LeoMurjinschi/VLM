@@ -3,7 +3,7 @@ import { useLocation, Link } from 'react-router-dom';
 import {
   HomeIcon, ClipboardDocumentListIcon,
   PlusCircleIcon, ArchiveBoxIcon, ChartBarIcon,
-  XMarkIcon, SunIcon, MoonIcon
+  XMarkIcon, SunIcon, MoonIcon, ChatBubbleLeftRightIcon
 } from '@heroicons/react/24/outline';
 import { useTheme } from '../hooks/useTheme';
 
@@ -16,6 +16,7 @@ const navigation = [
   { name: 'Dashboard', href: '/donor/dashboard', icon: ChartBarIcon },
   { name: 'Add Stock', href: '/donor/add-stock', icon: PlusCircleIcon },
   { name: 'Inventory', href: '/donor/inventory', icon: ArchiveBoxIcon },
+  { name: 'Messages', href: '/donor/messages', icon: ChatBubbleLeftRightIcon },
   { name: 'Impact Reports', href: '/donor/reports', icon: ClipboardDocumentListIcon },
 ];
 

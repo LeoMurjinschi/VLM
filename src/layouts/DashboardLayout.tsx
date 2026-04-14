@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
-import Sidebar from './Sidebar';
-import Header from './Header';
+import Sidebar from '../components/Sidebar';
+import Header from '../components/Header';
 import { useTheme } from '../hooks/useTheme';
 
 const DashboardLayout: React.FC = () => {
