@@ -35,7 +35,7 @@ const FeedbackRating: React.FC = () => {
           theme === 'light' ? 'bg-white shadow-sm border border-gray-100' : 'bg-gray-800 border border-gray-700'
         }`}>
           <div>
-            <h1 className={`text-3xl font-extrabold tracking-tight mb-2 ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>
+            <h1 className={`text-3xl font-bold tracking-tight mb-2 ${theme === 'light' ? 'text-[#1a1a1a]' : 'text-gray-100'}`} style={{ fontFamily: 'var(--font-display)' }}>
               Feedback & Rating
             </h1>
             <p className={`text-base ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>
@@ -43,7 +43,7 @@ const FeedbackRating: React.FC = () => {
             </p>
           </div>
           
-          <div className={`flex items-center gap-3 px-5 py-3 rounded-2xl ${theme === 'light' ? 'bg-emerald-50 text-emerald-700' : 'bg-emerald-900/20 text-emerald-400'}`}>
+          <div className={`flex items-center gap-3 px-5 py-3 rounded-2xl ${theme === 'light' ? 'bg-[#16a34a]/10 text-[#16a34a]' : 'bg-[#16a34a]/20 text-[#16a34a]'}`}>
             <CheckBadgeIcon className="w-8 h-8" />
             <div>
               <div className="text-2xl font-black leading-none">{completedReviews.length}</div>
@@ -59,8 +59,8 @@ const FeedbackRating: React.FC = () => {
             onClick={() => setActiveTab('Pending')}
             className={`flex-1 py-2.5 rounded-xl font-bold text-sm text-center transition-all ${
               activeTab === 'Pending' 
-                ? 'bg-blue-600 text-white shadow-md' 
-                : theme === 'light' ? 'text-gray-600 hover:bg-gray-200 bg-gray-100' : 'text-gray-400 hover:bg-gray-800 bg-gray-800/50'
+                ? 'bg-[#16a34a] text-white shadow-md' 
+                : theme === 'light' ? 'text-gray-600 hover:bg-gray-200 bg-gray-100' : 'text-gray-400 hover:bg-[#222222] bg-[#1a1a1a]'
             }`}
           >
             To Review ({pendingReviews.length})
@@ -69,8 +69,8 @@ const FeedbackRating: React.FC = () => {
             onClick={() => setActiveTab('Completed')}
             className={`flex-1 py-2.5 rounded-xl font-bold text-sm text-center transition-all ${
               activeTab === 'Completed' 
-                ? 'bg-blue-600 text-white shadow-md' 
-                : theme === 'light' ? 'text-gray-600 hover:bg-gray-200 bg-gray-100' : 'text-gray-400 hover:bg-gray-800 bg-gray-800/50'
+                ? 'bg-[#16a34a] text-white shadow-md' 
+                : theme === 'light' ? 'text-gray-600 hover:bg-gray-200 bg-gray-100' : 'text-gray-400 hover:bg-[#222222] bg-[#1a1a1a]'
             }`}
           >
             History

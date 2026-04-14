@@ -16,7 +16,9 @@ import PrivacyPage from './pages/public/PrivacyPage';
 import CookiePage from './pages/public/CookiePage';
 import HelpCenterPage from './pages/public/HelpCenterPage';
 import { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
+import ReceiverLayout from './layouts/ReceiverLayout';
+
 
 // 1. Importăm librăria pentru Notificări
 import { ToastContainer } from 'react-toastify';
@@ -25,7 +27,7 @@ import 'react-toastify/dist/ReactToastify.css';
 // 2. Contextul pentru Temă
 import { ThemeProvider } from './context/ThemeContext';
 import { InventoryProvider } from './context/InventoryContext'; 
-import ToastProvider from './components/ui/ToastProvider';
+import ToastProvider from './components/UI/ToastProvider';
 import DashboardLayout from './layouts/DashboardLayout';
 import DonationFeed from './pages/DonationFeed';
 import DonorDashboard from './pages/DonorDashboard';
@@ -38,11 +40,6 @@ const ReceiverDashboard = () => <div className="p-10 text-2xl font-bold">Receive
 const AdminDashboard = () => <div className="p-10 text-2xl font-bold">Admin Dashboard (Protected)</div>;
 import { useTheme } from './hooks/useTheme';
 
-// 3. Componentele de Layout
-import Sidebar from './components/Sidebar'; 
-import Header from './components/Header';
-
-// 4. Paginile tale
 import Dashboard from './pages/Dashboard';
 import MyPickups from './pages/MyPickUps';
 import ReservationHistory from './pages/ReservationHistory';
@@ -123,16 +120,28 @@ function App() {
                   <Route path="*" element={<div className="p-10 text-center text-gray-500 font-bold">Page under construction 🚧</div>} />
                 </Route>
 
+                {/* === RUTELE TALE RECEIVER (ONG) === */}
                 <Route
-                  path="/receiver/*"
-                  element={
+                     path="/receiver"
+                      element={
                     <ProtectedRoute allowedRoles={['receiver']}>
-                      <Routes>
-                        <Route path="dashboard" element={<ReceiverDashboard />} />
-                      </Routes>
-                    </ProtectedRoute>
-                  }
-                />
+                        <ReceiverLayout />  {/* <-- Aici l-am pus! */}
+                 </ProtectedRoute>
+            }
+>
+                  <Route index element={<Navigate to="dashboard" replace />} />
+                  <Route path="dashboard" element={<Dashboard />} />
+                  <Route path="pickups" element={<MyPickups />} />
+                  <Route path="history" element={<ReservationHistory />} />
+                  <Route path="messages" element={<Messages />} />
+                  <Route path="notifications" element={<NotificationHistory />} />
+                  <Route path="feedback" element={<FeedbackRating />} />
+                  <Route path="safety" element={<SafetyGuide />} />
+                  <Route path="settings" element={<Settings />} />
+                  
+                  {/* 404 Fallback pentru Receiver */}
+                  <Route path="*" element={<Navigate to="dashboard" replace />} />
+                </Route>
 
                 <Route
                   path="/admin/*"

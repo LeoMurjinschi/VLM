@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useTheme } from '../hooks/useTheme';
 import { fetchDashboardStats } from '../services/dashboardService';
-import StatCard from '../components/ui/StatCard';
+import StatCard from '../components/UI/StatCard';
 import ImpactCharts from '../components/ImpactCharts';
 import RecentActivity from '../components/RecentActivity';
 import MilestoneTracker from '../components/MilestoneTracker';
 import MilestoneModal, { type Milestone } from '../components/MilestoneModal';
 import { toast } from 'react-toastify';
 import { PlusIcon } from '@heroicons/react/24/outline';
-import { SpinnerLoader, ErrorState } from '../components/ui/StateIndicators';
+import { SpinnerLoader, ErrorState } from '../components/UI/StateIndicators';
 import type { DashboardStats } from '../_mock';
 
 const INITIAL_MILESTONES: Milestone[] = [

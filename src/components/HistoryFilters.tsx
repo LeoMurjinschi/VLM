@@ -1,7 +1,7 @@
 import React from 'react';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { useTheme } from '../hooks/useTheme';
-import Select from './UI/Select'; // Presupunem că aici se află componenta Select pe care ai atașat-o anterior
+import Select from './ui/Select'; 
 
 interface HistoryFiltersProps {
   searchQuery: string;
@@ -22,7 +22,6 @@ const HistoryFilters: React.FC<HistoryFiltersProps> = ({
 }) => {
   const { theme } = useTheme();
 
-  // Opțiunile pentru Dropdown-uri
   const statusOptions = [
     { value: 'All', label: 'All Statuses' },
     { value: 'Completed', label: '✅ Completed' },
@@ -38,13 +37,11 @@ const HistoryFilters: React.FC<HistoryFiltersProps> = ({
   ];
 
   return (
-    <div className={`p-4 rounded-2xl border mb-6 transition-all duration-300 animate-fade-in-up ${
-      theme === 'light' ? 'bg-white border-gray-100 shadow-sm' : 'bg-gray-800 border-gray-700'
+    <div className={`p-4 rounded-2xl border mb-6 transition-all duration-300 animate-fade-in-up relative z-40 ${
+      theme === 'light' ? 'bg-white border-gray-200/60 shadow-sm' : 'bg-[#1a1a1a] border-[#2e2e2e]'
     }`}>
-      
       <div className="flex flex-col md:flex-row gap-4 items-center">
         
-        {/* 1. Bara de Căutare (Search Bar) - Ocupă spațiul rămas */}
         <div className="relative w-full md:flex-1">
           <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
             <MagnifyingGlassIcon className={`h-5 w-5 ${
@@ -56,15 +53,14 @@ const HistoryFilters: React.FC<HistoryFiltersProps> = ({
             placeholder="Search by food name or donor..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            className={`w-full pl-11 pr-4 py-3 rounded-xl border text-sm font-medium focus:outline-none focus:ring-2 transition-all ${
+            className={`w-full pl-11 pr-4 py-2.5 rounded-xl border text-sm font-medium outline-none focus:ring-2 transition-all ${
               theme === 'light' 
-                ? 'bg-gray-50/50 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-[#AEB784] focus:ring-[#AEB784]/20' 
-                : 'bg-gray-900/50 border-gray-600 text-gray-100 placeholder-gray-500 focus:border-[#628141] focus:ring-[#628141]/20'
+                ? 'bg-white border-gray-200 text-gray-900 placeholder-gray-400 focus:border-[#16a34a] focus:ring-[#16a34a]/20' 
+                : 'bg-[#1a1a1a] border-[#2e2e2e] text-gray-100 placeholder-gray-500 focus:border-[#16a34a] focus:ring-[#16a34a]/20'
             }`}
           />
         </div>
 
-        {/* 2. Filtru de Status (Dropdown) */}
         <div className="w-full md:w-48 shrink-0">
           <Select 
             options={statusOptions}
@@ -73,7 +69,6 @@ const HistoryFilters: React.FC<HistoryFiltersProps> = ({
           />
         </div>
 
-        {/* 3. Filtru de Dată (Dropdown) */}
         <div className="w-full md:w-48 shrink-0">
           <Select 
             options={dateOptions}

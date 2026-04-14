@@ -5,8 +5,8 @@ import { fetchDonations, sortDonations, reserveDonation } from '../services/dona
 import { MagnifyingGlassIcon, FunnelIcon } from '@heroicons/react/24/outline';
 import { useTheme } from '../hooks/useTheme';
 import { toast } from 'react-toastify';
-import { SpinnerLoader, ErrorState } from '../components/ui/StateIndicators';
-import EmptyBasketSVG from '../components/ui/EmptyBasketSVG';
+import { SpinnerLoader, ErrorState } from '../components/UI/StateIndicators';
+import EmptyBasketSVG from '../components/UI/EmptyBasketSVG';
 import type { Donation } from '../_mock';
 
 const DonationFeed: React.FC = () => {

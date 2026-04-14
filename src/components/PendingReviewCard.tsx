@@ -41,14 +41,14 @@ const PendingReviewCard: React.FC<PendingReviewCardProps> = ({ item, onSubmit })
 
   return (
     <div className={`p-5 flex flex-col sm:flex-row gap-5 rounded-2xl border transition-all ${
-      theme === 'light' ? 'bg-white border-gray-200 hover:border-blue-300 hover:shadow-md' : 'bg-gray-800 border-gray-700 hover:border-blue-500'
+      theme === 'light' ? 'bg-white border-gray-200 hover:border-[#16a34a]/30 hover:shadow-md' : 'bg-[#1a1a1a] border-[#2e2e2e] hover:border-[#16a34a]/50'
     }`}>
       <img src={item.image} alt={item.donationTitle} className="w-full sm:w-24 h-32 sm:h-24 object-cover rounded-xl shrink-0" />
 
       <div className="flex-1 flex flex-col">
         <div className="flex justify-between items-start mb-2">
           <div>
-            <h3 className={`text-lg font-bold ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>
+            <h3 className={`text-lg font-bold ${theme === 'light' ? 'text-[#1a1a1a]' : 'text-gray-100'}`} style={{ fontFamily: 'var(--font-display)' }}>
               {item.donationTitle}
             </h3>
             <p className={`text-sm font-medium ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>
@@ -95,7 +95,7 @@ const PendingReviewCard: React.FC<PendingReviewCardProps> = ({ item, onSubmit })
                     className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${
                       isSelected 
                         ? (isPositive 
-                            ? (theme === 'light' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' : 'bg-emerald-900/40 text-emerald-400 border-emerald-700')
+                            ? (theme === 'light' ? 'bg-[#16a34a]/10 text-[#16a34a] border-[#16a34a]/20' : 'bg-[#16a34a]/10 text-green-400 border-[#16a34a]/30')
                             : (theme === 'light' ? 'bg-orange-100 text-orange-700 border-orange-200' : 'bg-orange-900/40 text-orange-400 border-orange-700'))
                         : (theme === 'light' ? 'bg-transparent text-gray-500 border-gray-200 hover:border-gray-400' : 'bg-transparent text-gray-400 border-gray-600 hover:border-gray-400')
                     }`}
@@ -110,14 +110,14 @@ const PendingReviewCard: React.FC<PendingReviewCardProps> = ({ item, onSubmit })
               placeholder="Tell us more about your pickup experience (optional)..."
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              className={`w-full p-3 rounded-xl border text-sm resize-none focus:ring-2 focus:ring-blue-500 outline-none transition-colors ${
-                theme === 'light' ? 'bg-gray-50 border-gray-200 text-gray-800' : 'bg-gray-900 border-gray-700 text-gray-100'
+              className={`w-full p-3 rounded-xl border text-sm resize-none focus:ring-2 focus:ring-[#16a34a]/20 focus:border-[#16a34a] outline-none transition-colors ${
+                theme === 'light' ? 'bg-white border-gray-200 text-gray-800' : 'bg-[#222222] border-[#2e2e2e] text-gray-100'
               }`}
               rows={2}
             />
             <button
               onClick={handleSubmit}
-              className="self-end px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-md transition-all active:scale-[0.98]"
+              className="self-end px-6 py-2 bg-[#16a34a] hover:bg-green-700 text-white font-bold rounded-xl shadow-md transition-all active:scale-[0.98]"
             >
               Submit Feedback
             </button>

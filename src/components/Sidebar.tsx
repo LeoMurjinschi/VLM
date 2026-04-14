@@ -7,10 +7,15 @@ import {
   StarIcon, 
   BookOpenIcon, 
   Cog8ToothIcon, 
-  ArrowRightOnRectangleIcon, 
-  XMarkIcon
+  XMarkIcon,
+  HomeIcon,
+  PlusCircleIcon,
+  ArchiveBoxIcon,
+  ClipboardDocumentListIcon,
+  ChatBubbleLeftRightIcon,
+  SunIcon,
+  MoonIcon
 } from '@heroicons/react/24/outline';
-import ThemeToggleButton from './UI/ThemeToggleButton';
 import { useTheme } from '../hooks/useTheme';
 
 interface NavItem {
@@ -23,47 +28,67 @@ interface SidebarProps {
   onClose?: () => void;
 }
 
-const navigation: NavItem[] = [
-  { name: 'Feed Page', href: '/', icon: Squares2X2Icon },
-  { name: 'My Reservations', href: '/pickups', icon: ExclamationTriangleIcon },
-  { name: 'History & Status', href: '/history', icon: ClockIcon },
-  { name: 'Feedback & Rating', href: '/feedback', icon: StarIcon },
-  { name: 'Safety Guide', href: '/safety', icon: BookOpenIcon },
-  { name: 'Profile Settings', href: '/settings', icon: Cog8ToothIcon },
+// === 1. LISTA PENTRU RECEIVER (ONG) ===
+const receiverNavigation: NavItem[] = [
+  { name: 'Donation Feed', href: '/receiver/dashboard', icon: Squares2X2Icon },
+  { name: 'My Pickups', href: '/receiver/pickups', icon: ExclamationTriangleIcon },
+  { name: 'History & Status', href: '/receiver/history', icon: ClockIcon },
+  { name: 'Messages', href: '/receiver/messages', icon: ChatBubbleLeftRightIcon },
+  { name: 'Feedback & Rating', href: '/receiver/feedback', icon: StarIcon },
+  { name: 'Safety Guide', href: '/receiver/safety', icon: BookOpenIcon },
+  { name: 'Profile Settings', href: '/receiver/settings', icon: Cog8ToothIcon },
+];
+
+// === 2. LISTA PENTRU DONOR ===
+const donorNavigation: NavItem[] = [
+  { name: 'Donation Feed', href: '/donor/feed', icon: HomeIcon },
+  { name: 'Dashboard', href: '/donor/dashboard', icon: Squares2X2Icon },
+  { name: 'Add Stock', href: '/donor/add-stock', icon: PlusCircleIcon },
+  { name: 'Inventory', href: '/donor/inventory', icon: ArchiveBoxIcon },
+  { name: 'Impact Reports', href: '/donor/reports', icon: ClipboardDocumentListIcon },
+  { name: 'Settings', href: '/donor/settings', icon: Cog8ToothIcon },
 ];
 
 const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
   const location = useLocation();
-  const { theme } = useTheme();
+  const { theme, toggleTheme } = useTheme();
+
+  // === 3. LOGICA: Alegem lista corectă în funcție de URL ===
+  const isReceiver = location.pathname.startsWith('/receiver');
+  const currentNavigation = isReceiver ? receiverNavigation : donorNavigation;
 
   return (
-    <div className={`flex h-full flex-col justify-between border-r transition-all duration-300 w-56 shadow-[4px_0_24px_rgba(0,0,0,0.02)] ${
+    <div className={`flex h-full flex-col justify-between border-r transition-all duration-300 w-56 ${
       theme === 'light' 
-        ? 'border-gray-100 bg-white' 
-        : 'border-gray-700 bg-gray-900'
+        ? 'border-gray-200/80 bg-white' 
+        : 'border-[#2e2e2e] bg-[#1a1a1a]'
     }`}>
-      {/* Partea de Sus: Logo, Navigare și Theme Toggle (flex-grow ocupă tot spațiul) */}
-      <div className="px-4 py-6 flex flex-col grow">
-       
-        <div className="flex items-center justify-between mb-10 px-2">
-           <span className={`text-2xl font-extrabold ${theme === 'light' ? 'text-blue-600' : 'text-blue-400'}`}>
-             FoodShare<span className={`${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>.</span>
-           </span>
-           
+      <div className="px-3 py-6">
+        
+        <div className="flex items-center justify-between mb-8 px-3">
+           <div className="flex items-center gap-1.5">
+             <span className="text-lg">🌿</span>
+             <span className={`text-xl font-bold tracking-tight ${
+               theme === 'light' ? 'text-[#1a1a1a]' : 'text-white'
+             }`}>
+               Food<span className="text-[#16a34a]">Share</span>
+             </span>
+           </div>
+
            {onClose && (
              <button onClick={onClose} className={`md:hidden p-1 rounded-md transition-colors ${
                theme === 'light' 
-                 ? 'text-gray-400 hover:text-red-500 hover:bg-red-50' 
-                 : 'text-gray-500 hover:text-red-400 hover:bg-red-900/30'
+                 ? 'text-gray-400 hover:text-red-500' 
+                 : 'text-gray-500 hover:text-red-400'
              }`}>
-                <XMarkIcon className="w-6 h-6" />
+                <XMarkIcon className="w-5 h-5" />
              </button>
            )}
         </div>
 
         <nav className="space-y-1">
-          {navigation.map((item) => {
-            const isActive = location.pathname === item.href;
+          {currentNavigation.map((item) => {
+            const isActive = location.pathname.includes(item.href);
 
             return (
               <Link
@@ -71,22 +96,29 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
                 to={item.href}
                 onClick={onClose}
                 className={`
-                  group flex items-center px-3 py-3 text-sm font-bold rounded-xl transition-all duration-200
+                  group relative flex items-center px-3 py-2.5 text-[13px] font-medium rounded-lg transition-all duration-200
                   ${isActive 
-                    ? `bg-blue-600 text-white! shadow-lg ${theme === 'light' ? 'shadow-blue-200' : 'shadow-blue-900'}` 
+                    ? 'bg-[#F0FAF4] dark:bg-[#16a34a]/10 font-semibold border-l-[3px] border-[#16a34a] ml-0 pl-[9px]' 
+                    : 'border-l-[3px] border-transparent ml-0 pl-[9px]'
+                  }
+                  ${isActive
+                    ? theme === 'light' ? 'text-[#16a34a]' : 'text-green-400'
                     : theme === 'light'
-                    ? 'text-gray-500 hover:bg-blue-50 hover:text-blue-600'
-                    : 'text-gray-400 hover:bg-gray-800 hover:text-blue-400'
-                }
+                    ? 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
+                    : 'text-gray-400 hover:bg-gray-800/50 hover:text-gray-200'
+                  }
                 `}
               >
                 <item.icon
-                  className={`mr-3 h-5 w-5 shrink-0 transition-colors
-                    ${isActive ? 'text-white!' : theme === 'light' ? 'text-gray-400 group-hover:text-blue-600' : 'text-gray-500 group-hover:text-blue-400'}
+                  className={`mr-2.5 h-[18px] w-[18px] flex-shrink-0 transition-colors
+                    ${isActive 
+                      ? theme === 'light' ? 'text-[#16a34a]' : 'text-green-400'
+                      : theme === 'light' ? 'text-gray-400 group-hover:text-gray-600' : 'text-gray-500 group-hover:text-gray-300'
+                    }
                   `}
                   aria-hidden="true"
                 />
-                <span className={`truncate ${isActive ? 'text-white!' : ''}`}>
+                <span className="truncate">
                   {item.name}
                 </span>
               </Link>
@@ -94,32 +126,56 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
           })}
         </nav>
 
-        {/* Butonul Theme mutat aici, mt-auto îl împinge exact deasupra liniei */}
-        <div className="mt-auto px-2 flex justify-start">
-          <ThemeToggleButton />
-        </div>
-      </div>
+        <div className={`mx-3 my-3 border-t ${theme === 'light' ? 'border-gray-100' : 'border-[#2e2e2e]'}`}></div>
 
-      {/* Partea de Jos: Doar Sign Out și linia despărțitoare (border-t) */}
-      <div className={`px-4 py-6 border-t ${
-        theme === 'light' 
-          ? 'border-gray-100' 
-          : 'border-gray-700'
-      }`}>
-        
-        {/* Butonul de Sign Out */}
-        <button className={`flex w-full items-center px-3 py-3 text-sm font-bold rounded-xl transition-all duration-200 group ${
-            theme === 'light'
-            ? 'text-gray-500 hover:bg-red-50 hover:text-red-600'
-            : 'text-gray-400 hover:bg-red-900/20 hover:text-red-400'
-        }`}>
-            <ArrowRightOnRectangleIcon className={`mr-3 h-5 w-5 transition-colors ${
-              theme === 'light' ? 'text-gray-400 group-hover:text-red-600' : 'text-gray-500 group-hover:text-red-400'
-            }`} />
-            <span>Sign Out</span>
+        <button
+          onClick={toggleTheme}
+          className={`
+            w-full group relative flex items-center px-3 py-2.5 text-[13px] font-medium rounded-lg transition-all duration-200
+            border-l-[3px] border-transparent pl-[9px]
+            ${theme === 'light'
+              ? 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
+              : 'text-gray-400 hover:bg-gray-800/50 hover:text-gray-200'
+            }
+          `}
+        >
+          {theme === 'light' ? (
+            <MoonIcon className={`mr-2.5 h-[18px] w-[18px] flex-shrink-0 transition-colors ${theme === 'light' ? 'text-gray-400 group-hover:text-gray-600' : 'text-gray-500 group-hover:text-gray-300'}`} />
+          ) : (
+            <SunIcon className="mr-2.5 h-[18px] w-[18px] flex-shrink-0 transition-colors text-gray-500 group-hover:text-gray-300" />
+          )}
+          <span className="truncate">{theme === 'light' ? 'Dark Mode' : 'Light Mode'}</span>
         </button>
-
       </div>
+
+      <div className={`mx-3 mb-4 p-4 rounded-xl border ${
+        theme === 'light' 
+          ? 'bg-[#F0FAF4] border-green-100' 
+          : 'bg-[#16a34a]/10 border-green-900/30'
+      }`}>
+        <div className="flex items-center gap-2.5 mb-2">
+          <span className="text-lg">🌱</span>
+          <div>
+            <p className={`text-[10px] uppercase tracking-widest font-semibold ${
+              theme === 'light' ? 'text-gray-500' : 'text-gray-400'
+            }`}>Your Impact</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-bold bg-[#16a34a] text-white">
+            14
+          </span>
+          <span className={`text-sm font-semibold ${
+            theme === 'light' ? 'text-[#1a1a1a]' : 'text-white'
+          }`}>meals saved</span>
+        </div>
+        <p className={`text-[11px] mt-2 font-medium leading-relaxed ${
+          theme === 'light' ? 'text-gray-500' : 'text-gray-400'
+        }`}>
+          Top 5% of community heroes! 🌍
+        </p>
+      </div>
+
     </div>
   );
 };

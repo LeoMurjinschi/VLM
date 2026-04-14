@@ -15,7 +15,7 @@ const AccordionItem: React.FC<AccordionItemProps> = ({ title, icon, content, isO
 
   return (
     <div className={`mb-3 rounded-2xl border overflow-hidden transition-colors ${
-      theme === 'light' ? 'bg-white border-gray-200' : 'bg-gray-800 border-gray-700'
+      theme === 'light' ? 'bg-white border-gray-200/60' : 'bg-[#1a1a1a] border-[#2e2e2e]'
     }`}>
       {/* Header-ul Acordeonului (Butonul) */}
       <button
@@ -23,10 +23,10 @@ const AccordionItem: React.FC<AccordionItemProps> = ({ title, icon, content, isO
         className={`w-full flex items-center justify-between p-5 text-left transition-colors hover:bg-black/5 dark:hover:bg-white/5 focus:outline-none`}
       >
         <div className="flex items-center gap-4">
-          <div className={`p-2 rounded-xl ${theme === 'light' ? 'bg-blue-50 text-blue-600' : 'bg-blue-900/30 text-blue-400'}`}>
+          <div className={`p-2 rounded-xl ${theme === 'light' ? 'bg-[#16a34a]/10 text-[#16a34a]' : 'bg-[#16a34a]/20 text-green-400'}`}>
             {icon}
           </div>
-          <span className={`text-lg font-bold ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>
+          <span className={`text-lg font-bold ${theme === 'light' ? 'text-[#1a1a1a]' : 'text-gray-100'}`} style={{ fontFamily: 'var(--font-display)' }}>
             {title}
           </span>
         </div>
@@ -42,7 +42,7 @@ const AccordionItem: React.FC<AccordionItemProps> = ({ title, icon, content, isO
         }`}
       >
         <div className="overflow-hidden">
-          <div className={`p-5 pt-0 border-t ${theme === 'light' ? 'border-gray-100 text-gray-600' : 'border-gray-700 text-gray-300'}`}>
+          <div className={`p-5 pt-0 border-t ${theme === 'light' ? 'border-gray-100/60 text-gray-600' : 'border-[#2e2e2e] text-gray-300'}`}>
             {content}
           </div>
         </div>

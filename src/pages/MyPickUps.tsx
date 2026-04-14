@@ -79,18 +79,21 @@ const MyPickups: React.FC = () => {
       <div className={`w-full space-y-6 max-w-7xl mx-auto min-h-screen relative pb-10 ${theme === 'light' ? 'bg-gray-50' : 'bg-gray-900'}`}>
         
         {/* HEADER & CONTROLS (Fără tab-uri) */}
-        <div className={`pb-6 border-b relative z-20 ${theme === 'light' ? 'border-gray-100' : 'border-gray-700'}`}>
-          <div className="mb-2 flex flex-col lg:flex-row lg:items-start justify-between gap-6">
-            
-            {/* Titlu și descriere */}
-            <div>
-              <h1 className={`text-3xl md:text-4xl font-extrabold tracking-tight mb-1 ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>
-                My Pickups
-              </h1>
-              <p className={`text-base leading-relaxed ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>
-                Track and complete your assigned route for today.
-              </p>
-            </div>
+        <div className={`flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-6 border-b relative z-20 ${
+          theme === 'light' ? 'border-gray-200/60' : 'border-[#2e2e2e]'
+        }`}>
+          <div className="max-w-2xl">
+            <h1 className={`font-[var(--font-display)] text-3xl font-bold tracking-tight mb-2 ${
+              theme === 'light' ? 'text-[#1a1a1a]' : 'text-white'
+            }`} style={{ fontFamily: 'var(--font-display)' }}>
+              My Pickups
+            </h1>
+            <p className={`text-[15px] leading-relaxed ${
+              theme === 'light' ? 'text-gray-500' : 'text-gray-400'
+            }`}>
+              Track and complete your assigned route for today.
+            </p>
+          </div>
             
             {/* Zona din dreapta (Sortare + Buton Complete All) */}
             <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
@@ -117,7 +120,6 @@ const MyPickups: React.FC = () => {
                 </button>
               )}
             </div>
-          </div>
         </div>
 
         {/* GRID CU CARDURI */}
@@ -149,94 +151,111 @@ const MyPickups: React.FC = () => {
             })}
           </div>
         ) : (
-          <div className={`py-16 text-center rounded-3xl border border-dashed ${theme === 'light' ? 'bg-white border-gray-200' : 'bg-gray-800 border-gray-700'}`}>
-            <span className="text-5xl block mb-5">🙌</span>
-            <h3 className={`text-xl font-bold mb-1 ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>
+          <div className={`flex flex-col items-center justify-center min-h-[50vh] rounded-2xl border border-dashed relative z-0 ${
+            theme === 'light' ? 'bg-white border-gray-300' : 'bg-[#1a1a1a] border-gray-600'
+          }`}>
+            <div className={`p-6 rounded-2xl mb-4 ${
+              theme === 'light' ? 'bg-emerald-50' : 'bg-emerald-900/10'
+            }`}>
+              <span className="text-5xl block text-emerald-500">🏆</span>
+            </div>
+            <p className={`font-semibold text-lg ${
+              theme === 'light' ? 'text-gray-900' : 'text-gray-100'
+            }`}>
               Mission accomplished!
-            </h3>
-            <p className={`text-base ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>
+            </p>
+            <p className={`mt-1.5 text-center max-w-sm text-sm ${
+              theme === 'light' ? 'text-gray-500' : 'text-gray-400'
+            }`}>
               You have no more food to collect right now.
             </p>
           </div>
         )}
 
         {/* === MODALUL GOOGLE MAPS === */}
-                {isMapOpen && selectedPickupForMap && (
-                  <div className="fixed inset-0 z-60 flex items-center justify-center px-4">
-                    <div 
-                      className={`absolute inset-0 backdrop-blur-sm transition-opacity ${
-                        theme === 'light' ? 'bg-gray-900/40' : 'bg-black/60'
-                      }`}
-                      onClick={handleCloseMap}
-                    ></div>
-        
-                    <div className={`relative w-full max-w-4xl rounded-2xl shadow-2xl overflow-hidden animate-fade-in-up transition-all ${
-                      theme === 'light' ? 'bg-white border-gray-100' : 'bg-gray-800 border-gray-700 border'
-                    }`}>
-                      <div className={`flex items-center justify-between p-5 border-b ${
-                        theme === 'light' ? 'border-gray-100 bg-gray-50' : 'border-gray-700 bg-gray-800/50'
-                      }`}>
-                        <div>
-                          <h3 className={`text-xl font-extrabold ${
-                            theme === 'light' ? 'text-gray-900' : 'text-gray-100'
-                          }`}>Pickup Location</h3>
-                          <p className={`text-sm mt-1 flex items-center gap-1.5 font-medium ${
-                            theme === 'light' ? 'text-gray-500' : 'text-gray-400'
-                          }`}>
-                            <MapPinIcon className="w-4 h-4 text-blue-500" /> 
-                            {selectedPickupForMap.address}
-                          </p>
-                        </div>
-                        <button 
-                          onClick={handleCloseMap}
-                          className={`p-2 rounded-xl transition-all ${
-                            theme === 'light' 
-                              ? 'bg-white border border-gray-200 text-gray-400 hover:bg-red-50 hover:text-red-500 hover:border-red-200' 
-                              : 'bg-gray-700 border border-gray-600 text-gray-300 hover:bg-red-900/30 hover:text-red-400 hover:border-red-500/50'
-                          }`}
-                        >
-                          <XMarkIcon className="w-5 h-5" />
-                        </button>
-                      </div>
-        
-                      <div className={`w-full h-[60vh] min-h-100 relative ${theme === 'light' ? 'bg-gray-50' : 'bg-gray-900'}`}>
-                        <iframe 
-                          src={selectedPickupForMap.mapEmbedUrl}
-                          width="100%" 
-                          height="100%" 
-                          style={{ border: 0 }} 
-                          allowFullScreen={true} 
-                          loading="lazy" 
-                          referrerPolicy="no-referrer-when-downgrade"
-                          className="absolute inset-0"
-                        ></iframe>
-                      </div>
-        
-                      <div className={`p-5 flex flex-col sm:flex-row items-center justify-between gap-4 ${
-                        theme === 'light' ? 'bg-white' : 'bg-gray-800'
-                      }`}>
-                        <div className={`flex items-center gap-3 text-sm p-3 rounded-xl w-full sm:w-auto border ${
-                          theme === 'light' 
-                            ? 'bg-orange-50/80 text-orange-700 border-orange-100' 
-                            : 'bg-orange-900/20 text-orange-400 border-orange-900/50'
-                        }`}>
-                           <ExclamationTriangleIcon className="w-5 h-5 text-orange-500 shrink-0" />
-                           <span className="font-semibold">Please respect the pickup time window.</span>
-                        </div>
-                        <button 
-                          onClick={handleCloseMap}
-                          className={`px-6 py-3 font-bold rounded-xl shadow-lg transition-all active:scale-[0.98] w-full sm:w-auto text-white ${
-                            theme === 'light' 
-                              ? 'bg-blue-600 hover:bg-blue-700 shadow-blue-200/50' 
-                              : 'bg-blue-600 hover:bg-blue-700 shadow-black/50'
-                          }`}
-                        >
-                          Close Map
-                        </button>
-                      </div>
-                    </div>
+        {isMapOpen && selectedPickupForMap && (
+          <div className="fixed inset-[0] z-[9999] flex items-center justify-center p-4">
+            <div 
+              className={`absolute inset-0 backdrop-blur-sm transition-opacity ${
+                theme === 'light' ? 'bg-black/40' : 'bg-black/60'
+              }`}
+              onClick={handleCloseMap}
+            ></div>
+
+            <div className={`relative w-full max-w-4xl rounded-3xl shadow-[0_25px_60px_-12px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col animate-fade-in-up ${
+              theme === 'light' ? 'bg-white' : 'bg-[#1a1a1a]'
+            }`}>
+              {/* Map Section - Full Bleed Top */}
+              <div className="relative w-full h-[55vh] min-h-[300px] shrink-0 bg-gray-100 dark:bg-gray-800">
+                <iframe 
+                  src={selectedPickupForMap.mapEmbedUrl}
+                  width="100%" 
+                  height="100%" 
+                  style={{ border: 0 }} 
+                  allowFullScreen={true} 
+                  loading="lazy" 
+                  referrerPolicy="no-referrer-when-downgrade"
+                  className="absolute inset-0 z-0"
+                ></iframe>
+                
+                {/* Top Gradient for Close Button visibility */}
+                <div className={`absolute top-0 inset-x-0 h-28 bg-gradient-to-b ${
+                  theme === 'light' ? 'from-white/70 to-transparent' : 'from-black/70 to-transparent'
+                } pointer-events-none z-10`} />
+
+                {/* Close button */}
+                <button 
+                  onClick={handleCloseMap}
+                  className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/90 dark:bg-black/60 backdrop-blur-md shadow-sm border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-200 flex items-center justify-center hover:bg-white dark:hover:bg-black/80 hover:scale-105 transition-all outline-none z-20"
+                >
+                  <XMarkIcon className="w-5 h-5 font-bold" />
+                </button>
+              </div>
+
+              {/* Bottom Info Section */}
+              <div className="p-6 md:p-8 flex flex-col sm:flex-row gap-6 items-center justify-between z-20 relative">
+                <div className="flex-grow w-full">
+                  <span className={`inline-block px-2.5 py-1 text-[10px] font-bold rounded-md uppercase tracking-widest mb-3 ${
+                    theme === 'light' ? 'bg-[#16a34a]/10 text-[#16a34a]' : 'bg-green-400/10 text-green-400'
+                  }`}>
+                    Location Details
+                  </span>
+                  
+                  <h3 className={`text-2xl mb-1.5 font-bold leading-tight ${
+                    theme === 'light' ? 'text-[#1a1a1a]' : 'text-white'
+                  }`} style={{ fontFamily: 'var(--font-display)' }}>
+                    Map Directions
+                  </h3>
+                  
+                  <div className={`flex items-start gap-2 text-[15px] font-medium leading-relaxed ${
+                    theme === 'light' ? 'text-gray-600' : 'text-gray-300'
+                  }`}>
+                    <MapPinIcon className="w-5 h-5 text-[#16a34a] mt-0.5 shrink-0" />
+                    <span>{selectedPickupForMap.address}</span>
                   </div>
-                )}
+                </div>
+
+                <div className="flex flex-col gap-3 w-full sm:w-auto shrink-0">
+                  <div className={`flex items-center gap-2.5 text-xs px-3 py-2 rounded-xl border ${
+                    theme === 'light' 
+                      ? 'bg-amber-50/80 text-amber-800 border-amber-200/60' 
+                      : 'bg-amber-500/10 text-amber-500 border-amber-500/20'
+                  }`}>
+                     <ExclamationTriangleIcon className="w-4 h-4 text-amber-500 shrink-0" />
+                     <span className="font-semibold">Respect pickup time</span>
+                  </div>
+
+                  <button 
+                    onClick={handleCloseMap}
+                    className="w-full bg-[#16a34a] hover:bg-[#15803d] text-white font-bold py-3.5 px-6 rounded-full shadow-lg shadow-green-500/20 transition-all active:scale-[0.98]"
+                  >
+                    Done
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </PageLayout>
   );

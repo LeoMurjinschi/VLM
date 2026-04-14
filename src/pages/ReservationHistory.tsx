@@ -89,7 +89,7 @@ const ReservationHistory: React.FC = () => {
 
   return (
     <PageLayout>
-      <div className={`space-y-6 max-w-7xl mx-auto min-h-screen pb-10 ${theme === 'light' ? 'bg-gray-50' : 'bg-gray-900'}`}>
+      <div className="space-y-6 max-w-7xl mx-auto min-h-screen pb-10">
         
         {/* Zona de Sus (Titlu + Statistici) */}
         <HistoryHeader 
@@ -117,7 +117,7 @@ const ReservationHistory: React.FC = () => {
           </div>
         ) : (
           <div className={`flex flex-col items-center justify-center py-16 rounded-2xl border-2 border-dashed transition-all ${
-            theme === 'light' ? 'bg-white border-gray-200' : 'bg-gray-800 border-gray-700'
+            theme === 'light' ? 'bg-white border-gray-200' : 'bg-[#1a1a1a] border-[#2e2e2e]'
           }`}>
             <ArchiveBoxXMarkIcon className={`w-16 h-16 mb-4 ${theme === 'light' ? 'text-gray-300' : 'text-gray-600'}`} />
             <p className={`text-lg font-semibold ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>
@@ -128,8 +128,8 @@ const ReservationHistory: React.FC = () => {
             </p>
             <button 
               onClick={() => { setSearchQuery(''); setStatusFilter('All'); setDateFilter('All Time'); }}
-              className={`mt-6 px-6 py-2 font-bold rounded-xl transition-colors ${
-                theme === 'light' ? 'bg-blue-50 text-blue-600 hover:bg-blue-100' : 'bg-blue-900/30 text-blue-400 hover:bg-blue-900/50'
+              className={`mt-6 px-6 py-2.5 font-bold text-sm rounded-xl transition-all active:scale-[0.98] ${
+                theme === 'light' ? 'bg-[#16a34a]/10 text-[#16a34a] hover:bg-[#16a34a]/20' : 'bg-[#16a34a]/10 text-[#16a34a] border border-[#16a34a]/30 hover:bg-[#16a34a]/20'
               }`}
             >
               Clear Filters

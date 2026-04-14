@@ -24,11 +24,11 @@ const SecuritySettings: React.FC<SecuritySettingsProps> = ({ onUpdatePassword })
 
 
   const inputClass = `w-full px-4 py-3 rounded-xl border focus:outline-none focus:ring-2 transition-colors font-medium ${
-    theme === 'light' ? 'bg-white text-gray-900 placeholder-gray-400' : 'bg-gray-900 text-gray-100 placeholder-gray-500'
+    theme === 'light' ? 'bg-white text-gray-900 placeholder-gray-400' : 'bg-[#222222] text-gray-100 placeholder-gray-500'
   }`;
 
 
-  const defaultBorderClass = theme === 'light' ? 'border-gray-200 focus:ring-blue-500' : 'border-gray-600 focus:ring-blue-500';
+  const defaultBorderClass = theme === 'light' ? 'border-gray-200 focus:ring-[#16a34a]/30 focus:border-[#16a34a]' : 'border-[#2e2e2e] focus:ring-[#16a34a]/30 focus:border-[#16a34a]';
   const errorBorderClass = 'border-red-500 focus:border-red-500 focus:ring-red-500';
 
   const validatePassword = (pw: string) => {
@@ -77,12 +77,12 @@ const SecuritySettings: React.FC<SecuritySettingsProps> = ({ onUpdatePassword })
   };
 
   return (
-    <div className={`p-6 md:p-8 rounded-3xl border shadow-sm ${theme === 'light' ? 'bg-white border-gray-100' : 'bg-gray-900 border-gray-700'}`}>
+    <div className={`p-6 md:p-8 rounded-3xl border shadow-sm ${theme === 'light' ? 'bg-white border-gray-200/60' : 'bg-[#1a1a1a] border-[#2e2e2e]'}`}>
       <div className="flex items-center gap-3 mb-6">
-        <div className={`p-2 rounded-lg ${theme === 'light' ? 'bg-emerald-50 text-emerald-600' : 'bg-emerald-900/30 text-emerald-400'}`}>
+        <div className={`p-2 rounded-lg ${theme === 'light' ? 'bg-[#16a34a]/10 text-[#16a34a]' : 'bg-[#16a34a]/20 text-[#16a34a]'}`}>
           <ShieldCheckIcon className="w-6 h-6" />
         </div>
-        <h2 className={`text-xl font-extrabold ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>Security</h2>
+        <h2 className={`text-xl font-bold ${theme === 'light' ? 'text-[#1a1a1a]' : 'text-gray-100'}`} style={{ fontFamily: 'var(--font-display)' }}>Security</h2>
       </div>
       
       {!isFormOpen ? (
@@ -127,7 +127,7 @@ const SecuritySettings: React.FC<SecuritySettingsProps> = ({ onUpdatePassword })
               showPasswordError 
                 ? 'text-red-500 font-semibold' 
                 : newPasswordTouched && isPasswordValid 
-                  ? 'text-emerald-500 font-semibold' 
+                  ? 'text-[#16a34a] font-semibold' 
                   : 'text-gray-500'
             }`}>
               {newPasswordTouched && isPasswordValid ? '✓ Password meets all requirements.' : 'Min. 8 characters, 1 uppercase, 1 lowercase, 1 number.'}
@@ -152,7 +152,7 @@ const SecuritySettings: React.FC<SecuritySettingsProps> = ({ onUpdatePassword })
                 showConfirmError 
                   ? 'text-red-500 font-semibold' 
                   : isPasswordMatch 
-                    ? 'text-emerald-500 font-semibold' 
+                    ? 'text-[#16a34a] font-semibold' 
                     : 'text-gray-500'
               }`}>
                 {isPasswordMatch ? '✓ Passwords match.' : 'Passwords do not match.'}
@@ -175,7 +175,7 @@ const SecuritySettings: React.FC<SecuritySettingsProps> = ({ onUpdatePassword })
             <button 
               type="submit" 
               disabled={isSubmitting}
-              className={`flex items-center gap-2 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all disabled:opacity-70`}
+              className={`flex items-center gap-2 px-6 py-2 bg-[#16a34a] hover:bg-green-700 text-white font-bold rounded-xl transition-all disabled:opacity-70`}
             >
               {isSubmitting ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <KeyIcon className="w-4 h-4" />}
               Update Password

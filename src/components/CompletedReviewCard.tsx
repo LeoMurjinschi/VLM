@@ -9,13 +9,13 @@ const CompletedReviewCard: React.FC<{ item: FeedbackRecord }> = ({ item }) => {
 
   return (
     <div className={`p-5 flex flex-col sm:flex-row gap-5 rounded-2xl border ${
-      theme === 'light' ? 'bg-white border-gray-100' : 'bg-gray-800/50 border-gray-700'
+      theme === 'light' ? 'bg-white border-gray-100' : 'bg-[#1a1a1a] border-[#2e2e2e]'
     }`}>
       <img src={item.image} alt={item.donationTitle} className="w-full sm:w-24 h-32 sm:h-24 object-cover rounded-xl shrink-0 grayscale opacity-80" />
 
       <div className="flex-1">
         <div className="flex justify-between items-start mb-1">
-          <h3 className={`text-base font-bold ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>
+          <h3 className={`text-base font-bold ${theme === 'light' ? 'text-[#1a1a1a]' : 'text-gray-100'}`} style={{ fontFamily: 'var(--font-display)' }}>
             {item.donationTitle}
           </h3>
           <div className="flex gap-0.5">
@@ -35,7 +35,7 @@ const CompletedReviewCard: React.FC<{ item: FeedbackRecord }> = ({ item }) => {
             {item.tags.map(tag => (
               <span key={tag} className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${
                 isPositive 
-                  ? (theme === 'light' ? 'bg-emerald-50 text-emerald-700' : 'bg-emerald-900/30 text-emerald-400') 
+                  ? (theme === 'light' ? 'bg-[#16a34a]/10 text-[#16a34a]' : 'bg-[#16a34a]/10 text-green-400') 
                   : (theme === 'light' ? 'bg-orange-50 text-orange-700' : 'bg-orange-900/30 text-orange-400')
               }`}>
                 {tag}
