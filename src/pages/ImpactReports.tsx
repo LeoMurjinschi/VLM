@@ -16,7 +16,7 @@ import {
   generateImpactSummary,
 } from '../services/reportsService';
 import type { DonationRecord, Partner, ReportFilters } from '../types/reports';
-import { SkeletonTableLoader, EmptyState, ErrorState, SpinnerLoader } from '../components/ui/StateIndicators';
+import { SkeletonTableLoader, EmptyState, ErrorState, SpinnerLoader } from '../components/UI/StateIndicators';
 
 const DATE_RANGE_OPTIONS = [
   { value: 'Last 7 Days', label: 'Last 7 Days' },

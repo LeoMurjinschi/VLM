@@ -18,8 +18,8 @@ const PickupLocations: React.FC = () => {
   const [newAddress, setNewAddress] = useState('');
   const [newInstructions, setNewInstructions] = useState('');
 
-  const inputClass = `w-full px-4 py-3 rounded-xl border focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors font-medium ${
-    theme === 'light' ? 'bg-white border-gray-200 text-gray-900 placeholder-gray-400' : 'bg-gray-900 border-gray-600 text-gray-100 placeholder-gray-500'
+  const inputClass = `w-full px-4 py-3 rounded-xl border focus:outline-none focus:ring-2 focus:ring-[#16a34a]/30 focus:border-[#16a34a] transition-colors font-medium ${
+    theme === 'light' ? 'bg-white border-gray-200 text-gray-900 placeholder-gray-400' : 'bg-[#222222] border-[#2e2e2e] text-gray-100 placeholder-gray-500'
   }`;
 
   const handleAddLocation = (e: React.FormEvent) => {
@@ -47,13 +47,13 @@ const PickupLocations: React.FC = () => {
   };
 
   return (
-    <div className={`p-6 md:p-8 rounded-3xl border shadow-sm ${theme === 'light' ? 'bg-white border-gray-100' : 'bg-gray-900 border-gray-700'}`}>
+    <div className={`p-6 md:p-8 rounded-3xl border shadow-sm ${theme === 'light' ? 'bg-white border-gray-200/60' : 'bg-[#1a1a1a] border-[#2e2e2e]'}`}>
       <div className="flex items-center gap-3 mb-6">
-        <div className={`p-2 rounded-lg ${theme === 'light' ? 'bg-orange-50 text-orange-600' : 'bg-orange-900/30 text-orange-400'}`}>
+        <div className={`p-2 rounded-lg ${theme === 'light' ? 'bg-[#16a34a]/10 text-[#16a34a]' : 'bg-[#16a34a]/10 text-green-400'}`}>
           <MapPinIcon className="w-6 h-6" />
         </div>
         <div>
-          <h2 className={`text-xl font-extrabold ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>Pickup Locations</h2>
+          <h2 className={`text-xl font-bold ${theme === 'light' ? 'text-[#1a1a1a]' : 'text-gray-100'}`} style={{ fontFamily: 'var(--font-display)' }}>Pickup Locations</h2>
           <p className={`text-sm ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>Where can NGOs pick up the food?</p>
         </div>
       </div>
@@ -61,7 +61,7 @@ const PickupLocations: React.FC = () => {
 
       <div className="space-y-3 mb-6">
         {locations.map(loc => (
-          <div key={loc.id} className={`flex items-start justify-between p-4 rounded-xl border ${theme === 'light' ? 'bg-gray-50 border-gray-100' : 'bg-gray-700/30 border-gray-600'}`}>
+          <div key={loc.id} className={`flex items-start justify-between p-4 rounded-xl border ${theme === 'light' ? 'bg-gray-50 border-gray-100' : 'bg-[#222222] border-[#2e2e2e]'}`}>
             <div>
               <p className={`font-bold ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>{loc.address}</p>
               {loc.instructions && <p className={`text-xs mt-1 ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>Instructions: {loc.instructions}</p>}
@@ -74,13 +74,13 @@ const PickupLocations: React.FC = () => {
       </div>
 
 
-      <form onSubmit={handleAddLocation} className={`pt-5 border-t ${theme === 'light' ? 'border-gray-100' : 'border-gray-700'}`}>
+      <form onSubmit={handleAddLocation} className={`pt-5 border-t ${theme === 'light' ? 'border-gray-100' : 'border-[#2e2e2e]'}`}>
         <h4 className={`text-sm font-bold mb-3 ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>Add New Location</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <input type="text" value={newAddress} onChange={e => setNewAddress(e.target.value)} placeholder="Full Address" className={inputClass} />
           <input type="text" value={newInstructions} onChange={e => setNewInstructions(e.target.value)} placeholder="Pickup Instructions (Optional)" className={inputClass} />
         </div>
-        <button type="submit" className={`flex items-center justify-center w-full gap-2 px-4 py-3 text-sm font-bold rounded-xl transition-colors ${theme === 'light' ? 'bg-blue-50 text-blue-600 hover:bg-blue-100' : 'bg-blue-900/30 text-blue-400 hover:bg-blue-900/50'}`}>
+        <button type="submit" className={`flex items-center justify-center w-full gap-2 px-4 py-3 text-sm font-bold rounded-xl transition-colors ${theme === 'light' ? 'bg-[#16a34a]/10 text-[#16a34a] hover:bg-[#16a34a]/20' : 'bg-[#16a34a]/10 text-green-400 hover:bg-[#16a34a]/20'}`}>
           <PlusIcon className="w-4 h-4" /> Add Location
         </button>
       </form>

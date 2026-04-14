@@ -1,28 +1,61 @@
 import React from 'react';
-import { useLocation, Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import {
-  HomeIcon, ClipboardDocumentListIcon,
-  PlusCircleIcon, ArchiveBoxIcon, ChartBarIcon,
-  XMarkIcon, SunIcon, MoonIcon, ChatBubbleLeftRightIcon
+  Squares2X2Icon, 
+  ClockIcon, 
+  ExclamationTriangleIcon, 
+  StarIcon, 
+  BookOpenIcon, 
+  Cog8ToothIcon, 
+  XMarkIcon,
+  HomeIcon,
+  PlusCircleIcon,
+  ArchiveBoxIcon,
+  ClipboardDocumentListIcon,
+  ChatBubbleLeftRightIcon,
+  SunIcon,
+  MoonIcon
 } from '@heroicons/react/24/outline';
 import { useTheme } from '../hooks/useTheme';
+
+interface NavItem {
+  name: string;
+  href: string;
+  icon: React.ElementType;
+}
 
 interface SidebarProps {
   onClose?: () => void;
 }
 
-const navigation = [
+// === 1. LISTA PENTRU RECEIVER (ONG) ===
+const receiverNavigation: NavItem[] = [
+  { name: 'Donation Feed', href: '/receiver/dashboard', icon: Squares2X2Icon },
+  { name: 'My Pickups', href: '/receiver/pickups', icon: ExclamationTriangleIcon },
+  { name: 'History & Status', href: '/receiver/history', icon: ClockIcon },
+  { name: 'Messages', href: '/receiver/messages', icon: ChatBubbleLeftRightIcon },
+  { name: 'Feedback & Rating', href: '/receiver/feedback', icon: StarIcon },
+  { name: 'Safety Guide', href: '/receiver/safety', icon: BookOpenIcon },
+  { name: 'Profile Settings', href: '/receiver/settings', icon: Cog8ToothIcon },
+];
+
+// === 2. LISTA PENTRU DONOR ===
+const donorNavigation: NavItem[] = [
   { name: 'Donation Feed', href: '/donor/feed', icon: HomeIcon },
-  { name: 'Dashboard', href: '/donor/dashboard', icon: ChartBarIcon },
+  { name: 'Dashboard', href: '/donor/dashboard', icon: Squares2X2Icon },
   { name: 'Add Stock', href: '/donor/add-stock', icon: PlusCircleIcon },
   { name: 'Inventory', href: '/donor/inventory', icon: ArchiveBoxIcon },
-  { name: 'Messages', href: '/donor/messages', icon: ChatBubbleLeftRightIcon },
   { name: 'Impact Reports', href: '/donor/reports', icon: ClipboardDocumentListIcon },
+  { name: 'Settings', href: '/donor/settings', icon: Cog8ToothIcon },
 ];
 
 const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
   const location = useLocation();
   const { theme, toggleTheme } = useTheme();
+
+  // === 3. LOGICA: Alegem lista corectă în funcție de URL ===
+  const isReceiver = location.pathname.startsWith('/receiver');
+  const currentNavigation = isReceiver ? receiverNavigation : donorNavigation;
 
   return (
     <div className={`flex h-full flex-col justify-between border-r transition-all duration-300 w-56 ${
@@ -31,7 +64,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
         : 'border-[#2e2e2e] bg-[#1a1a1a]'
     }`}>
       <div className="px-3 py-6">
-       
+        
         <div className="flex items-center justify-between mb-8 px-3">
            <div className="flex items-center gap-1.5">
              <span className="text-lg">🌿</span>
@@ -54,8 +87,8 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
         </div>
 
         <nav className="space-y-1">
-          {navigation.map((item) => {
-            const isActive = location.pathname === item.href;
+          {currentNavigation.map((item) => {
+            const isActive = location.pathname.includes(item.href);
 
             return (
               <Link
