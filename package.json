@@ -17,6 +17,7 @@
     "gh-pages": "^6.3.0",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.564.0",
+    "motion": "^12.38.0",
     "nodemailer": "^8.0.5",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
