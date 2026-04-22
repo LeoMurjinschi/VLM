@@ -22,10 +22,19 @@ const AdminSignups: React.FC = () => {
     return new Date(b.submittedDate).getTime() - new Date(a.submittedDate).getTime();
   });
 
+  const [viewMode, setViewMode] = useState<'pending' | 'history'>('pending');
   const [requests, setRequests] = useState<SignupRequest[]>(sortedRequests);
   
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState<SignupRequest | null>(null);
+
+  // Decline logic
+  const [declineModalOpen, setDeclineModalOpen] = useState(false);
+  const [declineReason, setDeclineReason] = useState('');
+
+  const displayRequests = requests.filter(req => 
+    viewMode === 'pending' ? req.status === 'pending' : req.status !== 'pending'
+  );
 
   const viewDetails = (req: SignupRequest) => {
     setSelectedRequest(req);
@@ -36,8 +45,27 @@ const AdminSignups: React.FC = () => {
     setRequests(prev => prev.map(req => 
       req.id === id ? { ...req, status: newStatus } : req
     ));
-    toast.success(`Application for ${name} has been ${newStatus}.`);
+    toast.success(`Application for ${name} has been approved.`);
     setModalOpen(false);
+  };
+
+  const confirmDecline = () => {
+    if (selectedRequest) {
+      if (!declineReason.trim()) {
+        toast.error('Please provide a reason for rejecting the application.');
+        return;
+      }
+      setRequests(prev => prev.map(req => 
+        req.id === selectedRequest.id ? { ...req, status: 'rejected' } : req
+      ));
+      toast.success(`Rejection email sent to ${selectedRequest.email}.`);
+      setDeclineModalOpen(false);
+      setModalOpen(false);
+    }
+  };
+
+  const openPdf = () => {
+    window.open('https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', '_blank');
   };
 
   return (
@@ -50,6 +78,35 @@ const AdminSignups: React.FC = () => {
         <p className={theme === 'light' ? 'text-gray-500' : 'text-gray-400'}>
           Review and approve or reject organization applications to join FoodShare.
         </p>
+      </div>
+
+      {/* View Mode Tabs */}
+      <div className="flex gap-2 p-1 bg-gray-100 dark:bg-[#1a1a1a] rounded-xl w-fit border border-gray-200 dark:border-[#2e2e2e]">
+        <button
+          onClick={() => setViewMode('pending')}
+          className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+            viewMode === 'pending'
+              ? 'bg-white dark:bg-[#2e2e2e] shadow-sm text-gray-900 dark:text-white'
+              : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
+          }`}
+        >
+          Pending Requests
+          {requests.filter(r => r.status === 'pending').length > 0 && (
+            <span className="ml-2 bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 py-0.5 px-2 rounded-full text-[10px]">
+              {requests.filter(r => r.status === 'pending').length}
+            </span>
+          )}
+        </button>
+        <button
+          onClick={() => setViewMode('history')}
+          className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+            viewMode === 'history'
+              ? 'bg-white dark:bg-[#2e2e2e] shadow-sm text-gray-900 dark:text-white'
+              : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
+          }`}
+        >
+          History Log
+        </button>
       </div>
 
       {/* Requests Table */}
@@ -71,7 +128,7 @@ const AdminSignups: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 dark:divide-[#2e2e2e]">
-              {requests.map((req) => (
+              {displayRequests.map((req) => (
                 <tr key={req.id} className={`transition-colors ${
                   req.status === 'pending'
                     ? theme === 'light' ? 'bg-violet-50/30' : 'bg-violet-900/10'
@@ -138,9 +195,9 @@ const AdminSignups: React.FC = () => {
               ))}
             </tbody>
           </table>
-          {requests.length === 0 && (
+          {displayRequests.length === 0 && (
             <div className={`p-8 text-center text-sm ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>
-              No sign-up requests available.
+              No sign-up requests available in this view.
             </div>
           )}
         </div>
@@ -218,17 +275,17 @@ const AdminSignups: React.FC = () => {
                       <DocumentTextIcon className={`w-5 h-5 ${theme === 'light' ? 'text-violet-500' : 'text-violet-400'}`} />
                       <span className={`text-sm font-medium ${theme === 'light' ? 'text-gray-700' : 'text-gray-300'}`}>{doc}</span>
                     </div>
-                    <span className="text-xs font-semibold text-violet-500 cursor-pointer hover:underline">View PDF</span>
+                    <button onClick={openPdf} className="text-xs font-semibold text-violet-500 cursor-pointer hover:underline focus:outline-none">View PDF</button>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Action Buttons for Pending */}
+             {/* Action Buttons for Pending */}
             {selectedRequest.status === 'pending' ? (
               <div className="flex gap-3 pt-4 border-t border-gray-100 dark:border-gray-800">
                 <button
-                  onClick={() => handleStatusChange(selectedRequest.id, 'rejected', selectedRequest.organizationName)}
+                  onClick={() => { setDeclineReason(''); setDeclineModalOpen(true); }}
                   className={`flex-1 py-2.5 rounded-lg font-semibold text-sm transition-colors ${
                     theme === 'light' 
                       ? 'bg-red-50 text-red-600 hover:bg-red-100' 
@@ -259,6 +316,58 @@ const AdminSignups: React.FC = () => {
             )}
           </div>
         )}
+      </Modal>
+
+      {/* Decline Reason Modal */}
+      <Modal isOpen={declineModalOpen} onClose={() => setDeclineModalOpen(false)} title="Decline Application">
+        <div className="flex flex-col text-left">
+          <div className="flex items-center gap-4 mb-4">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/20">
+              <XMarkIcon className="h-6 w-6 text-red-600 dark:text-red-500" aria-hidden="true" />
+            </div>
+            <div>
+              <h4 className={`text-lg font-bold ${theme === 'light' ? 'text-gray-900' : 'text-white'}`}>Reject {selectedRequest?.organizationName}</h4>
+              <p className={`text-sm ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>Provide a reason for rejection.</p>
+            </div>
+          </div>
+
+          <div className="space-y-4 mb-6">
+            <div>
+              <label className={`block text-xs font-bold uppercase tracking-wider mb-1.5 ${theme === 'light' ? 'text-gray-700' : 'text-gray-300'}`}>
+                Reason for Rejection <span className="text-red-500">*</span>
+              </label>
+              <textarea 
+                value={declineReason}
+                onChange={(e) => setDeclineReason(e.target.value)}
+                placeholder="Explain why this application was rejected (e.g. missing food safety certificates)..."
+                className={`w-full p-3 rounded-xl border text-sm focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-colors ${
+                  theme === 'light' ? 'bg-white border-gray-200 text-gray-900' : 'bg-[#1a1a1a] border-[#2e2e2e] text-white'
+                }`}
+                rows={4}
+              />
+              <p className={`text-[10px] mt-1 ${theme === 'light' ? 'text-gray-500' : 'text-gray-500'}`}>This reason will be sent directly via email to <strong>{selectedRequest?.email}</strong>.</p>
+            </div>
+          </div>
+
+          <div className="flex gap-3 justify-end pt-4 border-t border-gray-100 dark:border-gray-800">
+            <button
+              onClick={() => setDeclineModalOpen(false)}
+              className={`px-4 py-2 rounded-lg font-semibold text-sm transition-colors ${
+                theme === 'light' 
+                  ? 'bg-gray-100 text-gray-700 hover:bg-gray-200' 
+                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+              }`}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={confirmDecline}
+              className="px-4 py-2 rounded-lg font-semibold text-sm transition-colors bg-red-500 hover:bg-red-600 text-white shadow-md shadow-red-500/20"
+            >
+              Reject & Send Email
+            </button>
+          </div>
+        </div>
       </Modal>
 
     </div>
