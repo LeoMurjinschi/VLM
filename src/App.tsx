@@ -37,7 +37,12 @@ import CurrentInventory from './pages/CurrentInventory';
 import Settings from './pages/Settings';
 
 const ReceiverDashboard = () => <div className="p-10 text-2xl font-bold">Receiver Dashboard (Protected)</div>;
-const AdminDashboard = () => <div className="p-10 text-2xl font-bold">Admin Dashboard (Protected)</div>;
+import AdminLayout from './layouts/AdminLayout';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminDonationFeed from './pages/admin/AdminDonationFeed';
+import AdminAccounts from './pages/admin/AdminAccounts';
+import AdminSignups from './pages/admin/AdminSignups';
+import AdminReviews from './pages/admin/AdminReviews';
 import { useTheme } from './hooks/useTheme';
 
 import Dashboard from './pages/Dashboard';
@@ -144,16 +149,23 @@ function App() {
                   <Route path="*" element={<Navigate to="dashboard" replace />} />
                 </Route>
 
+                {/* === RUTELE ADMIN === */}
                 <Route
-                  path="/admin/*"
+                  path="/admin"
                   element={
                     <ProtectedRoute allowedRoles={['admin']}>
-                      <Routes>
-                        <Route path="dashboard" element={<AdminDashboard />} />
-                      </Routes>
+                      <AdminLayout />
                     </ProtectedRoute>
                   }
-                />
+                >
+                  <Route index element={<Navigate to="dashboard" replace />} />
+                  <Route path="dashboard" element={<AdminDashboard />} />
+                  <Route path="donations" element={<AdminDonationFeed />} />
+                  <Route path="accounts" element={<AdminAccounts />} />
+                  <Route path="signups" element={<AdminSignups />} />
+                  <Route path="reviews" element={<AdminReviews />} />
+                  <Route path="*" element={<Navigate to="dashboard" replace />} />
+                </Route>
 
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
