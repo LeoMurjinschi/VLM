@@ -1,9 +1,9 @@
 import React from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import {
   HomeIcon, ClipboardDocumentListIcon,
   PlusCircleIcon, ArchiveBoxIcon, ChartBarIcon,
-  XMarkIcon, SunIcon, MoonIcon
+  XMarkIcon, SunIcon, MoonIcon, ChatBubbleLeftRightIcon
 } from '@heroicons/react/24/outline';
 import { useTheme } from '../hooks/useTheme';
 
@@ -12,11 +12,12 @@ interface SidebarProps {
 }
 
 const navigation = [
-  { name: 'Donation Feed', href: '/feed', icon: HomeIcon, emoji: '🍽️' },
-  { name: 'Dashboard', href: '/dashboard', icon: ChartBarIcon, emoji: '📊' },
-  { name: 'Add Stock', href: '/add-stock', icon: PlusCircleIcon, emoji: '➕' },
-  { name: 'Inventory', href: '/inventory', icon: ArchiveBoxIcon, emoji: '📦' },
-  { name: 'Impact Reports', href: '/reports', icon: ClipboardDocumentListIcon, emoji: '📋' },
+  { name: 'Donation Feed', href: '/donor/feed', icon: HomeIcon },
+  { name: 'Dashboard', href: '/donor/dashboard', icon: ChartBarIcon },
+  { name: 'Add Stock', href: '/donor/add-stock', icon: PlusCircleIcon },
+  { name: 'Inventory', href: '/donor/inventory', icon: ArchiveBoxIcon },
+  { name: 'Messages', href: '/donor/messages', icon: ChatBubbleLeftRightIcon },
+  { name: 'Impact Reports', href: '/donor/reports', icon: ClipboardDocumentListIcon },
 ];
 
 const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
@@ -31,7 +32,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
     }`}>
       <div className="px-3 py-6">
        
-        {/* Logo section */}
         <div className="flex items-center justify-between mb-8 px-3">
            <div className="flex items-center gap-1.5">
              <span className="text-lg">🌿</span>
@@ -53,15 +53,14 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
            )}
         </div>
 
-        {/* Navigation */}
         <nav className="space-y-1">
           {navigation.map((item) => {
             const isActive = location.pathname === item.href;
 
             return (
-              <a
+              <Link
                 key={item.name}
-                href={item.href}
+                to={item.href}
                 onClick={onClose}
                 className={`
                   group relative flex items-center px-3 py-2.5 text-[13px] font-medium rounded-lg transition-all duration-200
@@ -77,7 +76,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
                   }
                 `}
               >
-                <span className="mr-2.5 text-sm flex-shrink-0">{item.emoji}</span>
                 <item.icon
                   className={`mr-2.5 h-[18px] w-[18px] flex-shrink-0 transition-colors
                     ${isActive 
@@ -90,15 +88,13 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
                 <span className="truncate">
                   {item.name}
                 </span>
-              </a>
+              </Link>
             );
           })}
         </nav>
 
-        {/* Divider */}
         <div className={`mx-3 my-3 border-t ${theme === 'light' ? 'border-gray-100' : 'border-[#2e2e2e]'}`}></div>
 
-        {/* Theme toggle — styled like a nav item */}
         <button
           onClick={toggleTheme}
           className={`
@@ -110,7 +106,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
             }
           `}
         >
-          <span className="mr-2.5 text-sm flex-shrink-0">{theme === 'light' ? '🌙' : '☀️'}</span>
           {theme === 'light' ? (
             <MoonIcon className={`mr-2.5 h-[18px] w-[18px] flex-shrink-0 transition-colors ${theme === 'light' ? 'text-gray-400 group-hover:text-gray-600' : 'text-gray-500 group-hover:text-gray-300'}`} />
           ) : (
@@ -120,7 +115,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
         </button>
       </div>
 
-      {/* Your Impact widget */}
       <div className={`mx-3 mb-4 p-4 rounded-xl border ${
         theme === 'light' 
           ? 'bg-[#F0FAF4] border-green-100' 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTheme } from './../hooks/useTheme';
 import { UserCircleIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
-import ImageDragDrop from './UI/ImageDragDrop';
+import ImageDragDrop from './ui/ImageDragDrop';
 import type { User } from './../_mock';
 
 
@@ -20,17 +20,17 @@ interface PersonalInfoFormProps {
 const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ user, onChange, onAvatarChange, onSave, isSaving }) => {
   const { theme } = useTheme();
 
-  const inputClass = `w-full px-4 py-3 rounded-xl border focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors font-medium ${
-    theme === 'light' ? 'bg-white border-gray-200 text-gray-900 placeholder-gray-400' : 'bg-gray-900 border-gray-600 text-gray-100 placeholder-gray-500'
+  const inputClass = `w-full px-4 py-3 rounded-xl border focus:outline-none focus:ring-2 focus:ring-[#16a34a]/30 focus:border-[#16a34a] transition-colors font-medium ${
+    theme === 'light' ? 'bg-white border-gray-200 text-gray-900 placeholder-gray-400' : 'bg-[#222222] border-[#2e2e2e] text-gray-100 placeholder-gray-500'
   }`;
 
   return (
-    <div className={`p-6 md:p-8 rounded-3xl border shadow-sm ${theme === 'light' ? 'bg-white border-gray-100' : 'bg-gray-900 border-gray-700'}`}>
+    <div className={`p-6 md:p-8 rounded-3xl border shadow-sm ${theme === 'light' ? 'bg-white border-gray-200/60' : 'bg-[#1a1a1a] border-[#2e2e2e]'}`}>
       <div className="flex items-center gap-3 mb-6">
-        <div className={`p-2 rounded-lg ${theme === 'light' ? 'bg-blue-50 text-blue-600' : 'bg-blue-900/30 text-blue-400'}`}>
+        <div className={`p-2 rounded-lg ${theme === 'light' ? 'bg-[#16a34a]/10 text-[#16a34a]' : 'bg-[#16a34a]/20 text-green-400'}`}>
           <UserCircleIcon className="w-6 h-6" />
         </div>
-        <h2 className={`text-xl font-extrabold ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>Personal Information</h2>
+        <h2 className={`text-xl font-bold ${theme === 'light' ? 'text-[#1a1a1a]' : 'text-gray-100'}`} style={{ fontFamily: 'var(--font-display)' }}>Personal Information</h2>
       </div>
 
       <form onSubmit={onSave} className="space-y-6">
@@ -59,7 +59,7 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ user, onChange, onA
         />
 
         <div className="pt-2 flex justify-end">
-          <button type="submit" disabled={isSaving} className="flex items-center gap-2 px-6 py-3 font-bold rounded-xl transition-all active:scale-[0.98] disabled:opacity-70 btn-primary">
+          <button type="submit" disabled={isSaving} className="flex items-center gap-2 px-6 py-3 font-bold rounded-xl transition-all active:scale-[0.98] disabled:opacity-70 bg-[#16a34a] hover:bg-green-700 text-white shadow-md">
             {isSaving ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <CheckCircleIcon className="w-5 h-5" />}
             Save Changes
           </button>

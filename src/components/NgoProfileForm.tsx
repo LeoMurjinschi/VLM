@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useTheme } from '../hooks/useTheme';
 import { BuildingOffice2Icon, HeartIcon, TruckIcon, CheckBadgeIcon } from '@heroicons/react/24/outline';
 import { toast } from 'react-toastify';
-import Select from './UI/Select';
+import Select from './ui/Select';
 
 export const DONATION_CATEGORIES = ['Fresh Produce', 'Baked Goods', 'Prepared Hot Meals', 'Packaged Goods', 'Dairy & Refrigerated'];
 
@@ -40,18 +40,18 @@ const NgoProfileForm: React.FC = () => {
 
   const inputClasses = `w-full px-4 py-3 rounded-xl border transition-all duration-200 outline-none focus:ring-2 ${
     theme === 'light'
-      ? 'bg-gray-50 border-gray-200 focus:border-blue-500 focus:ring-blue-500/20 text-gray-900'
-      : 'bg-gray-900 border-gray-700 focus:border-blue-500 focus:ring-blue-500/20 text-gray-100 placeholder-gray-500'
+      ? 'bg-white border-gray-200 focus:border-[#16a34a] focus:ring-[#16a34a]/20 text-gray-900'
+      : 'bg-[#222222] border-[#2e2e2e] focus:border-[#16a34a] focus:ring-[#16a34a]/20 text-gray-100 placeholder-gray-500'
   }`;
 
   return (
-    <div className={`p-6 md:p-8 rounded-3xl border shadow-sm ${theme === 'light' ? 'bg-white border-gray-100' : 'bg-gray-900 border-gray-700'}`}>
+    <div className={`p-6 md:p-8 rounded-3xl border shadow-sm ${theme === 'light' ? 'bg-white border-gray-200/60' : 'bg-[#1a1a1a] border-[#2e2e2e]'}`}>
       <div className="flex items-center gap-3 mb-6">
-        <div className={`p-2 rounded-lg ${theme === 'light' ? 'bg-blue-50 text-blue-600' : 'bg-gray-800 text-blue-400'}`}>
+        <div className={`p-2 rounded-lg ${theme === 'light' ? 'bg-[#16a34a]/10 text-[#16a34a]' : 'bg-[#16a34a]/20 text-green-400'}`}>
           <BuildingOffice2Icon className="w-6 h-6" />
         </div>
         <div>
-          <h2 className={`text-xl font-bold ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>Organizational Profile</h2>
+          <h2 className={`text-xl font-bold ${theme === 'light' ? 'text-[#1a1a1a]' : 'text-gray-100'}`} style={{ fontFamily: 'var(--font-display)' }}>Organizational Profile</h2>
           <p className={`text-sm ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>Public details about your NGO and its operational capacity.</p>
         </div>
       </div>
@@ -85,9 +85,9 @@ const NgoProfileForm: React.FC = () => {
         </div>
 
         {/* Operational Flow */}
-        <div className={`p-5 rounded-2xl border ${theme === 'light' ? 'bg-gray-50/50 border-gray-100' : 'bg-gray-800/50 border-gray-700'}`}>
+        <div className={`p-5 rounded-2xl border ${theme === 'light' ? 'bg-gray-50 border-gray-200/60' : 'bg-[#222222] border-[#2e2e2e]'}`}>
           <div className="flex items-center gap-2 mb-4">
-            <HeartIcon className={`w-5 h-5 ${theme === 'light' ? 'text-rose-500' : 'text-rose-400'}`} />
+            <HeartIcon className={`w-5 h-5 ${theme === 'light' ? 'text-[#16a34a]' : 'text-green-400'}`} />
             <h3 className={`font-bold ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>Donation Preferences</h3>
           </div>
 
@@ -95,7 +95,7 @@ const NgoProfileForm: React.FC = () => {
             <div>
               <div className="flex justify-between items-center mb-2">
                 <label className={`block text-sm font-bold ${theme === 'light' ? 'text-gray-700' : 'text-gray-300'}`}>Operating Radius</label>
-                <span className={`text-sm font-medium ${theme === 'light' ? 'text-blue-600' : 'text-blue-400'}`}>{formData.operatingRadius} km</span>
+                <span className={`text-sm font-medium ${theme === 'light' ? 'text-[#16a34a]' : 'text-green-400'}`}>{formData.operatingRadius} km</span>
               </div>
               <input
                 type="range"
@@ -104,7 +104,7 @@ const NgoProfileForm: React.FC = () => {
                 step="1"
                 value={formData.operatingRadius}
                 onChange={(e) => setFormData({ ...formData, operatingRadius: parseInt(e.target.value) })}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700 accent-blue-600"
+                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700 accent-[#16a34a]"
               />
               <div className="flex justify-between text-xs mt-1 text-gray-500">
                 <span>5 km</span>
@@ -118,14 +118,14 @@ const NgoProfileForm: React.FC = () => {
                 {DONATION_CATEGORIES.map(category => (
                   <label key={category} className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-colors ${
                     formData.acceptedCategories.includes(category)
-                      ? (theme === 'light' ? 'border-blue-500 bg-blue-50/50' : 'border-blue-500 bg-blue-900/20')
-                      : (theme === 'light' ? 'border-gray-200 hover:bg-gray-50' : 'border-gray-700 hover:bg-gray-800')
+                      ? (theme === 'light' ? 'border-[#16a34a] bg-[#16a34a]/5' : 'border-[#16a34a]/50 bg-[#16a34a]/10')
+                      : (theme === 'light' ? 'border-gray-200 hover:bg-white' : 'border-[#333333] hover:bg-[#2a2a2a]')
                   }`}>
                     <input
                       type="checkbox"
                       checked={formData.acceptedCategories.includes(category)}
                       onChange={() => handleCategoryToggle(category)}
-                      className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                      className="w-4 h-4 text-[#16a34a] rounded border-gray-300 focus:ring-[#16a34a]"
                     />
                     <span className={`text-sm font-medium ${theme === 'light' ? 'text-gray-700' : 'text-gray-300'}`}>{category}</span>
                   </label>
@@ -136,9 +136,9 @@ const NgoProfileForm: React.FC = () => {
         </div>
 
         {/* Logistics */}
-        <div className={`p-5 rounded-2xl border ${theme === 'light' ? 'bg-gray-50/50 border-gray-100' : 'bg-gray-800/50 border-gray-700'}`}>
+        <div className={`p-5 rounded-2xl border ${theme === 'light' ? 'bg-gray-50 border-gray-200/60' : 'bg-[#222222] border-[#2e2e2e]'}`}>
           <div className="flex items-center gap-2 mb-4">
-            <TruckIcon className={`w-5 h-5 ${theme === 'light' ? 'text-indigo-500' : 'text-indigo-400'}`} />
+            <TruckIcon className={`w-5 h-5 ${theme === 'light' ? 'text-[#16a34a]' : 'text-green-400'}`} />
             <h3 className={`font-bold ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>Logistics & Capacity</h3>
           </div>
 
@@ -160,14 +160,14 @@ const NgoProfileForm: React.FC = () => {
               <label className={`block text-sm font-bold mb-3 ${theme === 'light' ? 'text-gray-700' : 'text-gray-300'}`}>Storage Capabilities</label>
               <label className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-colors ${
                     formData.hasIndustrialStorage
-                      ? (theme === 'light' ? 'border-blue-500 bg-blue-50/50' : 'border-blue-500 bg-blue-900/20')
-                      : (theme === 'light' ? 'border-gray-200 hover:bg-gray-50' : 'border-gray-700 hover:bg-gray-800')
+                      ? (theme === 'light' ? 'border-[#16a34a] bg-[#16a34a]/5' : 'border-[#16a34a]/50 bg-[#16a34a]/10')
+                      : (theme === 'light' ? 'border-gray-200 hover:bg-white' : 'border-[#333333] hover:bg-[#2a2a2a]')
                   }`}>
                 <input
                   type="checkbox"
                   checked={formData.hasIndustrialStorage}
                   onChange={(e) => setFormData({ ...formData, hasIndustrialStorage: e.target.checked })}
-                  className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                  className="w-4 h-4 text-[#16a34a] rounded border-gray-300 focus:ring-[#16a34a]"
                 />
                 <span className={`text-sm font-medium ${theme === 'light' ? 'text-gray-700' : 'text-gray-300'}`}>Has Industrial Freezers/Fridges</span>
               </label>
@@ -179,7 +179,7 @@ const NgoProfileForm: React.FC = () => {
           <button
             type="submit"
             disabled={isSaving}
-            className={`flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all shadow-sm shadow-blue-600/20 ${
+            className={`flex items-center gap-2 px-6 py-3 bg-[#16a34a] hover:bg-green-700 text-white font-bold rounded-xl transition-all shadow-sm shadow-[#16a34a]/20 ${
               isSaving ? 'opacity-75 cursor-not-allowed' : 'hover:-translate-y-0.5'
             }`}
           >

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Modal from './UI/Modal';
+import Modal from './ui/Modal';
 import { useTheme } from '../hooks/useTheme';
 import { toast } from 'react-toastify';
 

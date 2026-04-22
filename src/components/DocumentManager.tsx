@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useTheme } from './../hooks/useTheme';
 import { DocumentCheckIcon } from '@heroicons/react/24/outline';
-import DocumentUpload, { type UploadedDocument } from './UI/DocumentUpload';
+import DocumentUpload, { type UploadedDocument } from './ui/DocumentUpload';
 
 const DocumentManager: React.FC = () => {
   const { theme } = useTheme();

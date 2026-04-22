@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useTheme } from '../hooks/useTheme';
-import Select from '../components/UI/Select';
+import Select from '../components/ui/Select';
 import { 
   ArrowDownTrayIcon, 
   DocumentArrowDownIcon,

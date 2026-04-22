@@ -78,7 +78,7 @@ const ImageDragDrop: React.FC<ImageDragDropProps> = ({
       )}
 
       {value ? (
-        <div className={`relative overflow-hidden border group ${variant === 'avatar' ? 'rounded-full w-32 h-32 mx-auto' : 'rounded-xl h-32 w-full'} ${theme === 'light' ? 'border-gray-200' : 'border-gray-700'}`}>
+        <div className={`relative overflow-hidden border group ${variant === 'avatar' ? 'rounded-full w-32 h-32 mx-auto' : 'rounded-xl h-32 w-full'} ${theme === 'light' ? 'border-gray-200/60' : 'border-[#2e2e2e]'}`}>
           <img 
             src={value} 
             alt="Uploaded Preview" 
@@ -95,7 +95,7 @@ const ImageDragDrop: React.FC<ImageDragDropProps> = ({
             </button>
           </div>
           {variant !== 'avatar' && (
-            <div className="absolute top-2 left-2 px-2 py-1 bg-emerald-500/90 backdrop-blur-sm text-white text-[10px] font-bold rounded-md flex items-center gap-1 shadow-sm">
+            <div className="absolute top-2 left-2 px-2 py-1 bg-[#16a34a]/90 backdrop-blur-sm text-white text-[10px] font-bold rounded-md flex items-center gap-1 shadow-sm">
               <CheckCircleIcon className="w-3.5 h-3.5" />
               Uploaded successfully
             </div>
@@ -110,22 +110,22 @@ const ImageDragDrop: React.FC<ImageDragDropProps> = ({
             variant === 'avatar' ? 'w-32 h-32 rounded-full mx-auto' : 'w-full h-32 rounded-xl'
           } ${
             isDragging 
-              ? (theme === 'light' ? 'border-blue-500 bg-blue-50' : 'border-blue-400 bg-blue-900/20')
-              : (theme === 'light' ? 'border-gray-300 hover:bg-gray-50 bg-white' : 'border-gray-600 hover:bg-gray-800 bg-gray-900/50')
+              ? (theme === 'light' ? 'border-[#16a34a] bg-[#16a34a]/5' : 'border-[#16a34a] bg-[#16a34a]/20')
+              : (theme === 'light' ? 'border-gray-300 hover:bg-gray-50 bg-white' : 'border-[#2e2e2e] hover:bg-[#222222] bg-[#1a1a1a]')
           }`}
         >
           <div className="flex flex-col items-center justify-center text-center px-2">
             <div className={`p-3 mb-2 rounded-full ${
               isDragging 
-                ? (theme === 'light' ? 'bg-blue-100 text-blue-600' : 'bg-blue-900/40 text-blue-400')
-                : (theme === 'light' ? 'bg-gray-100 text-gray-500' : 'bg-gray-800 text-gray-400')
+                ? (theme === 'light' ? 'bg-[#16a34a]/10 text-[#16a34a]' : 'bg-[#16a34a]/20 text-[#16a34a]')
+                : (theme === 'light' ? 'bg-gray-100 text-gray-500' : 'bg-[#222222] text-gray-400')
             }`}>
               <PhotoIcon className={variant === 'avatar' ? 'w-5 h-5' : 'w-6 h-6'} />
             </div>
             {variant !== 'avatar' && (
               <>
                 <p className={`mb-1 text-xs font-bold ${theme === 'light' ? 'text-gray-700' : 'text-gray-300'}`}>
-                  <span className={theme === 'light' ? 'text-blue-600' : 'text-blue-400'}>Click to upload</span> or drag
+                  <span className={theme === 'light' ? 'text-[#16a34a]' : 'text-[#16a34a]'}>Click to upload</span> or drag
                 </p>
                 <p className={`text-[10px] font-medium ${theme === 'light' ? 'text-gray-500' : 'text-gray-500'}`}>
                   {helperText} Max {maxSizeMB}MB
