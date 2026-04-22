@@ -164,6 +164,7 @@ function App() {
                   <Route path="accounts" element={<AdminAccounts />} />
                   <Route path="signups" element={<AdminSignups />} />
                   <Route path="reviews" element={<AdminReviews />} />
+                  <Route path="messages" element={<Messages />} />
                   <Route path="*" element={<Navigate to="dashboard" replace />} />
                 </Route>
 
