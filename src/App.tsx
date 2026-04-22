@@ -165,6 +165,7 @@ function App() {
                   <Route path="signups" element={<AdminSignups />} />
                   <Route path="reviews" element={<AdminReviews />} />
                   <Route path="messages" element={<Messages />} />
+                  <Route path="notifications" element={<NotificationHistory />} />
                   <Route path="*" element={<Navigate to="dashboard" replace />} />
                 </Route>
 

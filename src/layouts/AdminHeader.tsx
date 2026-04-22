@@ -1,9 +1,10 @@
 import React from 'react';
-import { Bars3Icon, BellIcon } from '@heroicons/react/24/outline';
+import { Bars3Icon } from '@heroicons/react/24/outline';
 import { ShieldCheckIcon } from '@heroicons/react/24/solid';
 import { useTheme } from '../hooks/useTheme';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
+import NotificationBell from '../components/NotificationBell';
 
 interface AdminHeaderProps {
   onMenuClick: () => void;
@@ -45,15 +46,8 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({ onMenuClick }) => {
         </div>
 
         <div className="flex items-center gap-2 sm:gap-4">
-           {/* Notification bell placeholder */}
-           <button className={`relative p-2 rounded-lg transition-colors ${
-             theme === 'light'
-               ? 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
-               : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800'
-           }`}>
-             <BellIcon className="w-5 h-5" />
-             <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#8b5cf6] ring-2 ring-white dark:ring-[#111111]"></span>
-           </button>
+           {/* Notification bell activ și adaptabil pe admin */}
+           <NotificationBell />
            
            <div className={`hidden sm:block h-6 w-px ${
              theme === 'light' ? 'bg-gray-200' : 'bg-gray-700'
