@@ -9,9 +9,10 @@ interface ContactItemProps {
   onClick: () => void;
   theme: 'light' | 'dark';
   isMuted?: boolean;
+  isAdmin?: boolean;
 }
 
-const ContactItem: React.FC<ContactItemProps> = ({ contact, isActive, onClick, theme, isMuted }) => {
+const ContactItem: React.FC<ContactItemProps> = ({ contact, isActive, onClick, theme, isMuted, isAdmin = false }) => {
   return (
     <div 
       onClick={onClick}
@@ -19,13 +20,15 @@ const ContactItem: React.FC<ContactItemProps> = ({ contact, isActive, onClick, t
         theme === 'light' ? 'border-gray-100' : 'border-gray-800'
       } ${
         isActive 
-          ? (theme === 'light' ? 'bg-[#16a34a]/5' : 'bg-[#16a34a]/10') 
+          ? (theme === 'light' ? (isAdmin ? 'bg-[#8b5cf6]/5' : 'bg-[#16a34a]/5') : (isAdmin ? 'bg-[#8b5cf6]/10' : 'bg-[#16a34a]/10')) 
           : (theme === 'light' ? 'hover:bg-gray-50' : 'hover:bg-[#222222]')
       }`}
     >
       {/* Avatar (Fără status online) */}
-      <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-sm shrink-0 ${
-        theme === 'light' ? 'bg-[#16a34a]/10 text-green-700' : 'bg-[#16a34a]/20 text-green-400'
+      <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-sm shrink-0 transition-colors ${
+        theme === 'light' 
+          ? (isAdmin ? 'bg-[#8b5cf6]/10 text-violet-700' : 'bg-[#16a34a]/10 text-green-700') 
+          : (isAdmin ? 'bg-[#8b5cf6]/20 text-violet-400' : 'bg-[#16a34a]/20 text-green-400')
       }`}>
         {contact.initials}
       </div>
@@ -46,7 +49,7 @@ const ContactItem: React.FC<ContactItemProps> = ({ contact, isActive, onClick, t
             {contact.lastMessage}
           </p>
           {contact.unread > 0 && (
-            <span className="w-5 h-5 rounded-full bg-[#16a34a] flex items-center justify-center text-[10px] font-bold text-white shrink-0">
+            <span className={`w-5 h-5 rounded-full ${isAdmin ? 'bg-[#8b5cf6]' : 'bg-[#16a34a]'} flex items-center justify-center text-[10px] font-bold text-white shrink-0`}>
               {contact.unread}
             </span>
           )}

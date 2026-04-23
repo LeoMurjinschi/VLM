@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useTheme } from '../hooks/useTheme';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { 
   BellIcon, 
@@ -12,20 +12,32 @@ import {
 } from '@heroicons/react/24/outline';
 
 // --- Mock Data pentru Notificări ---
-const INITIAL_NOTIFICATIONS = [
-  { id: 1, title: 'Urgent: Hot Meals Available', desc: 'Restaurant Casa has 20 hot meals ready for pickup now.', time: '5 min ago', unread: true, type: 'urgent' },
-  { id: 2, title: 'Pickup Completed', desc: 'Successfully logged 15kg of bakery items.', time: '2 hours ago', unread: true, type: 'success' },
-  { id: 3, title: 'Donation Canceled', desc: 'A donor canceled a scheduled pickup.', time: '1 day ago', unread: false, type: 'warning' },
-];
+const getMockNotifications = (role?: string | null) => {
+  if (role === 'admin') {
+    return [
+      { id: 1, title: 'New Sign-Up Request', desc: 'Mishanea SRL submitted an NGO application.', time: '5 min ago', unread: true, type: 'warning', link: '/admin/signups' },
+      { id: 2, title: 'Donation Flagged', desc: 'A donation from Andrei M. was flagged.', time: '1 hour ago', unread: true, type: 'urgent', link: '/admin/donations' },
+      { id: 3, title: 'Review Reported', desc: 'A recent review violates community standards.', time: '2 hours ago', unread: false, type: 'warning', link: '/admin/reviews' },
+    ];
+  }
+  const basePath = role === 'donor' ? '/donor' : '/receiver';
+  return [
+    { id: 1, title: 'Urgent: Hot Meals Available', desc: 'Restaurant Casa has 20 hot meals ready.', time: '5 min ago', unread: true, type: 'urgent', link: `${basePath}/dashboard` },
+    { id: 2, title: 'Pickup Completed', desc: 'Successfully logged 15kg of bakery items.', time: '2 hours ago', unread: true, type: 'success', link: `${basePath}/history` },
+    { id: 3, title: 'Donation Canceled', desc: 'A scheduled pickup was canceled.', time: '1 day ago', unread: false, type: 'warning', link: `${basePath}/dashboard` },
+  ];
+};
 
 const NotificationBell: React.FC = () => {
   const { theme } = useTheme();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
-  const [notifications, setNotifications] = useState(INITIAL_NOTIFICATIONS);
+  const [notifications, setNotifications] = useState(getMockNotifications(user?.role));
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const basePath = user?.role === 'donor' ? '/donor' : '/receiver';
+  const isAdmin = user?.role === 'admin';
+  const basePath = isAdmin ? '/admin' : (user?.role === 'donor' ? '/donor' : '/receiver');
   const notificationsUrl = `${basePath}/notifications`;
 
   const unreadCount = notifications.filter(n => n.unread).length;
@@ -45,6 +57,12 @@ const NotificationBell: React.FC = () => {
     setNotifications(notifications.map(n => ({ ...n, unread: false })));
   };
 
+  const handleNotificationClick = (link: string, id: number) => {
+    setNotifications(notifications.map(n => n.id === id ? { ...n, unread: false } : n));
+    setIsOpen(false);
+    navigate(link);
+  };
+
   const getIconForType = (type: string) => {
     switch (type) {
       case 'urgent': return <ExclamationTriangleIcon className="w-5 h-5 text-red-500" />;
@@ -60,8 +78,8 @@ const NotificationBell: React.FC = () => {
       <button 
         onClick={() => setIsOpen(!isOpen)}
         className={`p-2 transition-colors relative rounded-xl ${
-          isOpen ? (theme === 'light' ? 'bg-[#16a34a]/10 text-[#16a34a]' : 'bg-[#1a1a1a] text-[#16a34a]') :
-          (theme === 'light' ? 'text-gray-400 hover:text-[#16a34a] hover:bg-gray-50' : 'text-gray-500 hover:text-[#16a34a] hover:bg-[#1a1a1a]')
+          isOpen ? (theme === 'light' ? (isAdmin ? 'bg-[#8b5cf6]/10 text-[#8b5cf6]' : 'bg-[#16a34a]/10 text-[#16a34a]') : (isAdmin ? 'bg-[#1a1a1a] text-[#8b5cf6]' : 'bg-[#1a1a1a] text-[#16a34a]')) :
+          (theme === 'light' ? `text-gray-400 hover:bg-gray-50 ${isAdmin ? 'hover:text-[#8b5cf6]' : 'hover:text-[#16a34a]'}` : `text-gray-500 hover:bg-[#1a1a1a] ${isAdmin ? 'hover:text-[#8b5cf6]' : 'hover:text-[#16a34a]'}`)
         }`}
       >
         <BellIcon className="w-6 h-6" />
@@ -95,7 +113,9 @@ const NotificationBell: React.FC = () => {
                 <button 
                   onClick={markAllAsRead}
                   className={`flex items-center gap-1 text-xs font-bold transition-colors ${
-                    theme === 'light' ? 'text-[#16a34a] hover:text-green-700' : 'text-[#16a34a] hover:text-green-400'
+                    theme === 'light' 
+                      ? (isAdmin ? 'text-[#8b5cf6] hover:text-violet-700' : 'text-[#16a34a] hover:text-green-700') 
+                      : (isAdmin ? 'text-[#8b5cf6] hover:text-violet-400' : 'text-[#16a34a] hover:text-green-400')
                   }`}
                 >
                   <CheckIcon className="w-3 h-3" /> Mark all read
@@ -109,9 +129,10 @@ const NotificationBell: React.FC = () => {
                 notifications.map((notification) => (
                   <div 
                     key={notification.id}
+                    onClick={() => handleNotificationClick(notification.link, notification.id)}
                     className={`flex items-start gap-3 p-4 border-b transition-colors cursor-pointer ${
                       theme === 'light' ? 'border-gray-50 hover:bg-gray-50' : 'border-gray-800 hover:bg-[#222222]'
-                    } ${notification.unread ? (theme === 'light' ? 'bg-[#16a34a]/5' : 'bg-[#16a34a]/10') : ''}`}
+                    } ${notification.unread ? (theme === 'light' ? (isAdmin ? 'bg-[#8b5cf6]/5' : 'bg-[#16a34a]/5') : (isAdmin ? 'bg-[#8b5cf6]/10' : 'bg-[#16a34a]/10')) : ''}`}
                   >
                     <div className={`mt-0.5 p-2 rounded-full shrink-0 ${
                       theme === 'light' ? 'bg-white shadow-sm' : 'bg-[#1a1a1a]'
@@ -130,7 +151,7 @@ const NotificationBell: React.FC = () => {
                       </span>
                     </div>
                     {notification.unread && (
-                      <span className="w-2 h-2 rounded-full bg-[#16a34a] shrink-0 mt-2"></span>
+                      <span className={`w-2 h-2 rounded-full shrink-0 mt-2 ${isAdmin ? 'bg-[#8b5cf6]' : 'bg-[#16a34a]'}`}></span>
                     )}
                   </div>
                 ))
@@ -146,7 +167,11 @@ const NotificationBell: React.FC = () => {
   <Link 
     to={notificationsUrl} 
     onClick={() => setIsOpen(false)} // Închidem meniul când dăm click
-    className={`text-xs font-bold block w-full transition-colors ${theme === 'light' ? 'text-[#16a34a] hover:text-green-700' : 'text-[#16a34a] hover:text-green-400'}`}
+    className={`text-xs font-bold block w-full transition-colors ${
+      theme === 'light' 
+        ? (isAdmin ? 'text-[#8b5cf6] hover:text-violet-700' : 'text-[#16a34a] hover:text-green-700') 
+        : (isAdmin ? 'text-[#8b5cf6] hover:text-violet-400' : 'text-[#16a34a] hover:text-green-400')
+    }`}
   >
     View all history
   </Link>
