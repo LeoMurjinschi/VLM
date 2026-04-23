@@ -35,13 +35,13 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, do
     const finalQuantity = Number(quantity);
     
     if (isNaN(finalQuantity) || finalQuantity < (isKg ? 0.1 : 1)) {
-      toast.error(`Please enter a valid amount (minimum ${isKg ? '0.1' : '1'}).`);
+      toast.error(`Enter at least ${isKg ? '0.1' : '1'} ${donation.unit} to start helping your community.`);
       setQuantity(isKg ? 0.1 : 1);
       return;
     }
 
     if (finalQuantity > donation.quantity) {
-      toast.error(`You cannot reserve more than the available stock (${donation.quantity}).`);
+      toast.error(`Only ${donation.quantity} ${donation.unit} available. Adjust your amount to complete the reservation.`);
       setQuantity(donation.quantity);
       return;
     }
@@ -51,7 +51,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, do
     
     setTimeout(() => {
       onReserve(donation.id, finalQuantity);
-      toast.success(`You successfully reserved ${finalQuantity} ${donation.unit} of "${donation.title}"!`);
+      toast.success(`You secured ${finalQuantity} ${donation.unit}! Ready for pickup.`);
       setShowSuccess(false);
       setQuantity(isKg ? 0.1 : 1);
       onClose();

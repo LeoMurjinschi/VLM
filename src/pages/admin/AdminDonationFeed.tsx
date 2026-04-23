@@ -301,7 +301,12 @@ const AdminDonationFeed: React.FC = () => {
           <p className={`font-semibold text-lg ${
             theme === 'light' ? 'text-gray-900' : 'text-gray-100'
           }`}>
-            No donations found.
+            No donations match your filters.
+          </p>
+          <p className={`mt-1.5 text-center max-w-sm text-sm ${
+            theme === 'light' ? 'text-gray-500' : 'text-gray-400'
+          }`}>
+            Try adjusting your filters or check back soon for new donations from partners.
           </p>
           <button
             onClick={clearFilters}

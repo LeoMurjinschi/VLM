@@ -29,7 +29,7 @@ const INITIAL_PROFILE = {
 const ToggleSwitch = ({ enabled, onChange }: { enabled: boolean, onChange: () => void }) => {
   const { theme } = useTheme();
   return (
-    <button onClick={onChange} type="button" className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500  ${enabled ? 'bg-blue-600' : (theme === 'light' ? 'bg-gray-200' : 'bg-gray-700')}`}>
+    <button onClick={onChange} type="button" className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[#16a34a]/50 ${enabled ? 'bg-[#16a34a]' : (theme === 'light' ? 'bg-gray-200' : 'bg-gray-700')}`}>
       <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${enabled ? 'translate-x-6' : 'translate-x-1'}`} />
     </button>
   );
@@ -62,13 +62,13 @@ const ProfileSettings: React.FC = () => {
     const file = event.target.files?.[0];
     if (file) {
       if (!file.type.startsWith('image/')) {
-        toast.error('Please select an image file (jpg, png).');
+        toast.error('Upload an image (JPG or PNG) to use as your profile photo.');
         return;
       }
       const reader = new FileReader();
       reader.onloadend = () => {
         setProfileData(prev => ({ ...prev, avatarUrl: reader.result as string }));
-        toast.success('Profile photo updated visually! Click Save to confirm.');
+        toast.success('Photo preview updated. Click Save to make it official.');
       };
       reader.readAsDataURL(file);
     }
@@ -85,7 +85,7 @@ const ProfileSettings: React.FC = () => {
   const saveProfileChanges = () => {
     setProfileData(tempProfileData);
     setIsEditingProfile(false);
-    toast.success('Profile details saved successfully! 💾');
+    toast.success('Profile updated. Your community information is current.');
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -96,15 +96,15 @@ const ProfileSettings: React.FC = () => {
   // --- LOGICĂ SIMULARE: UPDATE PASSWORD ---
   const handleUpdatePassword = () => {
     if (!currentPassword || !newPassword) {
-      toast.error('Please fill in both password fields.');
+      toast.error('Enter your current password and a new one to proceed.');
       return;
     }
     if (newPassword.length < 6) {
-      toast.warning('New password must be at least 6 characters long.');
+      toast.warning('Your new password needs to be at least 6 characters for security.');
       return;
     }
     // Simulare de succes
-    toast.success('Security update: Password changed successfully! 🔒');
+    toast.success('Password updated. Your account is more secure now.');
     setCurrentPassword('');
     setNewPassword('');
   };
@@ -112,18 +112,18 @@ const ProfileSettings: React.FC = () => {
   // --- LOGICĂ SIMULARE: SUBMIT TICKET ---
   const handleSubmitTicket = () => {
     if (!ticketMessage.trim()) {
-      toast.error('Please describe your issue before submitting.');
+      toast.error('Tell us what's wrong so we can help you quickly.');
       return;
     }
     // Simulare de succes
-    toast.success('Ticket submitted! Our support team will contact you shortly. 📨');
+    toast.success('Your issue submitted. Our team will help you soon.');
     setTicketMessage('');
   };
 
   // Helper Notificări
   const handleSaveToggle = (setter: React.Dispatch<React.SetStateAction<boolean>>, currentValue: boolean) => {
     setter(!currentValue);
-    toast.success('Preferences updated successfully!');
+    toast.success('Preference updated. Your settings are saved.');
   };
 
   const TABS = [
@@ -153,8 +153,8 @@ const ProfileSettings: React.FC = () => {
                 const isActive = activeTab === tab.id;
                 const Icon = tab.icon;
                 return (
-                  <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm transition-all whitespace-nowrap w-full ${isActive ? (theme === 'light' ? 'bg-blue-50 text-blue-700' : 'bg-blue-900/40 text-blue-400') : (theme === 'light' ? 'text-gray-600 hover:bg-gray-100' : 'text-gray-400 hover:bg-gray-800')}`}>
-                    <Icon className={`w-5 h-5 ${isActive ? (theme === 'light' ? 'text-blue-600' : 'text-blue-400') : 'text-gray-400'}`} />
+                  <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm transition-all whitespace-nowrap w-full ${isActive ? (theme === 'light' ? 'bg-[#16a34a]/10 text-[#16a34a]' : 'bg-green-900/30 text-green-400') : (theme === 'light' ? 'text-gray-600 hover:bg-gray-100' : 'text-gray-400 hover:bg-gray-800')}`}>
+                    <Icon className={`w-5 h-5 ${isActive ? (theme === 'light' ? 'text-[#16a34a]' : 'text-green-400') : 'text-gray-400'}`} />
                     {tab.label}
                   </button>
                 );
@@ -182,7 +182,7 @@ const ProfileSettings: React.FC = () => {
                         <XMarkIcon className="w-4 h-4" />
                         Cancel
                       </button>
-                      <button onClick={saveProfileChanges} className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-sm shadow-md active:scale-95">
+                      <button onClick={saveProfileChanges} className="px-5 py-2 bg-[#16a34a] hover:bg-green-700 text-white font-bold rounded-xl text-sm shadow-md active:scale-95">
                         Save Changes
                       </button>
                     </div>
@@ -190,9 +190,9 @@ const ProfileSettings: React.FC = () => {
                 </div>
                 
                 <div className="flex flex-col sm:flex-row gap-6 mb-10 items-start sm:items-center">
-                  <div 
+                  <div
                     onClick={handleAvatarClick}
-                    className={`relative w-28 h-28 rounded-full flex items-center justify-center border-4 shrink-0 cursor-pointer group overflow-hidden ${theme === 'light' ? 'bg-blue-100 text-blue-600 border-white shadow-md' : 'bg-blue-900/50 text-blue-400 border-gray-800'}`}
+                    className={`relative w-28 h-28 rounded-full flex items-center justify-center border-4 shrink-0 cursor-pointer group overflow-hidden ${theme === 'light' ? 'bg-[#16a34a]/10 text-[#16a34a] border-white shadow-md' : 'bg-green-900/40 text-green-400 border-gray-800'}`}
                   >
                     {profileData.avatarUrl ? (
                       <img src={profileData.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
@@ -229,8 +229,8 @@ const ProfileSettings: React.FC = () => {
                     return (
                       <div key={field.name}>
                         <label className={`block text-xs font-bold mb-1.5 uppercase tracking-wide ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>{field.label}</label>
-                        <div className={`flex items-center px-4 py-2.5 rounded-xl border transition-colors ${!isEditingProfile ? (theme === 'light' ? 'bg-gray-100 border-gray-200' : 'bg-gray-900/30 border-gray-700') : (theme === 'light' ? 'bg-gray-50 border-gray-300 focus-within:border-blue-400 focus-within:ring-1 focus-within:ring-blue-400' : 'bg-gray-900/80 border-gray-600 focus-within:border-blue-500')}`}>
-                          <Icon className={`w-5 h-5 mr-3 shrink-0 ${!isEditingProfile ? 'text-gray-400' : 'text-blue-500'}`} />
+                        <div className={`flex items-center px-4 py-2.5 rounded-xl border transition-colors ${!isEditingProfile ? (theme === 'light' ? 'bg-gray-100 border-gray-200' : 'bg-gray-900/30 border-gray-700') : (theme === 'light' ? 'bg-gray-50 border-gray-300 focus-within:border-[#16a34a] focus-within:ring-1 focus-within:ring-[#16a34a]/30' : 'bg-gray-900/80 border-gray-600 focus-within:border-green-500')}`}>
+                          <Icon className={`w-5 h-5 mr-3 shrink-0 ${!isEditingProfile ? 'text-gray-400' : 'text-[#16a34a]'}`} />
                           <input 
                             type={field.type} 
                             name={field.name}
@@ -247,8 +247,8 @@ const ProfileSettings: React.FC = () => {
 
                 <div className="mb-8 max-w-3xl">
                   <label className={`block text-xs font-bold mb-1.5 uppercase tracking-wide ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>Headquarters Address</label>
-                  <div className={`flex items-center px-4 py-2.5 rounded-xl border transition-colors ${!isEditingProfile ? (theme === 'light' ? 'bg-gray-100 border-gray-200' : 'bg-gray-900/30 border-gray-700') : (theme === 'light' ? 'bg-gray-50 border-gray-300 focus-within:border-blue-400 focus-within:ring-1 focus-within:ring-blue-400' : 'bg-gray-900/80 border-gray-600 focus-within:border-blue-500')}`}>
-                    <MapPinIcon className={`w-5 h-5 mr-3 shrink-0 ${!isEditingProfile ? 'text-gray-400' : 'text-blue-500'}`} />
+                  <div className={`flex items-center px-4 py-2.5 rounded-xl border transition-colors ${!isEditingProfile ? (theme === 'light' ? 'bg-gray-100 border-gray-200' : 'bg-gray-900/30 border-gray-700') : (theme === 'light' ? 'bg-gray-50 border-gray-300 focus-within:border-[#16a34a] focus-within:ring-1 focus-within:ring-[#16a34a]/30' : 'bg-gray-900/80 border-gray-600 focus-within:border-green-500')}`}>
+                    <MapPinIcon className={`w-5 h-5 mr-3 shrink-0 ${!isEditingProfile ? 'text-gray-400' : 'text-[#16a34a]'}`} />
                     <input 
                       type="text" 
                       name="address"
@@ -307,23 +307,23 @@ const ProfileSettings: React.FC = () => {
                 <div className="mb-10 max-w-md">
                   <h3 className={`text-sm font-bold mb-4 ${theme === 'light' ? 'text-gray-800' : 'text-gray-200'}`}>Change Password</h3>
                   <div className="space-y-4">
-                    <input 
-                      type="password" 
-                      placeholder="Current Password" 
+                    <input
+                      type="password"
+                      placeholder="Current Password"
                       value={currentPassword}
                       onChange={(e) => setCurrentPassword(e.target.value)}
-                      className={`w-full px-4 py-2.5 rounded-xl border outline-none text-sm transition-colors ${theme === 'light' ? 'bg-gray-50 border-gray-200 focus:border-blue-400 focus:bg-white' : 'bg-gray-900/50 border-gray-700 focus:border-blue-500 focus:bg-gray-900'}`} 
+                      className={`w-full px-4 py-2.5 rounded-xl border outline-none text-sm transition-colors ${theme === 'light' ? 'bg-gray-50 border-gray-200 focus:border-[#16a34a] focus:bg-white' : 'bg-gray-900/50 border-gray-700 focus:border-green-500 focus:bg-gray-900'}`}
                     />
-                    <input 
-                      type="password" 
-                      placeholder="New Password" 
+                    <input
+                      type="password"
+                      placeholder="New Password"
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
-                      className={`w-full px-4 py-2.5 rounded-xl border outline-none text-sm transition-colors ${theme === 'light' ? 'bg-gray-50 border-gray-200 focus:border-blue-400 focus:bg-white' : 'bg-gray-900/50 border-gray-700 focus:border-blue-500 focus:bg-gray-900'}`} 
+                      className={`w-full px-4 py-2.5 rounded-xl border outline-none text-sm transition-colors ${theme === 'light' ? 'bg-gray-50 border-gray-200 focus:border-[#16a34a] focus:bg-white' : 'bg-gray-900/50 border-gray-700 focus:border-green-500 focus:bg-gray-900'}`}
                     />
-                    <button 
+                    <button
                       onClick={handleUpdatePassword}
-                      className="px-6 py-2.5 bg-gray-900 hover:bg-black dark:bg-gray-700 dark:hover:bg-gray-600 text-white font-bold rounded-xl transition-all text-sm shadow active:scale-95"
+                      className="px-6 py-2.5 bg-[#16a34a] hover:bg-green-700 text-white font-bold rounded-xl transition-all text-sm shadow active:scale-95"
                     >
                       Update Password
                     </button>
@@ -342,7 +342,7 @@ const ProfileSettings: React.FC = () => {
             {activeTab === 'support' && (
               <div className="p-6 md:p-8 animate-fade-in">
                 <div className="flex items-center gap-4 mb-10 p-5 rounded-2xl border dark:border-gray-700 bg-gray-50 dark:bg-gray-900/30">
-                  <div className={`p-3 rounded-2xl ${theme === 'light' ? 'bg-blue-50 text-blue-600' : 'bg-blue-900/30 text-blue-400'}`}>
+                  <div className={`p-3 rounded-2xl ${theme === 'light' ? 'bg-[#16a34a]/10 text-[#16a34a]' : 'bg-green-900/30 text-green-400'}`}>
                     <LifebuoyIcon className="w-8 h-8" />
                   </div>
                   <div>
@@ -353,16 +353,16 @@ const ProfileSettings: React.FC = () => {
 
                 <div className="max-w-2xl">
                   <h3 className={`text-base font-bold mb-4 ${theme === 'light' ? 'text-gray-800' : 'text-gray-200'}`}>Send us a message</h3>
-                  <textarea 
-                    placeholder="Describe your issue or question in detail. Mention donation IDs if applicable..." 
+                  <textarea
+                    placeholder="Describe your issue or question in detail. Mention donation IDs if applicable..."
                     rows={6}
                     value={ticketMessage}
                     onChange={(e) => setTicketMessage(e.target.value)}
-                    className={`w-full px-4 py-3 rounded-2xl border outline-none text-sm resize-none mb-4 transition-colors ${theme === 'light' ? 'bg-gray-50 border-gray-200 text-gray-900 focus:border-blue-400 focus:bg-white' : 'bg-gray-900/50 border-gray-700 text-white focus:border-blue-500 focus:bg-gray-900'}`} 
+                    className={`w-full px-4 py-3 rounded-2xl border outline-none text-sm resize-none mb-4 transition-colors ${theme === 'light' ? 'bg-gray-50 border-gray-200 text-gray-900 focus:border-[#16a34a] focus:bg-white' : 'bg-gray-900/50 border-gray-700 text-white focus:border-green-500 focus:bg-gray-900'}`}
                   />
-                  <button 
+                  <button
                     onClick={handleSubmitTicket}
-                    className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all shadow-md active:scale-95 w-full sm:w-auto"
+                    className="px-8 py-3 bg-[#16a34a] hover:bg-green-700 text-white font-bold rounded-xl transition-all shadow-md active:scale-95 w-full sm:w-auto"
                   >
                     Submit Ticket
                   </button>

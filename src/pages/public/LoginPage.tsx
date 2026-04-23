@@ -47,7 +47,7 @@ const LoginPage = () => {
         navigate('/receiver/dashboard');
       }
     } else {
-      setError('Date de autentificare incorecte (Verifică users.json pentru email/parolă)');
+      setError('Invalid email or password. Please try again.');
       setIsLoading(false);
     }
   };
@@ -68,7 +68,7 @@ const LoginPage = () => {
         <div className={`p-4 rounded-xl text-sm font-medium mb-6 flex items-center gap-2 ${
           theme === 'light' ? 'bg-[#F0FAF4] text-[#16a34a] border border-green-100' : 'bg-[#16a34a]/10 text-green-400 border border-green-900/30'
         }`}>
-          Parola a fost modificată cu succes!
+          Password changed successfully. You're ready to sign in!
         </div>
       )}
 

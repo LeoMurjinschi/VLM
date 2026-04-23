@@ -120,11 +120,11 @@ const ReservationHistory: React.FC = () => {
             theme === 'light' ? 'bg-white border-gray-200' : 'bg-[#1a1a1a] border-[#2e2e2e]'
           }`}>
             <ArchiveBoxXMarkIcon className={`w-16 h-16 mb-4 ${theme === 'light' ? 'text-gray-300' : 'text-gray-600'}`} />
-            <p className={`text-lg font-semibold ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>
-              No history records found.
+            <p className={`text-lg font-semibold ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>
+              No reservations yet.
             </p>
-            <p className={`text-sm mt-1 text-center ${theme === 'light' ? 'text-gray-400' : 'text-gray-500'}`}>
-              Try adjusting your filters or search query.
+            <p className={`text-sm mt-1 text-center max-w-sm ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>
+              Start making reservations from available donations to build your history and help your community.
             </p>
             <button 
               onClick={() => { setSearchQuery(''); setStatusFilter('All'); setDateFilter('All Time'); }}

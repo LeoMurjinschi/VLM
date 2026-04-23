@@ -129,12 +129,12 @@ const handleSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => 
       !formState.expirationDate ||
       !formState.description.trim()
     ) {
-      toast.error('Please fill in all required fields');
+      toast.error('Please complete all fields. Recipients need this info to plan their pickup.');
       return;
     }
 
     if (parseFloat(formState.quantity) <= 0) {
-      toast.error('Quantity must be greater than 0');
+      toast.error('Enter a quantity greater than 0. Let us know how much you're donating!');
       return;
     }
 
@@ -157,7 +157,7 @@ const handleSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => 
 
       addStock(newStock);
 
-      toast.success('Stock added successfully! 🎉');
+      toast.success('Your donation is live! Food seekers can now reserve this item.');
       resetForm();
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to add stock. Please try again.';
@@ -186,7 +186,7 @@ const handleSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => 
               Add New Stock
             </h1>
           </div>
-          <p className={`ml-12 md:ml-12.5 text-base md:text-lg leading-relaxed ${
+          <p className={`ml-12 text-base md:text-lg leading-relaxed ${
             theme === 'light' ? 'text-gray-500' : 'text-gray-400'
           }`}>
             Enter the details of the surplus food you want to donate.
@@ -205,6 +205,9 @@ const handleSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => 
                 <label htmlFor="title" className={`block text-sm font-semibold mb-2.5 ${theme === 'light' ? 'text-gray-800' : 'text-gray-200'}`}>
                   Item Title <span className="text-red-500">*</span>
                 </label>
+                <p className={`text-xs mb-2 ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>
+                  Be specific so recipients know exactly what you're donating
+                </p>
                 <input
                   type="text"
                   id="title"

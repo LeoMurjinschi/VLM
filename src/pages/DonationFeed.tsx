@@ -68,7 +68,7 @@ const DonationFeed: React.FC = () => {
           return item;
         })
       );
-      toast.success('Item reserved successfully!');
+      toast.success('Item reserved! You're secured nutrition for your community.');
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to reserve item';
       toast.error(message);
