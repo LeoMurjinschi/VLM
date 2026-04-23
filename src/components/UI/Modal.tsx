@@ -29,9 +29,9 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
       
 
-      <div 
-        className={`absolute inset-0 backdrop-blur-sm transition-opacity ${
-          theme === 'light' ? 'bg-gray-900/60' : 'bg-black/60'
+      <div
+        className={`absolute inset-0 transition-opacity ${
+          theme === 'light' ? 'bg-gray-900/40' : 'bg-black/40'
         }`}
         onClick={onClose}
       ></div>

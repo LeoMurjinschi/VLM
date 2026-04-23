@@ -230,7 +230,7 @@ const Dashboard: React.FC = () => {
         {/* Modal Backdrop for Filters */}
         {isFilterOpen && (
           <div
-            className={`fixed inset-0 z-[5] backdrop-blur-[1px] ${
+            className={`fixed inset-0 z-[5]  ${
               theme === 'light' ? 'bg-gray-900/10' : 'bg-black/30'
             }`}
             onClick={() => setIsFilterOpen(false)}
@@ -309,7 +309,7 @@ const Dashboard: React.FC = () => {
         {isMapOpen && selectedReservation && (
           <div className="fixed inset-[0] z-[9999] flex items-center justify-center p-4">
             <div 
-              className={`absolute inset-0 backdrop-blur-sm transition-opacity ${
+              className={`absolute inset-0  transition-opacity ${
                 theme === 'light' ? 'bg-black/40' : 'bg-black/60'
               }`}
               onClick={handleCloseMap}
@@ -339,7 +339,7 @@ const Dashboard: React.FC = () => {
                 {/* Close button */}
                 <button 
                   onClick={handleCloseMap}
-                  className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/90 dark:bg-black/60 backdrop-blur-md shadow-sm border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-200 flex items-center justify-center hover:bg-white dark:hover:bg-black/80 hover:scale-105 transition-all outline-none z-20"
+                  className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/90 dark:bg-black/60  shadow-sm border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-200 flex items-center justify-center hover:bg-white dark:hover:bg-black/80 hover:scale-105 transition-all outline-none z-20"
                 >
                   <XMarkIcon className="w-5 h-5 font-bold" />
                 </button>

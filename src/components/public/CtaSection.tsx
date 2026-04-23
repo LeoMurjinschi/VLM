@@ -24,11 +24,11 @@ const CtaSection = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
           
-          <div className={`relative group overflow-hidden rounded-3xl p-8 lg:p-12 text-white shadow-xl transition-transform hover:-translate-y-1 ${
+          <div className={`relative overflow-hidden rounded-2xl p-8 lg:p-12 text-white transition-colors ${
             theme === 'light' ? 'bg-[#16a34a]' : 'bg-[#15803d]'
           }`}>
             <div className="relative z-10">
-              <div className="bg-white/20 w-16 h-16 rounded-2xl flex items-center justify-center mb-8 backdrop-blur-sm">
+              <div className="bg-white/20 w-16 h-16 rounded-xl flex items-center justify-center mb-8">
                 <Store size={32} className="text-white" />
               </div>
               
@@ -49,14 +49,13 @@ const CtaSection = () => {
               </Link>
             </div>
 
-            <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
           </div>
 
-          <div className={`relative group overflow-hidden rounded-3xl p-8 lg:p-12 text-white shadow-xl transition-transform hover:-translate-y-1 ${
+          <div className={`relative overflow-hidden rounded-2xl p-8 lg:p-12 text-white transition-colors ${
             theme === 'light' ? 'bg-gray-900' : 'bg-[#222222]'
           }`}>
             <div className="relative z-10">
-              <div className="bg-white/10 w-16 h-16 rounded-2xl flex items-center justify-center mb-8 backdrop-blur-sm">
+              <div className="bg-white/10 w-16 h-16 rounded-xl flex items-center justify-center mb-8">
                 <Heart size={32} className="text-white" />
               </div>
               

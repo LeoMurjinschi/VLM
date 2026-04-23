@@ -42,7 +42,7 @@ const HelpCenterPage = () => {
       <main className="flex-grow">
         <section className={`py-20 text-white ${theme === 'light' ? 'bg-[#16a34a]' : 'bg-[#15803d]'}`}>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-6 backdrop-blur-sm">
+            <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-6">
               <LifeBuoy size={32} className="text-white" />
             </div>
             <h1 className="text-4xl md:text-5xl font-black mb-6 tracking-tight">

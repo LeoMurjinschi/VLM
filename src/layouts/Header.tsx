@@ -16,10 +16,10 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
   const userInitial = user?.name ? user.name.charAt(0).toUpperCase() : 'U';
 
   return (
-    <header className={`h-16 flex items-center justify-between px-4 sm:px-8 z-20 transition-all duration-300 border-b backdrop-blur-xl ${
-      theme === 'light' 
-        ? 'bg-white/70 border-gray-200/50 shadow-[0_4px_30px_rgba(0,0,0,0.03)]' 
-        : 'bg-[#111111]/70 border-[#2e2e2e]/50 shadow-[0_4px_30px_rgba(0,0,0,0.2)]'
+    <header className={`h-16 flex items-center justify-between px-4 sm:px-8 z-20 transition-all duration-300 border-b ${
+      theme === 'light'
+        ? 'bg-white border-gray-200'
+        : 'bg-[#111111] border-[#2e2e2e]'
     }`}>
         
         <div className="flex items-center gap-3">

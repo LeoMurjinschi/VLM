@@ -95,9 +95,9 @@ const ImageDragDrop: React.FC<ImageDragDropProps> = ({
             </button>
           </div>
           {variant !== 'avatar' && (
-            <div className="absolute top-2 left-2 px-2 py-1 bg-[#16a34a]/90 backdrop-blur-sm text-white text-[10px] font-bold rounded-md flex items-center gap-1 shadow-sm">
+            <div className="absolute top-2 left-2 px-2 py-1 bg-[#16a34a] text-white text-[10px] font-bold rounded-md flex items-center gap-1">
               <CheckCircleIcon className="w-3.5 h-3.5" />
-              Uploaded successfully
+              Uploaded
             </div>
           )}
         </div>

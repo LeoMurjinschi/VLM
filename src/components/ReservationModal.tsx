@@ -100,9 +100,9 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, do
   return createPortal(
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
       {/* Backdrop */}
-      <div 
-        className={`absolute inset-0 backdrop-blur-sm transition-opacity ${
-          theme === 'light' ? 'bg-black/40' : 'bg-black/60'
+      <div
+        className={`absolute inset-0 transition-opacity ${
+          theme === 'light' ? 'bg-black/30' : 'bg-black/50'
         }`}
         onClick={onClose}
       />
@@ -116,7 +116,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, do
         
         {/* Success overlay */}
         {showSuccess && (
-          <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/95 dark:bg-[#1a1a1a]/95 backdrop-blur-sm">
+          <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white dark:bg-[#1a1a1a]">
             <div className="animate-success-pop">
               <CheckCircleIcon className="w-20 h-20 text-[#16a34a]" />
             </div>
@@ -138,9 +138,9 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, do
             theme === 'light' ? 'from-white/30' : 'from-[#1a1a1a]/40'
           } to-transparent`} />
           {/* Close button */}
-          <button 
+          <button
             onClick={onClose}
-            className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/30 backdrop-blur-md text-white flex items-center justify-center hover:bg-black/50 transition-colors"
+            className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/40 text-white flex items-center justify-center hover:bg-black/60 transition-colors"
           >
             ✕
           </button>

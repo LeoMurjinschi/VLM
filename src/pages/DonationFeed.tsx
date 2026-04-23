@@ -166,7 +166,7 @@ const DonationFeed: React.FC = () => {
 
       {isFilterOpen && (
         <div
-          className={`fixed inset-0 z-10 backdrop-blur-[1px] ${
+          className={`fixed inset-0 z-10 ${
             theme === 'light' ? 'bg-gray-900/10' : 'bg-black/30'
           }`}
           onClick={() => setIsFilterOpen(false)}

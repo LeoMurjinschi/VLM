@@ -37,7 +37,7 @@ const Hero = () => {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <Link to="/signup" className="inline-flex items-center justify-center px-8 py-4 text-base font-bold text-white transition-all bg-[#16a34a] rounded-xl hover:bg-[#15803d] shadow-lg shadow-green-500/20 hover:-translate-y-1">
+              <Link to="/signup" className="inline-flex items-center justify-center px-8 py-4 text-base font-bold text-white transition-all bg-[#16a34a] rounded-xl hover:bg-[#15803d]">
                 <Store className="mr-2" size={20} />
                 Partner Registration
               </Link>
@@ -90,8 +90,8 @@ const Hero = () => {
                 className="w-full h-full object-cover transform transition-transform hover:scale-105 duration-700 opacity-90"
               />
 
-              <div className={`absolute bottom-6 left-6 right-6 backdrop-blur-md rounded-2xl p-4 shadow-lg border hidden md:block animate-fade-in-up ${
-                theme === 'light' ? 'bg-white/95 border-gray-100' : 'bg-[#1a1a1a]/95 border-[#2e2e2e]'
+              <div className={`absolute bottom-6 left-6 right-6 rounded-lg p-4 border hidden md:block animate-fade-in-up ${
+                theme === 'light' ? 'bg-white border-gray-200' : 'bg-[#1a1a1a] border-[#2e2e2e]'
               }`}>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
