@@ -173,7 +173,7 @@ const ImpactReports: React.FC = () => {
               onClick={() => handleExport('PDF')}
               disabled={isExporting}
               className={`flex items-center justify-center gap-2 px-5 py-3 h-[46px] text-white font-bold rounded-xl shadow-sm transition-all active:scale-[0.98] w-full sm:w-auto ${
-                isExporting ? 'bg-blue-400 cursor-wait' : 'bg-blue-600 hover:bg-blue-700'
+                isExporting ? 'bg-[#16a34a]/70 cursor-wait' : 'bg-[#16a34a] hover:bg-green-700 shadow-[#16a34a]/20'
               }`}
             >
               <DocumentArrowDownIcon className="w-5 h-5" />
@@ -192,11 +192,11 @@ const ImpactReports: React.FC = () => {
         />
       ) : impactSummary ? (
         <div className={`p-4 rounded-2xl border flex items-start gap-3 animate-fade-in-up relative z-10 ${
-          theme === 'light' ? 'bg-blue-50/50 border-blue-100 text-blue-800' : 'bg-blue-900/10 border-blue-900/50 text-blue-300'
+          theme === 'light' ? 'bg-[#16a34a]/5 border-[#16a34a]/20 text-green-900' : 'bg-[#16a34a]/10 border-[#16a34a]/30 text-green-200'
         }`}>
-          <InformationCircleIcon className="w-5 h-5 mt-0.5 flex-shrink-0" />
+          <InformationCircleIcon className="w-5 h-5 mt-0.5 flex-shrink-0 text-[#16a34a]" />
           <div className="text-sm leading-relaxed">
-            <span className="font-bold">Report Summary for {dateRange}:</span> You have successfully completed <span className="font-extrabold underline decoration-blue-400/30 decoration-2 underline-offset-2">{impactSummary.totalDonations} donations</span> totaling <span className="font-extrabold underline decoration-blue-400/30 decoration-2 underline-offset-2">{impactSummary.totalKg} kg</span> of rescued food. Your top partner in this period was <span className="font-bold">{impactSummary.topPartner}</span>.
+            <span className="font-bold">Report Summary for {dateRange}:</span> You have successfully completed <span className="font-extrabold underline decoration-[#16a34a]/40 decoration-2 underline-offset-2">{impactSummary.totalDonations} donations</span> totaling <span className="font-extrabold underline decoration-[#16a34a]/40 decoration-2 underline-offset-2">{impactSummary.totalKg} kg</span> of rescued food. Your top partner in this period was <span className="font-bold">{impactSummary.topPartner}</span>.
           </div>
         </div>
       ) : null}
@@ -234,7 +234,7 @@ const ImpactReports: React.FC = () => {
               </h3>
               <button 
                 onClick={() => handleExport('CSV')} 
-                className={`text-sm font-bold flex items-center gap-1 transition-colors ${theme === 'light' ? 'text-blue-600 hover:text-blue-700' : 'text-blue-400 hover:text-blue-300'}`}
+                className={`text-sm font-bold flex items-center gap-1 transition-colors ${theme === 'light' ? 'text-[#16a34a] hover:text-green-700' : 'text-green-400 hover:text-green-300'}`}
               >
                 <ArrowDownTrayIcon className="w-4 h-4" /> Download CSV
               </button>
@@ -256,7 +256,7 @@ const ImpactReports: React.FC = () => {
                     <tr key={row.id} className={`border-b last:border-0 transition-colors ${theme === 'light' ? 'border-gray-50 hover:bg-gray-50/50' : 'border-gray-700/50 hover:bg-gray-800/50'}`}>
                       <td className="py-4 font-medium whitespace-nowrap">{row.date}</td>
                       <td className="py-4 font-bold">{row.item}</td>
-                      <td className="py-4 font-extrabold text-blue-500">{row.qty}</td>
+                      <td className="py-4 font-extrabold text-[#16a34a]">{row.qty}</td>
                       <td className="py-4">{row.partner}</td>
                       <td className="py-4">
                         <span className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wide whitespace-nowrap ${theme === 'light' ? 'bg-emerald-50 text-emerald-600' : 'bg-emerald-900/30 text-emerald-400'}`}>
@@ -308,13 +308,13 @@ const ImpactReports: React.FC = () => {
                         {partner.name}
                       </span>
                     </div>
-                    <span className={`text-sm font-extrabold ${theme === 'light' ? 'text-blue-600' : 'text-blue-400'}`}>
+                    <span className={`text-sm font-extrabold ${theme === 'light' ? 'text-[#16a34a]' : 'text-green-400'}`}>
                       {partner.kg} kg
                     </span>
                   </div>
                   <div className={`h-2 w-full rounded-full overflow-hidden ${theme === 'light' ? 'bg-gray-100' : 'bg-gray-700'}`}>
-                    <div 
-                      className="h-full bg-blue-500 rounded-full"
+                    <div
+                      className="h-full bg-gradient-to-r from-[#16a34a] to-[#f59e0b] rounded-full"
                       style={{ width: `${partner.percentage}%` }}
                     ></div>
                   </div>
@@ -323,7 +323,7 @@ const ImpactReports: React.FC = () => {
             </div>
 
             <div className={`mt-6 pt-5 border-t text-xs font-medium text-center ${theme === 'light' ? 'border-gray-100 text-gray-500' : 'border-gray-700 text-gray-400'}`}>
-              Based on <span className="font-bold text-blue-500">{dateRange}</span> data.
+              Based on <span className="font-bold text-[#16a34a]">{dateRange}</span> data.
             </div>
           </div>
         )}

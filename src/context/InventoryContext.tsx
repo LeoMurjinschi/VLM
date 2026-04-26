@@ -1,10 +1,12 @@
-import React, {type ReactNode, createContext, useContext, useState } from 'react';
-import { MOCK_INVENTORY } from '../_mock';
-import type { InventoryItem } from '../_mock';
+import React, { type ReactNode, createContext, useContext, useEffect, useMemo, useState, useCallback } from 'react';
+import type { InventoryItem, Donation } from '../_mock';
+import { stockStore, toDonation } from '../services/stockStore';
 
 interface InventoryContextType {
   inventory: InventoryItem[];
+  donations: Donation[];
   addStock: (item: InventoryItem) => void;
+  reserveStock: (id: string, amount: number) => void;
   updateQuantity: (id: string, quantity: number) => void;
   deleteStock: (id: string) => void;
 }
@@ -12,42 +14,50 @@ interface InventoryContextType {
 const InventoryContext = createContext<InventoryContextType | undefined>(undefined);
 
 export const InventoryProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [inventory, setInventory] = useState<InventoryItem[]>(() => stockStore.getAll());
 
-  const [inventory, setInventory] = useState<InventoryItem[]>(MOCK_INVENTORY);
+  useEffect(() => {
+    const unsubscribe = stockStore.subscribe(() => {
+      setInventory(stockStore.getAll());
+    });
+    return unsubscribe;
+  }, []);
 
+  const addStock = useCallback((item: InventoryItem) => {
+    if (stockStore.getById(item.id)) {
+      stockStore.update(item.id, item);
+    } else {
+      stockStore.add(item);
+    }
+  }, []);
 
-  const addStock = (item: InventoryItem) => {
-    setInventory((prev) => [item, ...prev]);
-  };
+  const reserveStock = useCallback((id: string, amount: number) => {
+    const item = stockStore.getById(id);
+    if (!item) return;
+    const newQuantity = Math.max(0, item.quantity - amount);
+    stockStore.update(id, { quantity: newQuantity });
+  }, []);
 
+  const updateQuantity = useCallback((id: string, quantity: number) => {
+    stockStore.update(id, { quantity });
+  }, []);
 
-  const updateQuantity = (id: string, quantity: number) => {
-    setInventory((prev) =>
-      prev.map((item) => {
-        if (item.id === id) {
-          return {
-            ...item,
-            quantity,
-            status: quantity === 0 ? 'Expired' : quantity < 5 ? 'Low Stock' : 'In Stock',
-          };
-        }
-        return item;
-      })
-    );
-  };
+  const deleteStock = useCallback((id: string) => {
+    stockStore.remove(id);
+  }, []);
 
- 
-  const deleteStock = (id: string) => {
-    setInventory((prev) => prev.filter((item) => item.id !== id));
-  };
-
-  return (
-    <InventoryContext.Provider value={{ inventory, addStock, updateQuantity, deleteStock }}>
-      {children}
-    </InventoryContext.Provider>
+  const donations = useMemo(
+    () => inventory.filter((i) => i.quantity > 0).map(toDonation),
+    [inventory]
   );
-};
 
+  const value = useMemo(
+    () => ({ inventory, donations, addStock, reserveStock, updateQuantity, deleteStock }),
+    [inventory, donations, addStock, reserveStock, updateQuantity, deleteStock]
+  );
+
+  return <InventoryContext.Provider value={value}>{children}</InventoryContext.Provider>;
+};
 
 export const useInventory = () => {
   const context = useContext(InventoryContext);

@@ -1,12 +1,11 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { ArchiveBoxIcon, MagnifyingGlassIcon, FunnelIcon } from '@heroicons/react/24/outline';
 import InventoryCard from '../components/InventoryCard';
-import { fetchInventory, getInventoryStats } from '../services/inventoryService';
 import { useTheme } from '../hooks/useTheme';
 import Select from '../components/ui/Select';
-import { SpinnerLoader, ErrorState } from '../components/ui/StateIndicators';
 import { toast } from 'react-toastify';
 import EmptyBasketSVG from '../components/ui/EmptyBasketSVG';
+import { useInventory } from '../context/InventoryContext';
 import type { InventoryItem } from '../_mock';
 
 const CATEGORY_OPTIONS = [
@@ -35,11 +34,7 @@ const SORT_OPTIONS = [
 
 const CurrentInventory: React.FC = () => {
   const { theme } = useTheme();
-
-  const [inventory, setInventory] = useState<InventoryItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [stats, setStats] = useState({ totalItems: 0, lowStockCount: 0, expiredCount: 0, totalQuantity: 0 });
+  const { inventory, updateQuantity, deleteStock } = useInventory();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -47,48 +42,56 @@ const CurrentInventory: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string>('All');
   const [sortBy, setSortBy] = useState<string>('newest');
 
-  const currentFilters = useMemo(() => ({
-    search: searchQuery,
-    categories: selectedCategories,
-    status: statusFilter,
-    sortBy,
-  }), [searchQuery, selectedCategories, statusFilter, sortBy]);
+  const processedInventory = useMemo(() => {
+    let results = [...inventory];
 
-  useEffect(() => {
-    const loadInventory = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const data = await fetchInventory(currentFilters, 1, 50);
-        setInventory(data);
-      } catch (err) {
-        const message = err instanceof Error ? err.message : 'Failed to load inventory';
-        setError(message);
-        toast.error(message);
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadInventory();
-  }, [currentFilters]);
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      results = results.filter(
+        (item) =>
+          item.title.toLowerCase().includes(q) ||
+          item.description.toLowerCase().includes(q)
+      );
+    }
 
-  useEffect(() => {
-    const loadStats = async () => {
-      try {
-        const statsData = await getInventoryStats();
-        setStats(statsData);
-      } catch (err) {
-        console.error('Failed to load stats:', err);
-      }
-    };
-    loadStats();
-  }, [inventory]);
+    if (selectedCategories.length > 0) {
+      results = results.filter((item) => selectedCategories.includes(item.category));
+    }
+
+    if (statusFilter !== 'All') {
+      results = results.filter((item) => item.status === statusFilter);
+    }
+
+    if (sortBy === 'oldest') {
+      results.reverse();
+    } else if (sortBy === 'expiring_soon') {
+      results.sort(
+        (a, b) => new Date(a.expirationDate).getTime() - new Date(b.expirationDate).getTime()
+      );
+    } else if (sortBy === 'name_asc') {
+      results.sort((a, b) => a.title.localeCompare(b.title));
+    } else if (sortBy === 'quantity_high') {
+      results.sort((a, b) => b.quantity - a.quantity);
+    } else if (sortBy === 'quantity_low') {
+      results.sort((a, b) => a.quantity - b.quantity);
+    }
+
+    return results;
+  }, [inventory, searchQuery, selectedCategories, statusFilter, sortBy]);
+
+  const stats = useMemo(
+    () => ({
+      totalItems: inventory.length,
+      lowStockCount: inventory.filter((i) => i.status === 'Low Stock').length,
+      expiredCount: inventory.filter((i) => i.status === 'Expired').length,
+      totalQuantity: inventory.reduce((sum, i) => sum + i.quantity, 0),
+    }),
+    [inventory]
+  );
 
   const toggleCategory = useCallback((category: string) => {
     setSelectedCategories((prev) =>
-      prev.includes(category)
-        ? prev.filter((c) => c !== category)
-        : [...prev, category]
+      prev.includes(category) ? prev.filter((c) => c !== category) : [...prev, category]
     );
   }, []);
 
@@ -101,41 +104,18 @@ const CurrentInventory: React.FC = () => {
   }, []);
 
   const handleDeleteItem = useCallback((id: string) => {
-    setInventory((prev) => prev.filter((item) => item.id !== id));
+    deleteStock(id);
     toast.success('Item deleted successfully');
-  }, []);
+  }, [deleteStock]);
 
   const handleEditItem = useCallback((_item: InventoryItem) => {
     // Edit item handler
   }, []);
 
   const handleUpdateQuantity = useCallback((id: string, quantity: number) => {
-    setInventory((prev) =>
-      prev.map((item) => {
-        if (item.id === id) {
-          return {
-            ...item,
-            quantity,
-            status:
-              quantity === 0
-                ? 'Expired'
-                : quantity < 5
-                  ? 'Low Stock'
-                  : 'In Stock',
-          };
-        }
-        return item;
-      })
-    );
+    updateQuantity(id, quantity);
     toast.success('Quantity updated');
-  }, []);
-
-  const handleRetry = useCallback(() => {
-    setError(null);
-    setLoading(true);
-  }, []);
-
-  const processedInventory = inventory;
+  }, [updateQuantity]);
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto min-h-screen relative">
@@ -322,10 +302,6 @@ const CurrentInventory: React.FC = () => {
             />
           ))}
         </div>
-      ) : loading ? (
-        <SpinnerLoader />
-      ) : error ? (
-        <ErrorState message={error} onRetry={handleRetry} />
       ) : (
         <div className={`flex flex-col items-center justify-center py-16 rounded-2xl border-2 border-dashed ${
           theme === 'light' ? 'bg-white border-gray-300' : 'bg-[#1a1a1a] border-gray-600'

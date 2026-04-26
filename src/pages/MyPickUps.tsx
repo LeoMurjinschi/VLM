@@ -50,7 +50,7 @@ const MyPickups: React.FC = () => {
   // Confirmare individuală (doar scoate din listă)
   const handleCompletePickup = (id: number) => {
     setCompletingIds(prev => [...prev, id]);
-    toast.success('Pickup confirmed! You're helping prevent food waste. 🚚');
+    toast.success("Pickup confirmed! You're helping prevent food waste. 🚚");
 
     setTimeout(() => {
       setActiveList(prev => prev.filter(p => p.id !== id));
@@ -61,7 +61,7 @@ const MyPickups: React.FC = () => {
   // Confirmare pentru toate
   const handleCompleteAll = () => {
     if (activeList.length === 0) return;
-    toast.success('Route complete! You've prevented food waste and helped your community.');
+    toast.success("Route complete! You've prevented food waste and helped your community.");
     setActiveList([]); // Golește lista activă instant
   };
 

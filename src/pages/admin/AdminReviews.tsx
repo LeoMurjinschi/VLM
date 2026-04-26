@@ -139,7 +139,7 @@ const AdminReviews: React.FC = () => {
   const confirmDelete = () => {
     if (reviewToDelete) {
       if (!deleteReason.trim()) {
-        toast.error('Explain why you're removing this review so we can improve moderation.');
+        toast.error("Explain why you're removing this review so we can improve moderation.");
         return;
       }
 
@@ -148,7 +148,7 @@ const AdminReviews: React.FC = () => {
       ));
       
       let toastMsg = 'Inappropriate review removed. Reviewer has been notified.';
-      if (issueWarning) toastMsg += ' They've been warned about community guidelines.';
+      if (issueWarning) toastMsg += " They've been warned about community guidelines.";
 
       toast.success(toastMsg);
       setModalOpen(false);

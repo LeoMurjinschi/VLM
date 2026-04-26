@@ -6,10 +6,11 @@ import { useTheme } from '../hooks/useTheme';
 
 interface DonationCardProps {
   donation: Donation;
-  onReserve: (id: string, amount: number) => void; 
+  onReserve: (id: string, amount: number) => void;
+  canReserve?: boolean;
 }
 
-const DonationCard: React.FC<DonationCardProps> = ({ donation, onReserve }) => {
+const DonationCard: React.FC<DonationCardProps> = ({ donation, onReserve, canReserve = true }) => {
   const { theme } = useTheme();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -128,18 +129,19 @@ const DonationCard: React.FC<DonationCardProps> = ({ donation, onReserve }) => {
         <div className={`absolute bottom-0 inset-x-0 p-4 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out border-t ${
           theme === 'light' ? 'bg-white border-gray-200' : 'bg-[#1a1a1a] border-[#2e2e2e]'
         }`}>
-          <button 
-            onClick={() => setIsModalOpen(true)}
-            disabled={isReserved}
+          <button
+            onClick={() => canReserve && setIsModalOpen(true)}
+            disabled={isReserved || !canReserve}
+            title={!canReserve ? 'Only receiver organizations can reserve donations' : undefined}
             className={`w-full py-2.5 rounded-full font-semibold text-sm transition-all active:scale-[0.98] ${
-              isReserved
+              isReserved || !canReserve
                 ? theme === 'light'
                   ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                   : 'bg-gray-800 text-gray-500 cursor-not-allowed'
                 : 'bg-[#16a34a] text-white hover:bg-[#15803d] shadow-md shadow-green-500/20'
             }`}
           >
-            {isReserved ? 'Already Reserved' : 'Reserve Now'}
+            {isReserved ? 'Already Reserved' : !canReserve ? 'Donors cannot reserve' : 'Reserve Now'}
           </button>
         </div>
 

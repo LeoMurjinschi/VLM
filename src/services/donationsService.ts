@@ -1,18 +1,10 @@
 import type { Donation } from '../_mock';
-import { MOCK_DONATIONS } from '../_mock';
+import { stockStore, toDonation } from './stockStore';
 
+const SIMULATED_LATENCY_MS = 400;
 
-const SIMULATED_LATENCY_MS = 800;
-
-
-const simulateRandomError = (): boolean => {
-  return Math.random() < 0.1;
-};
-
-
-const simulateNetworkDelay = (ms: number = SIMULATED_LATENCY_MS): Promise<void> => {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-};
+const simulateNetworkDelay = (ms: number = SIMULATED_LATENCY_MS): Promise<void> =>
+  new Promise((resolve) => setTimeout(resolve, ms));
 
 export const fetchDonations = async (
   filters: {
@@ -22,16 +14,15 @@ export const fetchDonations = async (
     urgency?: string;
   },
   page: number = 1,
-  pageSize: number = 10
+  pageSize: number = 50
 ): Promise<Donation[]> => {
   await simulateNetworkDelay();
 
-  if (simulateRandomError()) {
-    throw new Error('Failed to fetch donations. Please try again later.');
-  }
-
-  let results = [...MOCK_DONATIONS];
-
+  // Only items with remaining quantity are shown in the feed
+  let results = stockStore
+    .getAll()
+    .filter((item) => item.quantity > 0)
+    .map(toDonation);
 
   if (filters.search && filters.search.trim()) {
     const query = filters.search.toLowerCase();
@@ -51,31 +42,33 @@ export const fetchDonations = async (
   }
 
   if (filters.urgency === 'Expiring Soon') {
-    const fortyEightHoursFromNow = new Date().getTime() + 48 * 60 * 60 * 1000;
+    const fortyEightHoursFromNow = Date.now() + 48 * 60 * 60 * 1000;
     results = results.filter(
       (d) => new Date(d.expirationDate).getTime() <= fortyEightHoursFromNow
     );
   }
 
   const startIndex = (page - 1) * pageSize;
-  const endIndex = startIndex + pageSize;
-
-  return results.slice(startIndex, endIndex);
+  return results.slice(startIndex, startIndex + pageSize);
 };
 
-export const reserveDonation = async (_donationId: string): Promise<boolean> => {
-  await simulateNetworkDelay(500);
+export const reserveDonation = async (
+  donationId: string,
+  amount: number = 1
+): Promise<boolean> => {
+  await simulateNetworkDelay(300);
 
-  if (simulateRandomError()) {
-    throw new Error('Failed to reserve donation. Please try again later.');
-  }
+  const item = stockStore.getById(donationId);
+  if (!item) throw new Error('Donation not found.');
+  if (item.quantity <= 0) throw new Error('This donation is no longer available.');
 
+  const newQuantity = Math.max(0, item.quantity - amount);
+  stockStore.update(donationId, { quantity: newQuantity });
   return true;
 };
 
 export const fetchDonationCategories = async (): Promise<string[]> => {
-  await simulateNetworkDelay(300);
-
+  await simulateNetworkDelay(200);
   return ['Vegetables', 'Fruits', 'Bakery', 'Cooked Food', 'Dairy'];
 };
 
@@ -83,7 +76,7 @@ export const sortDonations = async (
   donations: Donation[],
   sortBy: string
 ): Promise<Donation[]> => {
-  await simulateNetworkDelay(200);
+  await simulateNetworkDelay(100);
 
   const sorted = [...donations];
 
@@ -94,9 +87,6 @@ export const sortDonations = async (
     );
   } else if (sortBy === 'name_asc') {
     sorted.sort((a, b) => a.title.localeCompare(b.title));
-  } else if (sortBy === 'newest') {
-
-    return sorted;
   }
 
   return sorted;
