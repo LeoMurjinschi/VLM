@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useTheme } from '../hooks/useTheme';
+import { useAuth } from '../context/AuthContext';
 import PageLayout from '../components/PageLayout';
 import { 
   BellAlertIcon, 
@@ -24,9 +25,18 @@ const ALL_NOTIFICATIONS = [
   { id: 8, title: 'System Maintenance', desc: 'The app will be offline for 30 minutes tonight at 2 AM for server upgrades.', time: '1 week ago', date: 'Oct 18', unread: false, type: 'system' },
 ];
 
+const ADMIN_NOTIFICATIONS = [
+  { id: 101, title: 'New Sign-Up Request', desc: 'Mishanea SRL submitted an NGO application.', time: '5 min ago', date: 'Today', unread: true, type: 'warning' },
+  { id: 102, title: 'Donation Flagged', desc: 'A donation from Andrei M. was flagged by users. Immediate review required.', time: '1 hour ago', date: 'Today', unread: true, type: 'urgent' },
+  { id: 103, title: 'Review Reported', desc: 'A recent review violates community standards.', time: '2 hours ago', date: 'Today', unread: false, type: 'security' },
+  { id: 104, title: 'System Maintenance', desc: 'The database backup completed successfully.', time: '1 day ago', date: 'Yesterday', unread: false, type: 'system' }
+];
+
 const NotificationHistory: React.FC = () => {
   const { theme } = useTheme();
-  const [notifications, setNotifications] = useState(ALL_NOTIFICATIONS);
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
+  const [notifications, setNotifications] = useState(isAdmin ? ADMIN_NOTIFICATIONS : ALL_NOTIFICATIONS);
   const [filter, setFilter] = useState<'all' | 'unread' | 'urgent' | 'security'>('all');
 
   const filteredNotifications = notifications.filter(notif => {
@@ -53,7 +63,7 @@ const NotificationHistory: React.FC = () => {
       case 'system': return <Cog8ToothIcon className="w-6 h-6 text-gray-500 dark:text-gray-400" />;
       case 'success': return <CheckCircleIcon className="w-6 h-6 text-emerald-500" />;
       case 'warning': return <InformationCircleIcon className="w-6 h-6 text-orange-500" />;
-      default: return <InformationCircleIcon className="w-6 h-6 text-[#16a34a]" />;
+      default: return <InformationCircleIcon className={`w-6 h-6 ${isAdmin ? 'text-[#8b5cf6]' : 'text-[#16a34a]'}`} />;
     }
   };
 
@@ -64,7 +74,7 @@ const NotificationHistory: React.FC = () => {
         {/* Header Pagina */}
         <div className="mb-6">
           <div className="flex items-center gap-3 mb-2">
-            <BellAlertIcon className={`w-8 h-8 ${theme === 'light' ? 'text-[#16a34a]' : 'text-green-400'}`} />
+            <BellAlertIcon className={`w-8 h-8 ${theme === 'light' ? (isAdmin ? 'text-[#8b5cf6]' : 'text-[#16a34a]') : (isAdmin ? 'text-violet-400' : 'text-green-400')}`} />
             <h1 className={`text-3xl font-extrabold tracking-tight ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>
               Notification History
             </h1>
@@ -85,7 +95,7 @@ const NotificationHistory: React.FC = () => {
                 onClick={() => setFilter(f)}
                 className={`px-4 py-1.5 rounded-lg text-sm font-bold capitalize transition-all shrink-0 ${
                   filter === f 
-                    ? 'bg-[#16a34a] text-white shadow-md'
+                    ? `${isAdmin ? 'bg-[#8b5cf6]' : 'bg-[#16a34a]'} text-white shadow-md`
                     : (theme === 'light' ? 'text-gray-500 hover:bg-gray-50' : 'text-gray-400 hover:bg-[#222222] hover:text-gray-200')
                 }`}
               >
@@ -99,8 +109,8 @@ const NotificationHistory: React.FC = () => {
             <button 
               onClick={markAllAsRead}
               className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all shrink-0 ${
-                theme === 'light' 
-                  ? 'bg-[#16a34a]/10 text-[#16a34a] hover:bg-[#16a34a]/20 border border-[#16a34a]/20' 
+                isAdmin 
+                  ? 'bg-[#8b5cf6]/10 text-[#8b5cf6] hover:bg-[#8b5cf6]/20 border border-[#8b5cf6]/20'
                   : 'bg-[#16a34a]/10 text-[#16a34a] hover:bg-[#16a34a]/20 border border-[#16a34a]/20'
               }`}
             >
@@ -119,7 +129,7 @@ const NotificationHistory: React.FC = () => {
                   key={notif.id} 
                   onClick={() => markAsRead(notif.id)}
                   className={`p-5 sm:p-6 flex flex-col sm:flex-row sm:items-start gap-4 transition-colors ${
-                    notif.unread ? (theme === 'light' ? 'bg-[#16a34a]/5' : 'bg-[#16a34a]/10') : ''
+                    notif.unread ? (theme === 'light' ? (isAdmin ? 'bg-[#8b5cf6]/5' : 'bg-[#16a34a]/5') : (isAdmin ? 'bg-[#8b5cf6]/10' : 'bg-[#16a34a]/10')) : ''
                   } hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer`}
                 >
                   {/* Iconița Dinamică */}
@@ -131,7 +141,7 @@ const NotificationHistory: React.FC = () => {
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-1">
                       <h3 className={`text-base font-bold flex items-center gap-2 ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>
                         {notif.title}
-                        {notif.unread && <span className="w-2 h-2 rounded-full bg-[#16a34a]"></span>}
+                        {notif.unread && <span className={`w-2 h-2 rounded-full ${isAdmin ? 'bg-[#8b5cf6]' : 'bg-[#16a34a]'}`}></span>}
                       </h3>
                       <span className={`text-xs font-bold uppercase tracking-wider whitespace-nowrap ${theme === 'light' ? 'text-gray-400' : 'text-gray-500'}`}>
                         {notif.date} • {notif.time}

@@ -11,9 +11,10 @@ interface ChatSidebarProps {
   isMobileVisible: boolean;
   theme: 'light' | 'dark';
   mutedContacts: number[];
+  isAdmin?: boolean;
 }
 
-const ChatSidebar: React.FC<ChatSidebarProps> = ({ contacts, activeChatId, onSelectContact, isMobileVisible, theme, mutedContacts }) => {
+const ChatSidebar: React.FC<ChatSidebarProps> = ({ contacts, activeChatId, onSelectContact, isMobileVisible, theme, mutedContacts, isAdmin = false }) => {
   const [searchQuery, setSearchQuery] = useState('');
 
   // Logica de filtrare: caută ignorând literele mari/mici, în nume sau în rol
@@ -28,14 +29,16 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ contacts, activeChatId, onSel
     } ${!isMobileVisible ? 'hidden md:flex' : 'flex h-full'}`}>
       
       <div className={`p-4 sm:p-5 border-b flex items-center gap-3 ${theme === 'light' ? 'border-gray-200' : 'border-gray-800'}`}>
-        <ChatBubbleLeftEllipsisIcon className={`w-7 h-7 ${theme === 'light' ? 'text-[#16a34a]' : 'text-[#16a34a]'}`} />
+        <ChatBubbleLeftEllipsisIcon className={`w-7 h-7 ${isAdmin ? 'text-[#8b5cf6]' : 'text-[#16a34a]'}`} />
         <h2 className={`text-xl font-extrabold ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>Messages</h2>
       </div>
 
       {/* Căutare Funcțională */}
       <div className="p-4 border-b border-transparent">
         <div className={`flex items-center px-4 py-2.5 rounded-xl border transition-colors ${
-          theme === 'light' ? 'bg-white border-gray-200 focus-within:border-green-400' : 'bg-[#222222] border-gray-800 focus-within:border-[#16a34a]'
+          theme === 'light' 
+            ? `bg-white border-gray-200 focus-within:border-${isAdmin ? '[#8b5cf6]' : 'green-400'}` 
+            : `bg-[#222222] border-gray-800 focus-within:border-${isAdmin ? '[#8b5cf6]' : '[#16a34a]'}`
         }`}>
           <MagnifyingGlassIcon className={`w-5 h-5 mr-2 ${theme === 'light' ? 'text-gray-400' : 'text-gray-500'}`} />
           <input 
@@ -58,6 +61,7 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ contacts, activeChatId, onSel
               onClick={() => onSelectContact(contact.id)}
               theme={theme}
               isMuted={mutedContacts.includes(contact.id)}
+              isAdmin={isAdmin}
             />
           ))
         ) : (

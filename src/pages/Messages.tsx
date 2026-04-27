@@ -2,7 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useTheme } from '../hooks/useTheme';
 import PageLayout from '../components/PageLayout';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import ChatSidebar from '../components/chat/ChatSideBar';
 import ChatInput from '../components/chat/ChatInput';
@@ -34,18 +34,47 @@ const INITIAL_MESSAGES: Record<number, ChatMessage[]> = {
 
 const Messages: React.FC = () => {
   const { theme } = useTheme();
+  const location = useLocation();
+  const [contacts, setContacts] = useState<Contact[]>(CONTACTS);
   const [activeChatId, setActiveChatId] = useState<number | null>(1);
   const [isMobileListVisible, setIsMobileListVisible] = useState(true);
   const [messages, setMessages] = useState<Record<number, ChatMessage[]>>(INITIAL_MESSAGES);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const activeContact = CONTACTS.find(c => c.id === activeChatId);
+  const activeContact = contacts.find(c => c.id === activeChatId);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [mutedContacts, setMutedContacts] = useState<number[]>([]);
   
   const navigate = useNavigate();
   const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
+  
+  // Handlers for dynamic deep linking
+  useEffect(() => {
+    if (location.state && location.state.openChatWith) {
+      const targetUser = location.state.openChatWith;
+      const existingContact = contacts.find(c => c.name === targetUser.name);
+      
+      if (existingContact) {
+        setActiveChatId(existingContact.id);
+      } else {
+        const newId = Date.now();
+        const newContact: Contact = {
+          id: newId,
+          name: targetUser.name,
+          role: targetUser.role || 'User',
+          initials: targetUser.name.substring(0, 2).toUpperCase(),
+          lastMessage: '',
+          time: 'Just now',
+          unread: 0
+        };
+        setContacts(prev => [newContact, ...prev]);
+        setActiveChatId(newId);
+      }
+      setIsMobileListVisible(false);
+    }
+  }, [location.state, contacts]);
   
   const isMuted = activeChatId ? mutedContacts.includes(activeChatId) : false;
 
@@ -103,12 +132,13 @@ const Messages: React.FC = () => {
       }`}>
         
         <ChatSidebar 
-          contacts={CONTACTS}
+          contacts={isAdmin ? contacts.filter(c => c.id === activeChatId) : contacts}
           activeChatId={activeChatId}
           onSelectContact={handleSelectContact}
           isMobileVisible={isMobileListVisible}
           theme={theme as 'light' | 'dark'}
           mutedContacts={mutedContacts}
+          isAdmin={isAdmin}
         />
 
         <div className={`flex-1 flex-col h-full ${isMobileListVisible ? 'hidden md:flex' : 'flex'}`}>
@@ -120,8 +150,12 @@ const Messages: React.FC = () => {
                   <button onClick={() => setIsMobileListVisible(true)} className={`md:hidden p-2 -ml-2 rounded-lg ${theme === 'light' ? 'text-gray-500 hover:bg-gray-100' : 'text-gray-400 hover:bg-[#222222]'}`}>
                     <ArrowLeftIcon className="w-5 h-5" />
                   </button>
-                  {/* Am scos bulina verde de aici */}
-                  <div className={`w-10 h-10 rounded-full items-center justify-center font-bold text-sm shrink-0 hidden sm:flex ${theme === 'light' ? 'bg-[#16a34a]/10 text-green-700' : 'bg-[#16a34a]/20 text-green-400'}`}>
+                  {/* Avatar cu logo corect in dependenta de rol */}
+                  <div className={`w-10 h-10 rounded-full items-center justify-center font-bold text-sm shrink-0 hidden sm:flex ${
+                    theme === 'light' 
+                      ? isAdmin ? 'bg-[#8b5cf6]/10 text-violet-700' : 'bg-[#16a34a]/10 text-green-700'
+                      : isAdmin ? 'bg-[#8b5cf6]/20 text-violet-400' : 'bg-[#16a34a]/20 text-green-400'
+                  }`}>
                     {activeContact.initials}
                   </div>
                   <div>
@@ -195,7 +229,7 @@ const Messages: React.FC = () => {
                       <div key={index} className={`flex flex-col max-w-[80%] sm:max-w-[70%] ${isMe ? 'self-end items-end' : 'self-start items-start'}`}>
                         <div className={`px-4 py-2.5 rounded-2xl text-sm shadow-sm ${
                           isMe 
-                            ? 'bg-[#16a34a] text-white rounded-br-sm' 
+                            ? `${isAdmin ? 'bg-[#8b5cf6]' : 'bg-[#16a34a]'} text-white rounded-br-sm` 
                             : (theme === 'light' ? 'bg-white text-gray-800 rounded-bl-sm border border-gray-100' : 'bg-[#222222] text-gray-100 rounded-bl-sm border border-gray-800')
                         }`}>
                           {msg.text}
@@ -210,7 +244,7 @@ const Messages: React.FC = () => {
                 </div>
               </div>
 
-              <ChatInput onSendMessage={handleSendMessage} theme={theme as 'light' | 'dark'} />
+              <ChatInput onSendMessage={handleSendMessage} theme={theme as 'light' | 'dark'} isAdmin={isAdmin} />
             </>
           ) : (
             <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
