@@ -19,7 +19,6 @@ import {
   fetchDonorProfile,
 } from '../services/reviewsService';
 import type { Review, ReviewAggregate } from '../_mock/reviews';
-import { MOCK_DONATIONS } from '../_mock';
 import ReviewSummary from '../components/reviews/ReviewSummary';
 import ReviewList from '../components/reviews/ReviewList';
 import ReviewFormModal from '../components/reviews/ReviewFormModal';
@@ -27,10 +26,12 @@ import CommentThread from '../components/comments/CommentThread';
 import DonationCard from '../components/DonationCard';
 import StockDetailModal from '../components/StockDetailModal';
 import type { Donation } from '../_mock';
+import { useInventory } from '../context/InventoryContext';
 
 const DonorProfile: React.FC = () => {
   const { theme } = useTheme();
   const { user } = useAuth();
+  const { donations } = useInventory();
   const navigate = useNavigate();
   const location = useLocation();
   const { donorId = 'donor1' } = useParams<{ donorId: string }>();
@@ -61,11 +62,8 @@ const DonorProfile: React.FC = () => {
   }, [donorId]);
 
   const activeStocks = useMemo(
-    () =>
-      MOCK_DONATIONS.filter(
-        (d) => d.donorId === donorId && d.status === 'Available'
-      ),
-    [donorId]
+    () => donations.filter((d) => d.donorId === donorId && d.status === 'Available'),
+    [donations, donorId]
   );
 
   const canReview = user?.role === 'receiver';

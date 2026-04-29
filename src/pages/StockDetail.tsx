@@ -15,18 +15,19 @@ import {
   fetchDonorProfile,
 } from '../services/reviewsService';
 import type { Review, ReviewAggregate } from '../_mock/reviews';
-import { MOCK_DONATIONS } from '../_mock';
 import ReviewSummary from '../components/reviews/ReviewSummary';
 import ReviewList from '../components/reviews/ReviewList';
 import ReviewFormModal from '../components/reviews/ReviewFormModal';
 import CommentThread from '../components/comments/CommentThread';
+import { useInventory } from '../context/InventoryContext';
 
 const StockDetail: React.FC = () => {
   const { theme } = useTheme();
   const { user } = useAuth();
+  const { donations } = useInventory();
   const { stockId = '1' } = useParams<{ stockId: string }>();
 
-  const item = useMemo(() => MOCK_DONATIONS.find((d) => d.id === stockId), [stockId]);
+  const item = useMemo(() => donations.find((d) => d.id === stockId) ?? null, [stockId, donations]);
 
   const [reviews, setReviews] = useState<Review[]>([]);
   const [aggregate, setAggregate] = useState<ReviewAggregate | null>(null);

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useTheme } from '../hooks/useTheme';
 import { fetchDashboardStats } from '../services/dashboardService';
+import { stockStore } from '../services/stockStore';
 import StatCard from '../components/UI/StatCard';
 import ImpactCharts from '../components/ImpactCharts';
 import RecentActivity from '../components/RecentActivity';
@@ -29,25 +30,25 @@ const DonorDashboard: React.FC = () => {
   const [editingMilestone, setEditingMilestone] = useState<Milestone | null>(null);
 
 
-  useEffect(() => {
-    const loadStats = async () => {
-      setStatsLoading(true);
-      setStatsError(null);
-      
-      try {
-        const data = await fetchDashboardStats();
-        setStats(data);
-      } catch (err) {
-        const message = err instanceof Error ? err.message : 'Failed to load dashboard stats';
-        setStatsError(message);
-        toast.error(message);
-      } finally {
-        setStatsLoading(false);
-      }
-    };
-
-    loadStats();
+  const loadStats = useCallback(async () => {
+    setStatsLoading(true);
+    setStatsError(null);
+    try {
+      const data = await fetchDashboardStats();
+      setStats(data);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to load dashboard stats';
+      setStatsError(message);
+      toast.error(message);
+    } finally {
+      setStatsLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    loadStats();
+    return stockStore.subscribe(loadStats);
+  }, [loadStats]);
 
 
   const handleSaveMilestone = useCallback((newMilestone: Milestone) => {
