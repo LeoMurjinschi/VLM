@@ -144,9 +144,9 @@ export const MOCK_REVIEWS: Review[] = [
 export const MOCK_DONOR_PROFILES = [
   {
     id: 'donor1',
-    name: 'Auchan Supermarket',
+    name: 'Donor Company 1',
     description: 'Major retail chain committed to reducing food waste through daily surplus donations.',
-    avatar: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&h=400&fit=crop',
+    avatar: 'https://i.pravatar.cc/150?u=donor1',
     location: 'Bucharest, Sector 1',
     joinedDate: '2024-03-15',
     totalDonations: 142,
@@ -155,13 +155,24 @@ export const MOCK_DONOR_PROFILES = [
   },
   {
     id: 'donor2',
-    name: 'Paul Bakery',
+    name: 'Donor Bakery 2',
     description: 'Artisan bakery donating daily surplus bread and pastries to community partners.',
-    avatar: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&h=400&fit=crop',
+    avatar: 'https://i.pravatar.cc/150?u=donor2',
     location: 'Bucharest, Center',
     joinedDate: '2024-06-20',
     totalDonations: 87,
     totalKgRescued: 1240,
     verified: true,
+  },
+  {
+    id: 'donor3',
+    name: 'Donor Supermarket 3',
+    description: 'Local supermarket contributing surplus goods to help reduce food waste.',
+    avatar: 'https://i.pinimg.com/736x/fa/8e/28/fa8e28964c40bb0d9b7e8ccf6a07a4b6.jpg',
+    location: 'Bucharest, Sector 3',
+    joinedDate: '2024-09-01',
+    totalDonations: 45,
+    totalKgRescued: 680,
+    verified: false,
   },
 ];

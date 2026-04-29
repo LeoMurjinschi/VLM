@@ -95,5 +95,6 @@ export function toDonation(item: InventoryItem): Donation {
     image: item.image,
     quantity: item.quantity,
     unit: item.unit,
+    donorId: item.donorId,
   };
 }

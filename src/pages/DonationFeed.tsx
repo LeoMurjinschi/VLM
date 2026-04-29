@@ -7,6 +7,8 @@ import { toast } from 'react-toastify';
 import EmptyBasketSVG from '../components/UI/EmptyBasketSVG';
 import { useInventory } from '../context/InventoryContext';
 import { useAuth } from '../context/AuthContext';
+import StockDetailModal from '../components/StockDetailModal';
+import type { Donation } from '../_mock';
 
 const DonationFeed: React.FC = () => {
   const { theme } = useTheme();
@@ -17,6 +19,7 @@ const DonationFeed: React.FC = () => {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [activeStock, setActiveStock] = useState<Donation | null>(null);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [statusFilter, setStatusFilter] = useState<string>('All');
   const [urgencyFilter, setUrgencyFilter] = useState<string>('All');
@@ -212,10 +215,18 @@ const DonationFeed: React.FC = () => {
               donation={donation}
               onReserve={handleReserveItem}
               canReserve={!isDonor}
+              onCardClick={(d) => setActiveStock(d)}
             />
           ))}
         </div>
       )}
+
+      <StockDetailModal
+        isOpen={!!activeStock}
+        donation={activeStock}
+        onClose={() => setActiveStock(null)}
+        onReserve={handleReserveItem}
+      />
     </div>
   );
 };

@@ -10,6 +10,7 @@ import {
   CheckIcon,
 } from '@heroicons/react/24/outline';
 import type { Donation } from '../_mock';
+import { MOCK_DONOR_PROFILES } from '../_mock/reviews';
 import ReservationModal from './ReservationModal';
 import { useTheme } from '../hooks/useTheme';
 import StarRating from './reviews/StarRating';
@@ -58,6 +59,10 @@ const DonationCard: React.FC<DonationCardProps> = ({
   };
 
   const stockAggregate = useMemo(() => computeAggregate('stock', donation.id), [donation.id]);
+  const donorProfile = useMemo(
+    () => (donation.donorId ? MOCK_DONOR_PROFILES.find((d) => d.id === donation.donorId) ?? null : null),
+    [donation.donorId]
+  );
 
   const isReserved = donation.status === 'Reserved';
   const isAvailable = donation.status === 'Available';
@@ -171,13 +176,21 @@ const DonationCard: React.FC<DonationCardProps> = ({
               className="flex items-center gap-2 mb-3 group/donor"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="w-6 h-6 rounded-full bg-[#16a34a] flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0">
-                {donation.pickupLocation.charAt(0)}
-              </div>
+              {donorProfile?.avatar ? (
+                <img
+                  src={donorProfile.avatar}
+                  alt={donorProfile.name}
+                  className="w-6 h-6 rounded-full object-cover flex-shrink-0"
+                />
+              ) : (
+                <div className="w-6 h-6 rounded-full bg-[#16a34a] flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0">
+                  {(donorProfile?.name ?? donation.pickupLocation).charAt(0)}
+                </div>
+              )}
               <p className={`text-xs font-medium truncate group-hover/donor:underline ${
                 theme === 'light' ? 'text-gray-500' : 'text-gray-400'
               }`}>
-                from {donation.pickupLocation.split(',')[0]}
+                from {donorProfile?.name ?? donation.pickupLocation.split(',')[0]}
               </p>
             </Link>
           ) : (

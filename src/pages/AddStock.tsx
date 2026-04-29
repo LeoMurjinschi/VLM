@@ -7,6 +7,7 @@ import CustomDatePicker from '../components/ui/CustomDatePicker';
 import { useTheme } from '../hooks/useTheme';
 import { addInventoryItem } from '../services/inventoryService';
 import { useInventory } from '../context/InventoryContext';
+import { useAuth } from '../context/AuthContext';
 
 
 interface FormState {
@@ -40,6 +41,7 @@ const DECIMAL_UNITS = new Set(['kg']);
 
 const AddStock: React.FC = () => {
   const { theme } = useTheme();
+  const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
   const { addStock } = useInventory();
@@ -196,6 +198,7 @@ const AddStock: React.FC = () => {
           category: formState.category,
           quantity: qty,
           unit: formState.unit,
+          donorId: user?.id,
           pickupLocation: formState.pickupLocation,
           expirationDate: new Date(formState.expirationDate).toISOString(),
           image:

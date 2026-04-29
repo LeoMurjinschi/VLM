@@ -9,6 +9,8 @@ interface InventoryContextType {
   reserveStock: (id: string, amount: number) => void;
   updateQuantity: (id: string, quantity: number) => void;
   deleteStock: (id: string) => void;
+  updateStock: (id: string, updates: Partial<InventoryItem>) => void;
+  setStockStatus: (id: string, status: 'Available' | 'Reserved') => void;
 }
 
 const InventoryContext = createContext<InventoryContextType | undefined>(undefined);
@@ -46,14 +48,37 @@ export const InventoryProvider: React.FC<{ children: ReactNode }> = ({ children 
     stockStore.remove(id);
   }, []);
 
+  const updateStock = useCallback((id: string, updates: Partial<InventoryItem>) => {
+    stockStore.update(id, updates);
+  }, []);
+
+  const setStockStatus = useCallback((id: string, status: 'Available' | 'Reserved') => {
+    const item = stockStore.getById(id);
+    if (!item) return;
+    if (status === 'Reserved') {
+      stockStore.update(id, { quantity: 0 });
+    } else if (item.quantity <= 0) {
+      stockStore.update(id, { quantity: 1 });
+    }
+  }, []);
+
   const donations = useMemo(
     () => inventory.filter((i) => i.quantity > 0).map(toDonation),
     [inventory]
   );
 
   const value = useMemo(
-    () => ({ inventory, donations, addStock, reserveStock, updateQuantity, deleteStock }),
-    [inventory, donations, addStock, reserveStock, updateQuantity, deleteStock]
+    () => ({
+      inventory,
+      donations,
+      addStock,
+      reserveStock,
+      updateQuantity,
+      deleteStock,
+      updateStock,
+      setStockStatus,
+    }),
+    [inventory, donations, addStock, reserveStock, updateQuantity, deleteStock, updateStock, setStockStatus]
   );
 
   return <InventoryContext.Provider value={value}>{children}</InventoryContext.Provider>;

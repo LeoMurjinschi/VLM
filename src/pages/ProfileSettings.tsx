@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useTheme } from '../hooks/useTheme';
+import { useAuth } from '../context/AuthContext';
 import PageLayout from '../components/PageLayout';
 import { toast } from 'react-toastify';
 import { 
@@ -16,13 +17,10 @@ import {
   CloudArrowUpIcon
 } from '@heroicons/react/24/outline';
 
-const INITIAL_PROFILE = {
-  fullName: "Vasile Rodideal",
-  ngoName: "Asociația O Masă Caldă",
-  email: "contact@omasacalda.ro",
-  phone: "+40 722 123 456",
-  address: "Strada Speranței nr. 12, București",
-  avatarUrl: null as string | null
+const getInitials = (name: string) => {
+  const parts = name.trim().split(/\s+/);
+  if (parts.length >= 2) return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+  return name.slice(0, 2).toUpperCase();
 };
 
 // Componenta Buton Toggle
@@ -37,12 +35,22 @@ const ToggleSwitch = ({ enabled, onChange }: { enabled: boolean, onChange: () =>
 
 const ProfileSettings: React.FC = () => {
   const { theme } = useTheme();
+  const { user, updateUser } = useAuth();
   const [activeTab, setActiveTab] = useState('general');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const buildProfile = () => ({
+    fullName: user?.name || '',
+    orgName: user?.name || '',
+    email: user?.email || '',
+    phone: '',
+    address: '',
+    avatarUrl: user?.avatar || null as string | null,
+  });
+
   // --- STATE-URI TAB 1: PROFIL ---
-  const [profileData, setProfileData] = useState(INITIAL_PROFILE);
-  const [tempProfileData, setTempProfileData] = useState(INITIAL_PROFILE);
+  const [profileData, setProfileData] = useState(buildProfile);
+  const [tempProfileData, setTempProfileData] = useState(buildProfile);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   
   // --- STATE-URI TAB 2: NOTIFICĂRI ---
@@ -67,7 +75,9 @@ const ProfileSettings: React.FC = () => {
       }
       const reader = new FileReader();
       reader.onloadend = () => {
-        setProfileData(prev => ({ ...prev, avatarUrl: reader.result as string }));
+        const avatarUrl = reader.result as string;
+        setProfileData(prev => ({ ...prev, avatarUrl }));
+        updateUser({ avatar: avatarUrl });
         toast.success('Photo preview updated. Click Save to make it official.');
       };
       reader.readAsDataURL(file);
@@ -85,6 +95,11 @@ const ProfileSettings: React.FC = () => {
   const saveProfileChanges = () => {
     setProfileData(tempProfileData);
     setIsEditingProfile(false);
+    updateUser({
+      name: tempProfileData.fullName,
+      email: tempProfileData.email,
+      ...(tempProfileData.avatarUrl ? { avatar: tempProfileData.avatarUrl } : {}),
+    });
     toast.success('Profile updated. Your community information is current.');
   };
 
@@ -197,7 +212,7 @@ const ProfileSettings: React.FC = () => {
                     {profileData.avatarUrl ? (
                       <img src={profileData.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
                     ) : (
-                      <span className="text-4xl font-black tracking-tighter">VR</span>
+                      <span className="text-4xl font-black tracking-tighter">{getInitials(profileData.fullName || 'U')}</span>
                     )}
                     <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-white gap-1">
                       <CloudArrowUpIcon className="w-7 h-7" />
@@ -206,10 +221,10 @@ const ProfileSettings: React.FC = () => {
                   </div>
                   <div>
                     <p className={`text-sm font-bold mb-1 ${theme === 'light' ? 'text-gray-800' : 'text-gray-200'}`}>
-                      {profileData.ngoName}
+                      {profileData.orgName}
                     </p>
                     <p className={`text-xs mb-3 ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>
-                      Reprezentant: {profileData.fullName}
+                      {user?.role === 'donor' ? 'Donor' : user?.role === 'receiver' ? 'Receiver' : 'Admin'} · {profileData.email}
                     </p>
                     <button onClick={handleAvatarClick} className={`flex items-center gap-2 px-3 py-1.5 rounded-lg font-bold text-xs border transition-colors ${theme === 'light' ? 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50' : 'bg-gray-800 border-gray-600 text-gray-300 hover:bg-gray-700'}`}>
                       <CloudArrowUpIcon className="w-4 h-4 text-gray-400" />
@@ -220,8 +235,8 @@ const ProfileSettings: React.FC = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5 mb-6 max-w-3xl">
                   {[
-                    { label: 'Full Name', name: 'fullName', icon: UserCircleIcon, type: 'text' },
-                    { label: 'NGO Name', name: 'ngoName', icon: BuildingOfficeIcon, type: 'text' },
+                    { label: 'Display Name', name: 'fullName', icon: UserCircleIcon, type: 'text' },
+                    { label: 'Organization Name', name: 'orgName', icon: BuildingOfficeIcon, type: 'text' },
                     { label: 'Email Address', name: 'email', icon: EnvelopeIcon, type: 'email' },
                     { label: 'Phone Number', name: 'phone', icon: PhoneIcon, type: 'text' },
                   ].map(field => {
@@ -231,13 +246,13 @@ const ProfileSettings: React.FC = () => {
                         <label className={`block text-xs font-bold mb-1.5 uppercase tracking-wide ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>{field.label}</label>
                         <div className={`flex items-center px-4 py-2.5 rounded-xl border transition-colors ${!isEditingProfile ? (theme === 'light' ? 'bg-gray-100 border-gray-200' : 'bg-gray-900/30 border-gray-700') : (theme === 'light' ? 'bg-gray-50 border-gray-300 focus-within:border-[#16a34a] focus-within:ring-1 focus-within:ring-[#16a34a]/30' : 'bg-gray-900/80 border-gray-600 focus-within:border-green-500')}`}>
                           <Icon className={`w-5 h-5 mr-3 shrink-0 ${!isEditingProfile ? 'text-gray-400' : 'text-[#16a34a]'}`} />
-                          <input 
-                            type={field.type} 
+                          <input
+                            type={field.type}
                             name={field.name}
-                            value={isEditingProfile ? tempProfileData[field.name as keyof typeof INITIAL_PROFILE] || '' : profileData[field.name as keyof typeof INITIAL_PROFILE] || ''}
+                            value={isEditingProfile ? (tempProfileData as Record<string, string | null>)[field.name] || '' : (profileData as Record<string, string | null>)[field.name] || ''}
                             onChange={handleInputChange}
                             disabled={!isEditingProfile}
-                            className={`bg-transparent w-full outline-none text-sm font-medium ${!isEditingProfile ? (theme === 'light' ? 'text-gray-600' : 'text-gray-400') : 'text-gray-900 dark:text-white'}`} 
+                            className={`bg-transparent w-full outline-none text-sm font-medium ${!isEditingProfile ? (theme === 'light' ? 'text-gray-600' : 'text-gray-400') : 'text-gray-900 dark:text-white'}`}
                           />
                         </div>
                       </div>

@@ -30,7 +30,7 @@ interface SidebarProps {
 
 // === 1. LISTA PENTRU RECEIVER (ONG) ===
 const receiverNavigation: NavItem[] = [
-  { name: 'Donation Feed', href: '/receiver/dashboard', icon: Squares2X2Icon },
+  { name: 'Donation Feed', href: '/receiver/feed', icon: HomeIcon },
   { name: 'My Pickups', href: '/receiver/pickups', icon: ExclamationTriangleIcon },
   { name: 'History & Status', href: '/receiver/history', icon: ClockIcon },
   { name: 'Messages', href: '/receiver/messages', icon: ChatBubbleLeftRightIcon },

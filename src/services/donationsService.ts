@@ -72,6 +72,45 @@ export const fetchDonationCategories = async (): Promise<string[]> => {
   return ['Vegetables', 'Fruits', 'Bakery', 'Cooked Food', 'Dairy'];
 };
 
+export type DonationUpdate = Partial<{
+  title: string;
+  description: string;
+  category: string;
+  quantity: number;
+  unit: string;
+  pickupLocation: string;
+  expirationDate: string;
+  image: string;
+  status: 'Available' | 'Reserved';
+}>;
+
+export const updateDonation = async (
+  donationId: string,
+  updates: DonationUpdate
+): Promise<Donation | null> => {
+  await simulateNetworkDelay(250);
+  const inventoryUpdates: Record<string, unknown> = { ...updates };
+  // Map donation status -> inventory quantity flip if explicitly set
+  if (updates.status === 'Reserved') {
+    delete inventoryUpdates.status;
+    inventoryUpdates.quantity = 0;
+  } else if (updates.status === 'Available') {
+    delete inventoryUpdates.status;
+    const existing = stockStore.getById(donationId);
+    if (existing && existing.quantity <= 0) inventoryUpdates.quantity = 1;
+  }
+  const updated = stockStore.update(donationId, inventoryUpdates as Partial<import('../_mock').InventoryItem>);
+  return updated ? toDonation(updated) : null;
+};
+
+export const deleteDonation = async (donationId: string): Promise<boolean> => {
+  await simulateNetworkDelay(200);
+  const existing = stockStore.getById(donationId);
+  if (!existing) return false;
+  stockStore.remove(donationId);
+  return true;
+};
+
 export const sortDonations = async (
   donations: Donation[],
   sortBy: string
