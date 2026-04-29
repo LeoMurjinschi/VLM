@@ -1,16 +1,49 @@
-import React, { useState } from 'react';
-import { MapPinIcon, ClockIcon } from '@heroicons/react/24/outline';
+import React, { useMemo, useState } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import {
+  MapPinIcon,
+  ClockIcon,
+  PencilIcon,
+  TrashIcon,
+  MinusIcon,
+  PlusIcon,
+  CheckIcon,
+} from '@heroicons/react/24/outline';
 import type { Donation } from '../_mock';
 import ReservationModal from './ReservationModal';
 import { useTheme } from '../hooks/useTheme';
+import StarRating from './reviews/StarRating';
+import { computeAggregate } from '../services/reviewsService';
+import CommentPreview from './comments/CommentPreview';
+import StockEditModal, { type StockEditPayload } from './StockEditModal';
 
 interface DonationCardProps {
   donation: Donation;
   onReserve: (id: string, amount: number) => void;
   canReserve?: boolean;
+  mode?: 'feed' | 'inventory' | 'profile';
+  onEdit?: (id: string, payload: StockEditPayload) => void;
+  onDelete?: (id: string) => void;
+  onQuantityChange?: (id: string, qty: number) => void;
+  onStatusChange?: (id: string, status: 'Available' | 'Reserved') => void;
+  onCardClick?: (donation: Donation) => void;
 }
 
-const DonationCard: React.FC<DonationCardProps> = ({ donation, onReserve, canReserve = true }) => {
+const DonationCard: React.FC<DonationCardProps> = ({
+  donation,
+  onReserve,
+  canReserve = true,
+  mode = 'feed',
+  onEdit,
+  onDelete,
+  onQuantityChange,
+  onStatusChange,
+  onCardClick,
+}) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [editOpen, setEditOpen] = useState(false);
+  const [draftQty, setDraftQty] = useState<number | string>(donation.quantity);
   const { theme } = useTheme();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -24,6 +57,8 @@ const DonationCard: React.FC<DonationCardProps> = ({ donation, onReserve, canRes
     return { bg: 'bg-gray-500/80', text: 'text-white' };
   };
 
+  const stockAggregate = useMemo(() => computeAggregate('stock', donation.id), [donation.id]);
+
   const isReserved = donation.status === 'Reserved';
   const isAvailable = donation.status === 'Available';
   const expiration = new Date(donation.expirationDate).getTime();
@@ -31,9 +66,31 @@ const DonationCard: React.FC<DonationCardProps> = ({ donation, onReserve, canRes
   const isExpiringSoon = daysLeft <= 1 && daysLeft >= 0;
   const catColors = getCategoryColor(donation.category);
 
+  const navigateToStock = () => {
+    const base = location.pathname.startsWith('/receiver')
+      ? '/receiver'
+      : location.pathname.startsWith('/admin')
+      ? '/admin'
+      : '/donor';
+    navigate(`${base}/stock/${donation.id}`);
+  };
+
+  const showCommentPreview = mode === 'feed' || mode === 'profile';
+  const showReserveSlide = mode === 'feed';
+  const isInventory = mode === 'inventory';
+  const draftQtyNum = Number(draftQty);
+  const hasQtyChange = !isNaN(draftQtyNum) && draftQtyNum !== donation.quantity;
+
+  const handleCardClick = () => {
+    if (onCardClick) onCardClick(donation);
+    else if (mode !== 'inventory') navigateToStock();
+  };
+
   return (
     <>
-      <div className={`group relative rounded-lg overflow-hidden flex flex-col transition-colors
+      <div
+        onClick={handleCardClick}
+        className={`group relative rounded-lg overflow-hidden flex flex-col transition-colors cursor-pointer
         ${theme === 'light'
           ? 'bg-white border border-gray-200'
           : 'bg-[#1a1a1a] border border-[#2e2e2e]'
@@ -75,12 +132,30 @@ const DonationCard: React.FC<DonationCardProps> = ({ donation, onReserve, canRes
             {donation.category}
           </span>
 
-          {/* Title */}
-          <h3 className={`text-lg font-bold leading-snug mb-1.5 ${
-            theme === 'light' ? 'text-[#1a1a1a]' : 'text-white'
-          }`} style={{ fontSize: '18px' }}>
-            {donation.title}
-          </h3>
+          {/* Title + rating */}
+          <div className="flex items-start justify-between gap-2 mb-1.5">
+            <h3
+              className={`text-lg font-bold leading-snug ${
+                theme === 'light' ? 'text-[#1a1a1a]' : 'text-white'
+              }`}
+              style={{ fontSize: '18px' }}
+            >
+              {donation.title}
+            </h3>
+            {stockAggregate.total > 0 && (
+              <div
+                className="shrink-0 mt-1"
+                title={`${stockAggregate.average.toFixed(1)} from ${stockAggregate.total} reviews`}
+              >
+                <StarRating
+                  value={stockAggregate.average}
+                  size="sm"
+                  showValue
+                  reviewCount={stockAggregate.total}
+                />
+              </div>
+            )}
+          </div>
 
           {/* Description */}
           <p className={`text-[13px] mb-3 line-clamp-2 leading-relaxed ${
@@ -90,16 +165,33 @@ const DonationCard: React.FC<DonationCardProps> = ({ donation, onReserve, canRes
           </p>
 
           {/* Donor row */}
-          <div className="flex items-center gap-2 mb-3">
-            <div className="w-6 h-6 rounded-full bg-[#16a34a] flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0">
-              {donation.pickupLocation.charAt(0)}
+          {donation.donorId ? (
+            <Link
+              to={`../donors/${donation.donorId}`}
+              className="flex items-center gap-2 mb-3 group/donor"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="w-6 h-6 rounded-full bg-[#16a34a] flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0">
+                {donation.pickupLocation.charAt(0)}
+              </div>
+              <p className={`text-xs font-medium truncate group-hover/donor:underline ${
+                theme === 'light' ? 'text-gray-500' : 'text-gray-400'
+              }`}>
+                from {donation.pickupLocation.split(',')[0]}
+              </p>
+            </Link>
+          ) : (
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-6 h-6 rounded-full bg-[#16a34a] flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0">
+                {donation.pickupLocation.charAt(0)}
+              </div>
+              <p className={`text-xs font-medium truncate ${
+                theme === 'light' ? 'text-gray-500' : 'text-gray-400'
+              }`}>
+                from {donation.pickupLocation.split(',')[0]}
+              </p>
             </div>
-            <p className={`text-xs font-medium truncate ${
-              theme === 'light' ? 'text-gray-500' : 'text-gray-400'
-            }`}>
-              from {donation.pickupLocation.split(',')[0]}
-            </p>
-          </div>
+          )}
 
           {/* Info rows */}
           <div className={`mt-auto space-y-2 pt-3 border-t ${
@@ -123,27 +215,145 @@ const DonationCard: React.FC<DonationCardProps> = ({ donation, onReserve, canRes
               </span>
             </div>
           </div>
+
+          {showCommentPreview && (
+            <CommentPreview
+              targetType="stock"
+              targetId={donation.id}
+              onSeeMore={navigateToStock}
+            />
+          )}
+
+          {isInventory && (
+            <div
+              className="flex items-center gap-2 mt-4 pt-3 border-t"
+              onClick={(e) => e.stopPropagation()}
+              style={{ borderColor: theme === 'light' ? '#f3f4f6' : '#2e2e2e' }}
+            >
+              <div
+                className={`flex-1 flex items-center justify-center gap-1 p-1.5 rounded-xl border ${
+                  theme === 'light' ? 'bg-gray-50 border-gray-200' : 'bg-[#262626] border-[#2e2e2e]'
+                }`}
+              >
+                <button
+                  type="button"
+                  onClick={() =>
+                    setDraftQty((q) => Math.max(0, (Number(q) || 0) - 1))
+                  }
+                  className={`p-1.5 rounded-lg transition-all ${
+                    theme === 'light'
+                      ? 'hover:bg-red-50 hover:text-red-600 text-gray-500'
+                      : 'hover:bg-red-900/30 hover:text-red-400 text-gray-400'
+                  }`}
+                  aria-label="Decrease quantity"
+                >
+                  <MinusIcon className="w-4 h-4" />
+                </button>
+                <input
+                  type="number"
+                  value={draftQty}
+                  onChange={(e) => setDraftQty(e.target.value)}
+                  className={`w-12 text-center font-bold text-sm bg-transparent focus:outline-none ${
+                    theme === 'light' ? 'text-[#1a1a1a]' : 'text-white'
+                  }`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setDraftQty((q) => (Number(q) || 0) + 1)}
+                  className={`p-1.5 rounded-lg transition-all ${
+                    theme === 'light'
+                      ? 'hover:bg-green-50 hover:text-green-600 text-gray-500'
+                      : 'hover:bg-green-900/30 hover:text-green-400 text-gray-400'
+                  }`}
+                  aria-label="Increase quantity"
+                >
+                  <PlusIcon className="w-4 h-4" />
+                </button>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  if (hasQtyChange) {
+                    onQuantityChange?.(donation.id, draftQtyNum);
+                  } else {
+                    setEditOpen(true);
+                  }
+                }}
+                className={`flex items-center justify-center p-2.5 rounded-xl transition-all active:scale-95 ${
+                  hasQtyChange
+                    ? 'bg-[#16a34a] text-white shadow-md shadow-green-500/20'
+                    : theme === 'light'
+                    ? 'bg-white border border-gray-200 hover:bg-gray-50 text-gray-500'
+                    : 'bg-[#262626] border border-[#2e2e2e] hover:bg-gray-800 text-gray-400'
+                }`}
+                aria-label={hasQtyChange ? 'Save quantity' : 'Edit'}
+              >
+                {hasQtyChange ? (
+                  <CheckIcon className="w-4 h-4" />
+                ) : (
+                  <PencilIcon className="w-4 h-4" />
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() =>
+                  onStatusChange?.(donation.id, isAvailable ? 'Reserved' : 'Available')
+                }
+                title={isAvailable ? 'Mark as Reserved' : 'Mark as Available'}
+                className={`px-3 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all active:scale-95 ${
+                  isAvailable
+                    ? theme === 'light'
+                      ? 'bg-amber-50 text-amber-600 hover:bg-amber-100'
+                      : 'bg-amber-900/30 text-amber-300 hover:bg-amber-900/50'
+                    : theme === 'light'
+                    ? 'bg-green-50 text-green-600 hover:bg-green-100'
+                    : 'bg-green-900/30 text-green-300 hover:bg-green-900/50'
+                }`}
+              >
+                {isAvailable ? 'Reserve' : 'Free'}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => onDelete?.(donation.id)}
+                className={`flex items-center justify-center p-2.5 rounded-xl transition-all active:scale-95 ${
+                  theme === 'light'
+                    ? 'bg-white border border-gray-200 hover:bg-red-50 hover:text-red-600 text-gray-500'
+                    : 'bg-[#262626] border border-[#2e2e2e] hover:bg-red-900/30 hover:text-red-400 text-gray-400'
+                }`}
+                aria-label="Delete"
+              >
+                <TrashIcon className="w-4 h-4" />
+              </button>
+            </div>
+          )}
         </div>
 
-        {/* Slide-up Reserve button on hover */}
-        <div className={`absolute bottom-0 inset-x-0 p-4 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out border-t ${
-          theme === 'light' ? 'bg-white border-gray-200' : 'bg-[#1a1a1a] border-[#2e2e2e]'
-        }`}>
-          <button
-            onClick={() => canReserve && setIsModalOpen(true)}
-            disabled={isReserved || !canReserve}
-            title={!canReserve ? 'Only receiver organizations can reserve donations' : undefined}
-            className={`w-full py-2.5 rounded-full font-semibold text-sm transition-all active:scale-[0.98] ${
-              isReserved || !canReserve
-                ? theme === 'light'
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                  : 'bg-gray-800 text-gray-500 cursor-not-allowed'
-                : 'bg-[#16a34a] text-white hover:bg-[#15803d] shadow-md shadow-green-500/20'
+        {showReserveSlide && (
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className={`absolute bottom-0 inset-x-0 p-4 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out border-t ${
+              theme === 'light' ? 'bg-white border-gray-200' : 'bg-[#1a1a1a] border-[#2e2e2e]'
             }`}
           >
-            {isReserved ? 'Already Reserved' : !canReserve ? 'Donors cannot reserve' : 'Reserve Now'}
-          </button>
-        </div>
+            <button
+              onClick={() => canReserve && setIsModalOpen(true)}
+              disabled={isReserved || !canReserve}
+              title={!canReserve ? 'Only receiver organizations can reserve donations' : undefined}
+              className={`w-full py-2.5 rounded-full font-semibold text-sm transition-all active:scale-[0.98] ${
+                isReserved || !canReserve
+                  ? theme === 'light'
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'bg-gray-800 text-gray-500 cursor-not-allowed'
+                  : 'bg-[#16a34a] text-white hover:bg-[#15803d] shadow-md shadow-green-500/20'
+              }`}
+            >
+              {isReserved ? 'Already Reserved' : !canReserve ? 'Donors cannot reserve' : 'Reserve Now'}
+            </button>
+          </div>
+        )}
 
         {/* Expiry urgency bar */}
         {isExpiringSoon && (
@@ -151,11 +361,21 @@ const DonationCard: React.FC<DonationCardProps> = ({ donation, onReserve, canRes
         )}
       </div>
 
-      <ReservationModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
+      <ReservationModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
         donation={donation}
         onReserve={onReserve}
+      />
+
+      <StockEditModal
+        isOpen={editOpen}
+        donation={donation}
+        onClose={() => setEditOpen(false)}
+        onSave={(payload) => {
+          onEdit?.(donation.id, payload);
+          setEditOpen(false);
+        }}
       />
     </>
   );

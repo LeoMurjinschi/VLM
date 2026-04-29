@@ -45,13 +45,15 @@ import AdminSignups from './pages/admin/AdminSignups';
 import AdminReviews from './pages/admin/AdminReviews';
 import { useTheme } from './hooks/useTheme';
 
-import Dashboard from './pages/Dashboard';
 import MyPickups from './pages/MyPickUps';
 import ReservationHistory from './pages/ReservationHistory';
 import FeedbackRating from './pages/FeedbackRating';
 import SafetyGuide from './pages/SafetyGuide';
 import NotificationHistory from './pages/NotificationHistory';
 import Messages from './pages/Messages';
+import DonorProfile from './pages/DonorProfile';
+import StockDetail from './pages/StockDetail';
+import UserProfilePage from './pages/UserProfilePage';
 
 // === COMPONENTĂ NOUĂ PENTRU NOTIFICĂRI PREMIUM ===
 
@@ -123,6 +125,9 @@ function App() {
                   <Route path="settings" element={<Settings />} />
                   <Route path="messages" element={<Messages />} />
                   <Route path="notifications" element={<NotificationHistory />} />
+                  <Route path="donors/:donorId" element={<DonorProfile />} />
+                  <Route path="stock/:stockId" element={<StockDetail />} />
+                  <Route path="profile" element={<UserProfilePage />} />
                   <Route path="*" element={<div className="p-10 text-center text-gray-500 font-bold">Page under construction 🚧</div>} />
                 </Route>
 
@@ -135,8 +140,8 @@ function App() {
                  </ProtectedRoute>
             }
 >
-                  <Route index element={<Navigate to="dashboard" replace />} />
-                  <Route path="dashboard" element={<Dashboard />} />
+                  <Route index element={<Navigate to="feed" replace />} />
+                  <Route path="feed" element={<DonationFeed />} />
                   <Route path="pickups" element={<MyPickups />} />
                   <Route path="history" element={<ReservationHistory />} />
                   <Route path="messages" element={<Messages />} />
@@ -144,7 +149,10 @@ function App() {
                   <Route path="feedback" element={<FeedbackRating />} />
                   <Route path="safety" element={<SafetyGuide />} />
                   <Route path="settings" element={<Settings />} />
-                  
+                  <Route path="donors/:donorId" element={<DonorProfile />} />
+                  <Route path="stock/:stockId" element={<StockDetail />} />
+                  <Route path="profile" element={<UserProfilePage />} />
+
                   {/* 404 Fallback pentru Receiver */}
                   <Route path="*" element={<Navigate to="dashboard" replace />} />
                 </Route>
@@ -166,6 +174,7 @@ function App() {
                   <Route path="reviews" element={<AdminReviews />} />
                   <Route path="messages" element={<Messages />} />
                   <Route path="notifications" element={<NotificationHistory />} />
+                  <Route path="profile" element={<UserProfilePage />} />
                   <Route path="*" element={<Navigate to="dashboard" replace />} />
                 </Route>
 
