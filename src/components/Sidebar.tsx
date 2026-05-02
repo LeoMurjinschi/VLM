@@ -1,12 +1,12 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
-  Squares2X2Icon, 
-  ClockIcon, 
-  ExclamationTriangleIcon, 
-  StarIcon, 
-  BookOpenIcon, 
-  Cog8ToothIcon, 
+  Squares2X2Icon,
+  ClockIcon,
+  ExclamationTriangleIcon,
+  StarIcon,
+  BookOpenIcon,
+  Cog8ToothIcon,
   XMarkIcon,
   HomeIcon,
   PlusCircleIcon,
@@ -14,7 +14,8 @@ import {
   ClipboardDocumentListIcon,
   ChatBubbleLeftRightIcon,
   SunIcon,
-  MoonIcon
+  MoonIcon,
+  TruckIcon,
 } from '@heroicons/react/24/outline';
 import { useTheme } from '../hooks/useTheme';
 
@@ -45,6 +46,7 @@ const donorNavigation: NavItem[] = [
   { name: 'Dashboard', href: '/donor/dashboard', icon: Squares2X2Icon },
   { name: 'Add Stock', href: '/donor/add-stock', icon: PlusCircleIcon },
   { name: 'Inventory', href: '/donor/inventory', icon: ArchiveBoxIcon },
+  { name: 'Pickup Manager', href: '/donor/pickups', icon: TruckIcon },
   { name: 'Impact Reports', href: '/donor/reports', icon: ClipboardDocumentListIcon },
   { name: 'Settings', href: '/donor/settings', icon: Cog8ToothIcon },
 ];

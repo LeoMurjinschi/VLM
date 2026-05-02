@@ -7,13 +7,15 @@ import { toast } from 'react-toastify';
 import EmptyBasketSVG from '../components/UI/EmptyBasketSVG';
 import { useInventory } from '../context/InventoryContext';
 import { useAuth } from '../context/AuthContext';
+import { useReservations } from '../context/ReservationContext';
 import StockDetailModal from '../components/StockDetailModal';
 import type { Donation } from '../_mock';
 
 const DonationFeed: React.FC = () => {
   const { theme } = useTheme();
-  const { donations, reserveStock } = useInventory();
+  const { donations } = useInventory();
   const { user } = useAuth();
+  const { createReservation } = useReservations();
 
   const isDonor = user?.role === 'donor';
 
@@ -66,14 +68,14 @@ const DonationFeed: React.FC = () => {
         return;
       }
       try {
-        reserveStock(id, amountReserved);
-        toast.success("Item reserved! You've secured nutrition for your community.");
+        createReservation(id, amountReserved);
+        toast.success("Reserved! The donor will confirm when it's ready for pickup.");
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Failed to reserve item';
         toast.error(message);
       }
     },
-    [isDonor, reserveStock]
+    [isDonor, createReservation]
   );
 
   const toggleCategory = useCallback((category: string) => {

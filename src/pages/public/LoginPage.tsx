@@ -44,7 +44,7 @@ const LoginPage = () => {
       } else if (user.role === 'donor') {
         navigate('/donor/dashboard');
       } else if (user.role === 'receiver') {
-        navigate('/receiver/dashboard');
+        navigate('/receiver/feed');
       }
     } else {
       setError('Invalid email or password. Please try again.');

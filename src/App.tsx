@@ -26,7 +26,9 @@ import 'react-toastify/dist/ReactToastify.css';
 
 // 2. Contextul pentru Temă
 import { ThemeProvider } from './context/ThemeContext';
-import { InventoryProvider } from './context/InventoryContext'; 
+import { InventoryProvider } from './context/InventoryContext';
+import { ReservationProvider } from './context/ReservationContext';
+import DonorPickupManager from './pages/DonorPickupManager';
 import ToastProvider from './components/UI/ToastProvider';
 import DashboardLayout from './layouts/DashboardLayout';
 import DonationFeed from './pages/DonationFeed';
@@ -90,6 +92,7 @@ function App() {
     <ThemeProvider>
       <AuthProvider>
         <InventoryProvider>
+          <ReservationProvider>
           <ToastProvider>
             <Router>
               <ScrollToTop />
@@ -128,12 +131,13 @@ function App() {
                   <Route path="donors/:donorId" element={<DonorProfile />} />
                   <Route path="stock/:stockId" element={<StockDetail />} />
                   <Route path="profile" element={<UserProfilePage />} />
+                  <Route path="pickups" element={<DonorPickupManager />} />
                   <Route path="*" element={<div className="p-10 text-center text-gray-500 font-bold">Page under construction 🚧</div>} />
                 </Route>
 
                 {/* === RUTELE TALE RECEIVER (ONG) === */}
                 <Route
-                     path="/receiver"
+                     path="/receiver/*"
                       element={
                     <ProtectedRoute allowedRoles={['receiver']}>
                         <ReceiverLayout />  {/* <-- Aici l-am pus! */}
@@ -154,7 +158,7 @@ function App() {
                   <Route path="profile" element={<UserProfilePage />} />
 
                   {/* 404 Fallback pentru Receiver */}
-                  <Route path="*" element={<Navigate to="feed" replace />} />
+                  <Route path="*" element={<Navigate to="/receiver/feed" replace />} />
                 </Route>
 
                 {/* === RUTELE ADMIN === */}
@@ -182,6 +186,7 @@ function App() {
               </Routes>
             </Router>
           </ToastProvider>
+          </ReservationProvider>
         </InventoryProvider>
       </AuthProvider>
     </ThemeProvider>
