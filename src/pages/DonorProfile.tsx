@@ -75,7 +75,14 @@ const DonorProfile: React.FC = () => {
       : location.pathname.startsWith('/admin')
       ? '/admin/messages'
       : '/donor/messages';
-    navigate(`${base}?to=${donorId}`);
+    navigate(base, {
+      state: {
+        openChatWith: {
+          name: profile?.name ?? donorId,
+          role: 'Donor',
+        },
+      },
+    });
   };
 
   if (!loading && !profile) {

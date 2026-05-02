@@ -50,6 +50,12 @@ const DonorDashboard: React.FC = () => {
     return stockStore.subscribe(loadStats);
   }, [loadStats]);
 
+  useEffect(() => {
+    if (!statsError) return;
+    const timer = setTimeout(loadStats, 5000);
+    return () => clearTimeout(timer);
+  }, [statsError, loadStats]);
+
 
   const handleSaveMilestone = useCallback((newMilestone: Milestone) => {
     if (editingMilestone) {

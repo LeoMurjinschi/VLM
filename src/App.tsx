@@ -154,7 +154,7 @@ function App() {
                   <Route path="profile" element={<UserProfilePage />} />
 
                   {/* 404 Fallback pentru Receiver */}
-                  <Route path="*" element={<Navigate to="dashboard" replace />} />
+                  <Route path="*" element={<Navigate to="feed" replace />} />
                 </Route>
 
                 {/* === RUTELE ADMIN === */}
