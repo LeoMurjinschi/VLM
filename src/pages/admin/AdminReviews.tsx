@@ -139,7 +139,7 @@ const AdminReviews: React.FC = () => {
   const confirmDelete = () => {
     if (reviewToDelete) {
       if (!deleteReason.trim()) {
-        toast.error('Please provide a reason for deletion.');
+        toast.error("Explain why you're removing this review so we can improve moderation.");
         return;
       }
 
@@ -147,9 +147,9 @@ const AdminReviews: React.FC = () => {
         rev.id === reviewToDelete.id ? { ...rev, status: 'deleted', isRead: true } : rev
       ));
       
-      let toastMsg = 'Review deleted and Reviewer notified.';
-      if (issueWarning) toastMsg += ' Warning strike added.';
-      
+      let toastMsg = 'Inappropriate review removed. Reviewer has been notified.';
+      if (issueWarning) toastMsg += " They've been warned about community guidelines.";
+
       toast.success(toastMsg);
       setModalOpen(false);
       setReviewToDelete(null);
@@ -165,7 +165,7 @@ const AdminReviews: React.FC = () => {
   const confirmWarnTarget = () => {
     if (reviewToWarnTarget) {
       if (!targetWarningReason.trim()) {
-        toast.error('Please provide a reason for the warning.');
+        toast.error('Include a message explaining this warning so the user understands what they did wrong.');
         return;
       }
       
@@ -173,7 +173,7 @@ const AdminReviews: React.FC = () => {
         rev.id === reviewToWarnTarget.id ? { ...rev, isRead: true } : rev
       ));
       
-      toast.success(`Warning successfully sent to ${reviewToWarnTarget.targetName}. Review marked as read.`);
+      toast.success(`${reviewToWarnTarget.targetName} has been warned. Help them improve their behavior.`);
       setWarnTargetModalOpen(false);
       setReviewToWarnTarget(null);
     }

@@ -39,7 +39,7 @@ const AdminAccounts: React.FC = () => {
     if (!selectedAccount || !actionType) return;
 
     if (!actionMessage.trim()) {
-      toast.error('Please provide a message outlining the reason to the user.');
+      toast.error('Explain your decision to the user so they understand why their account is being ' + (actionType === 'deactivate' ? 'suspended.' : 'reactivated.'));
       return;
     }
 
@@ -47,7 +47,8 @@ const AdminAccounts: React.FC = () => {
     setAccounts(prev => prev.map(acc => 
       acc.id === selectedAccount.id ? { ...acc, status: newStatus as 'active' | 'inactive' } : acc
     ));
-    toast.success(`Account ${newStatus === 'active' ? 'reactivated' : 'suspended'}. Email notice sent to ${selectedAccount.email}.`);
+    const actionText = newStatus === 'active' ? 'reactivated and welcomed back' : 'suspended to maintain community standards';
+    toast.success(`Account ${actionText}. ${selectedAccount.email} has been notified.`);
 
     setModalOpen(false);
     setSelectedAccount(null);

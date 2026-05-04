@@ -45,20 +45,20 @@ const AdminSignups: React.FC = () => {
     setRequests(prev => prev.map(req => 
       req.id === id ? { ...req, status: newStatus } : req
     ));
-    toast.success(`Application for ${name} has been approved.`);
+    toast.success(`${name} is approved! They can start donating food to your community.`);
     setModalOpen(false);
   };
 
   const confirmDecline = () => {
     if (selectedRequest) {
       if (!declineReason.trim()) {
-        toast.error('Please provide a reason for rejecting the application.');
+        toast.error('Add a reason for declining this application so the organization understands your decision.');
         return;
       }
       setRequests(prev => prev.map(req => 
         req.id === selectedRequest.id ? { ...req, status: 'rejected' } : req
       ));
-      toast.success(`Rejection email sent to ${selectedRequest.email}.`);
+      toast.success(`Application declined. Notification sent to ${selectedRequest.email}.`);
       setDeclineModalOpen(false);
       setModalOpen(false);
     }
@@ -196,8 +196,13 @@ const AdminSignups: React.FC = () => {
             </tbody>
           </table>
           {displayRequests.length === 0 && (
-            <div className={`p-8 text-center text-sm ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>
-              No sign-up requests available in this view.
+            <div className={`p-8 text-center ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>
+              <p className="text-sm font-medium mb-1">
+                {viewMode === 'pending' ? 'All caught up! No pending reviews.' : 'No history records found.'}
+              </p>
+              {viewMode === 'pending' && (
+                <p className="text-xs">Check back soon for new organization applications.</p>
+              )}
             </div>
           )}
         </div>

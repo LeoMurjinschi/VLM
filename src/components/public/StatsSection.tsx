@@ -16,7 +16,7 @@ const StatsSection = () => {
                 index !== STATS.length - 1 ? 'lg:border-r lg:border-green-500' : ''
               }`}
             >
-              <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
+              <div className="p-3 bg-white/20 rounded-xl">
                 <stat.icon size={28} className="text-white"/>
               </div>
               

@@ -31,7 +31,7 @@ const CookiePage = () => {
               theme === 'light' ? 'bg-white border-gray-200' : 'bg-[#1a1a1a] border-[#2e2e2e]'
           }`}>
             <div className={`p-8 md:p-12 text-center text-white ${theme === 'light' ? 'bg-[#16a34a]' : 'bg-[#15803d]'}`}>
-              <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-6 backdrop-blur-sm">
+              <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-6">
                 <Cookie size={32} className="text-white" />
               </div>
               <h1 className="text-3xl md:text-4xl font-black mb-4">Cookie Policy</h1>

@@ -1,15 +1,10 @@
 import type { InventoryItem } from '../_mock';
-import { MOCK_INVENTORY } from '../_mock';
+import { stockStore } from './stockStore';
 
-const SIMULATED_LATENCY_MS = 800;
+const SIMULATED_LATENCY_MS = 400;
 
-const simulateRandomError = (): boolean => {
-  return Math.random() < 0.1;
-};
-
-const simulateNetworkDelay = (ms: number = SIMULATED_LATENCY_MS): Promise<void> => {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-};
+const simulateNetworkDelay = (ms: number = SIMULATED_LATENCY_MS): Promise<void> =>
+  new Promise((resolve) => setTimeout(resolve, ms));
 
 export const fetchInventory = async (
   filters: {
@@ -19,15 +14,11 @@ export const fetchInventory = async (
     sortBy?: string;
   },
   page: number = 1,
-  pageSize: number = 15
+  pageSize: number = 50
 ): Promise<InventoryItem[]> => {
   await simulateNetworkDelay();
 
-  if (simulateRandomError()) {
-    throw new Error('Failed to fetch inventory. Please try again later.');
-  }
-
-  let results = [...MOCK_INVENTORY];
+  let results = stockStore.getAll();
 
   if (filters.search && filters.search.trim()) {
     const query = filters.search.toLowerCase();
@@ -41,14 +32,13 @@ export const fetchInventory = async (
   if (filters.categories && filters.categories.length > 0) {
     results = results.filter((item) => filters.categories!.includes(item.category));
   }
+
   if (filters.status && filters.status !== 'All') {
     results = results.filter((item) => item.status === filters.status);
   }
 
   if (filters.sortBy) {
-    if (filters.sortBy === 'newest') {
-
-    } else if (filters.sortBy === 'oldest') {
+    if (filters.sortBy === 'oldest') {
       results = results.reverse();
     } else if (filters.sortBy === 'expiring_soon') {
       results.sort(
@@ -64,21 +54,14 @@ export const fetchInventory = async (
     }
   }
 
-
   const startIndex = (page - 1) * pageSize;
-  const endIndex = startIndex + pageSize;
-
-  return results.slice(startIndex, endIndex);
+  return results.slice(startIndex, startIndex + pageSize);
 };
 
 export const addInventoryItem = async (
   item: Omit<InventoryItem, 'id' | 'status'>
 ): Promise<InventoryItem> => {
-  await simulateNetworkDelay(600);
-
-  if (simulateRandomError()) {
-    throw new Error('Failed to add inventory item. Please try again later.');
-  }
+  await simulateNetworkDelay(300);
 
   const newItem: InventoryItem = {
     ...item,
@@ -86,44 +69,28 @@ export const addInventoryItem = async (
     status: 'In Stock',
   };
 
-  return newItem;
+  return stockStore.add(newItem);
 };
 
 export const updateInventoryItem = async (
   id: string,
   updates: Partial<InventoryItem>
 ): Promise<InventoryItem> => {
-  await simulateNetworkDelay(600);
+  await simulateNetworkDelay(300);
 
-  if (simulateRandomError()) {
-    throw new Error('Failed to update inventory item. Please try again later.');
-  }
-
-
-  const updatedItem = MOCK_INVENTORY.find((item) => item.id === id);
-
-  if (!updatedItem) {
-    throw new Error('Inventory item not found');
-  }
-
-  return { ...updatedItem, ...updates };
+  const updated = stockStore.update(id, updates);
+  if (!updated) throw new Error('Inventory item not found');
+  return updated;
 };
 
-
-export const deleteInventoryItem = async (_id: string): Promise<boolean> => {
-  await simulateNetworkDelay(500);
-
-  if (simulateRandomError()) {
-    throw new Error('Failed to delete inventory item. Please try again later.');
-  }
-
- 
+export const deleteInventoryItem = async (id: string): Promise<boolean> => {
+  await simulateNetworkDelay(300);
+  stockStore.remove(id);
   return true;
 };
 
 export const fetchInventoryCategories = async (): Promise<string[]> => {
-  await simulateNetworkDelay(300);
-
+  await simulateNetworkDelay(200);
   return ['Vegetables', 'Fruits', 'Bakery', 'Cooked Food', 'Dairy'];
 };
 
@@ -133,16 +100,13 @@ export const getInventoryStats = async (): Promise<{
   expiredCount: number;
   totalQuantity: number;
 }> => {
-  await simulateNetworkDelay(400);
+  await simulateNetworkDelay(200);
 
-  const lowStockCount = MOCK_INVENTORY.filter((item) => item.status === 'Low Stock').length;
-  const expiredCount = MOCK_INVENTORY.filter((item) => item.status === 'Expired').length;
-  const totalQuantity = MOCK_INVENTORY.reduce((sum, item) => sum + item.quantity, 0);
-
+  const all = stockStore.getAll();
   return {
-    totalItems: MOCK_INVENTORY.length,
-    lowStockCount,
-    expiredCount,
-    totalQuantity,
+    totalItems: all.length,
+    lowStockCount: all.filter((i) => i.status === 'Low Stock').length,
+    expiredCount: all.filter((i) => i.status === 'Expired').length,
+    totalQuantity: all.reduce((sum, i) => sum + i.quantity, 0),
   };
 };

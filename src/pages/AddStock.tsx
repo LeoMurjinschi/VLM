@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { PlusCircleIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 import { toast } from 'react-toastify';
 import Select from '../components/ui/Select';
@@ -7,6 +7,7 @@ import CustomDatePicker from '../components/ui/CustomDatePicker';
 import { useTheme } from '../hooks/useTheme';
 import { addInventoryItem } from '../services/inventoryService';
 import { useInventory } from '../context/InventoryContext';
+import { useAuth } from '../context/AuthContext';
 
 
 interface FormState {
@@ -36,8 +37,11 @@ const UNITS = [
   { value: 'boxes', label: 'boxes' },
 ];
 
+const DECIMAL_UNITS = new Set(['kg']);
+
 const AddStock: React.FC = () => {
   const { theme } = useTheme();
+  const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
   const { addStock } = useInventory();
@@ -52,6 +56,9 @@ const AddStock: React.FC = () => {
     image: '',
   });
 
+  const allowsDecimal = useMemo(() => DECIMAL_UNITS.has(formState.unit), [formState.unit]);
+  const unitSelected = formState.unit !== '';
+
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       const { name, value } = e.target;
@@ -63,42 +70,81 @@ const AddStock: React.FC = () => {
     []
   );
 
+  const handleQuantityChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const raw = e.target.value;
+      if (raw === '') {
+        setFormState((prev) => ({ ...prev, quantity: '' }));
+        return;
+      }
+      if (DECIMAL_UNITS.has(formState.unit)) {
+        // allow digits + one decimal point
+        if (/^\d*\.?\d*$/.test(raw)) {
+          setFormState((prev) => ({ ...prev, quantity: raw }));
+        }
+      } else {
+        // integer only
+        if (/^\d+$/.test(raw)) {
+          setFormState((prev) => ({ ...prev, quantity: raw }));
+        }
+      }
+    },
+    [formState.unit]
+  );
+
   const handleSelectChange = useCallback((field: keyof FormState, value: string) => {
-    setFormState((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+    setFormState((prev) => {
+      const next = { ...prev, [field]: value };
+      // If the unit changes to integer-only and quantity contains a decimal, strip it
+      if (field === 'unit' && !DECIMAL_UNITS.has(value) && prev.quantity.includes('.')) {
+        next.quantity = prev.quantity.split('.')[0];
+      }
+      return next;
+    });
   }, []);
 
- 
-  const hasError = useCallback((field: keyof FormState): boolean => {
-    if (!hasAttemptedSubmit) return false;
-    if (field === 'image') return false; 
-    if (typeof formState[field] === 'string') {
-      return !formState[field].toString().trim();
-    }
-    return !formState[field];
-  }, [hasAttemptedSubmit, formState]);
+  const hasError = useCallback(
+    (field: keyof FormState): boolean => {
+      if (!hasAttemptedSubmit) return false;
+      if (field === 'image') return false;
+      if (typeof formState[field] === 'string') {
+        return !formState[field].toString().trim();
+      }
+      return !formState[field];
+    },
+    [hasAttemptedSubmit, formState]
+  );
 
+  const getInputClass = useCallback(
+    (field: keyof FormState, opts: { disabled?: boolean } = {}) => {
+      const isError = hasError(field);
+      const baseClass =
+        'w-full px-4 py-3.5 border rounded-xl transition-all duration-200 font-medium focus:outline-none focus:ring-2 focus:ring-[#16a34a]/30 focus:border-[#16a34a]';
 
-  const getInputClass = useCallback((field: keyof FormState) => {
-    const isError = hasError(field);
-    const baseClass = "w-full px-4 py-3.5 border rounded-xl transition-all duration-200 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-opacity-100";
-    
-    if (isError) {
-      return `${baseClass} border-red-500 ring-1 ring-red-500 ${
-        theme === 'light' 
-          ? 'bg-red-50 text-red-900 placeholder-red-300' 
-          : 'bg-red-900/20 text-red-200 placeholder-red-400'
+      if (opts.disabled) {
+        return `${baseClass} cursor-not-allowed ${
+          theme === 'light'
+            ? 'bg-gray-100 border-gray-200 text-gray-400 placeholder-gray-300'
+            : 'bg-gray-800 border-gray-700 text-gray-500 placeholder-gray-600'
+        }`;
+      }
+
+      if (isError) {
+        return `${baseClass} border-red-500 ring-1 ring-red-500 ${
+          theme === 'light'
+            ? 'bg-red-50 text-red-900 placeholder-red-300'
+            : 'bg-red-900/20 text-red-200 placeholder-red-400'
+        }`;
+      }
+
+      return `${baseClass} ${
+        theme === 'light'
+          ? 'bg-white border-gray-200 text-gray-900 placeholder-gray-400 hover:border-[#16a34a]/40'
+          : 'bg-[#1a1a1a] border-[#2e2e2e] text-gray-100 placeholder-gray-500 hover:border-[#16a34a]/40'
       }`;
-    }
-    
-    return `${baseClass} ${
-      theme === 'light' 
-        ? 'bg-white border-gray-200 text-gray-900 placeholder-gray-400 hover:border-gray-300' 
-        : 'bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-500 hover:border-gray-500'
-    }`;
-  }, [theme, hasError]);
+    },
+    [theme, hasError]
+  );
 
   const resetForm = useCallback(() => {
     setFormState({
@@ -114,97 +160,121 @@ const AddStock: React.FC = () => {
     setHasAttemptedSubmit(false);
   }, []);
 
-  
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      setHasAttemptedSubmit(true);
 
-const handleSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setHasAttemptedSubmit(true);
+      if (
+        !formState.title.trim() ||
+        !formState.category ||
+        !formState.unit ||
+        !formState.quantity ||
+        !formState.pickupLocation.trim() ||
+        !formState.expirationDate ||
+        !formState.description.trim()
+      ) {
+        toast.error('Please complete all fields. Recipients need this info to plan their pickup.');
+        return;
+      }
 
-    if (
-      !formState.title.trim() ||
-      !formState.category ||
-      !formState.quantity ||
-      !formState.unit ||
-      !formState.pickupLocation.trim() ||
-      !formState.expirationDate ||
-      !formState.description.trim()
-    ) {
-      toast.error('Please fill in all required fields');
-      return;
-    }
+      const qty = parseFloat(formState.quantity);
+      if (!Number.isFinite(qty) || qty <= 0) {
+        toast.error("Enter a quantity greater than 0. Let us know how much you're donating!");
+        return;
+      }
 
-    if (parseFloat(formState.quantity) <= 0) {
-      toast.error('Quantity must be greater than 0');
-      return;
-    }
+      if (!DECIMAL_UNITS.has(formState.unit) && !Number.isInteger(qty)) {
+        toast.error(`Quantity for ${formState.unit} must be a whole number.`);
+        return;
+      }
 
-    setIsSubmitting(true);
+      setIsSubmitting(true);
 
-    try {
+      try {
+        const newStock = await addInventoryItem({
+          title: formState.title,
+          description: formState.description,
+          category: formState.category,
+          quantity: qty,
+          unit: formState.unit,
+          donorId: user?.id,
+          pickupLocation: formState.pickupLocation,
+          expirationDate: new Date(formState.expirationDate).toISOString(),
+          image:
+            formState.image ||
+            'https://images.unsplash.com/photo-1488459716781-6f3ee109e5e4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+          addedAt: 'Just now',
+        });
 
-      const newStock = await addInventoryItem({
-        title: formState.title,
-        description: formState.description,
-        category: formState.category,
-        quantity: parseFloat(formState.quantity),
-        unit: formState.unit,
-        pickupLocation: formState.pickupLocation,
-        expirationDate: new Date(formState.expirationDate).toISOString(),
-        image: formState.image || 'https://images.unsplash.com/photo-1488459716781-6f3ee109e5e4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-        addedAt: 'Just now',
-      });
+        addStock(newStock);
 
-
-      addStock(newStock);
-
-      toast.success('Stock added successfully! 🎉');
-      resetForm();
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to add stock. Please try again.';
-      toast.error(message);
-    } finally {
-      setIsSubmitting(false);
-    }
-  }, [formState, addStock, resetForm]);
+        toast.success('Your donation is live! Food seekers can now reserve this item.');
+        resetForm();
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Failed to add stock. Please try again.';
+        toast.error(message);
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    [formState, addStock, resetForm]
+  );
 
   return (
-    <div className={`min-h-screen py-8 md:py-12 px-4 md:px-6 ${
-      theme === 'light' ? 'bg-gray-50' : 'bg-gray-900'
-    }`}>
+    <div
+      className={`min-h-screen py-8 md:py-12 px-4 md:px-6 ${
+        theme === 'light' ? 'bg-gray-50' : 'bg-[#141414]'
+      }`}
+    >
       <div className="max-w-3xl mx-auto animate-fade-in-up">
-
         <div className="mb-8 md:mb-10">
           <div className="flex items-center gap-3 mb-3">
-            <div className={`p-2.5 rounded-xl ${
-              theme === 'light' ? 'bg-blue-100' : 'bg-blue-900/40'
-            }`}>
-              <PlusCircleIcon className="w-7 h-7 md:w-8 md:h-8 text-blue-600" />
+            <div
+              className={`p-2.5 rounded-xl ${
+                theme === 'light' ? 'bg-[#16a34a]/10' : 'bg-[#16a34a]/20'
+              }`}
+            >
+              <PlusCircleIcon className="w-7 h-7 md:w-8 md:h-8 text-[#16a34a]" />
             </div>
-            <h1 className={`text-3xl md:text-4xl font-extrabold ${
-              theme === 'light' ? 'text-gray-900' : 'text-gray-100'
-            }`}>
+            <h1
+              className={`text-3xl md:text-4xl font-extrabold ${
+                theme === 'light' ? 'text-gray-900' : 'text-gray-100'
+              }`}
+            >
               Add New Stock
             </h1>
           </div>
-          <p className={`ml-12 md:ml-12.5 text-base md:text-lg leading-relaxed ${
-            theme === 'light' ? 'text-gray-500' : 'text-gray-400'
-          }`}>
+          <p
+            className={`ml-12 text-base md:text-lg leading-relaxed ${
+              theme === 'light' ? 'text-gray-500' : 'text-gray-400'
+            }`}
+          >
             Enter the details of the surplus food you want to donate.
           </p>
         </div>
 
-        <div className={`rounded-2xl border shadow-sm overflow-hidden transition-all ${
-          theme === 'light'
-            ? 'bg-white border-gray-100'
-            : 'bg-gray-900 border-gray-700'
-        }`}>
+        <div
+          className={`rounded-2xl border shadow-sm overflow-hidden transition-all ${
+            theme === 'light'
+              ? 'bg-white border-gray-100'
+              : 'bg-[#1a1a1a] border-[#2e2e2e]'
+          }`}
+        >
           <form onSubmit={handleSubmit} className="p-6 md:p-8 space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-  
               <div className="md:col-span-2">
-                <label htmlFor="title" className={`block text-sm font-semibold mb-2.5 ${theme === 'light' ? 'text-gray-800' : 'text-gray-200'}`}>
+                <label
+                  htmlFor="title"
+                  className={`block text-sm font-semibold mb-2.5 ${
+                    theme === 'light' ? 'text-gray-800' : 'text-gray-200'
+                  }`}
+                >
                   Item Title <span className="text-red-500">*</span>
                 </label>
+                <p className={`text-xs mb-2 ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>
+                  Be specific so recipients know exactly what you're donating
+                </p>
                 <input
                   type="text"
                   id="title"
@@ -216,53 +286,80 @@ const handleSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => 
                 />
               </div>
 
-              <div>
-                <label htmlFor="category" className={`block text-sm font-semibold mb-2.5 ${theme === 'light' ? 'text-gray-800' : 'text-gray-200'}`}>
+              <div className="relative z-30">
+                <label
+                  className={`block text-sm font-semibold mb-2.5 ${
+                    theme === 'light' ? 'text-gray-800' : 'text-gray-200'
+                  }`}
+                >
                   Category <span className="text-red-500">*</span>
                 </label>
-                <div className="relative z-20">
-                  <Select
-                    options={CATEGORIES}
-                    value={formState.category}
-                    onChange={(value) => handleSelectChange('category', value)}
-                    hasError={hasError('category')}
-                  />
-                </div>
+                <Select
+                  options={CATEGORIES}
+                  value={formState.category}
+                  onChange={(value) => handleSelectChange('category', value)}
+                  hasError={hasError('category')}
+                />
               </div>
 
-              <div>
-                <label htmlFor="quantity" className={`block text-sm font-semibold mb-2.5 ${theme === 'light' ? 'text-gray-800' : 'text-gray-200'}`}>
-                  Quantity <span className="text-red-500">*</span>
+              <div className="relative z-30">
+                <label
+                  className={`block text-sm font-semibold mb-2.5 ${
+                    theme === 'light' ? 'text-gray-800' : 'text-gray-200'
+                  }`}
+                >
+                  Unit <span className="text-red-500">*</span>
                 </label>
-                <input
-                  type="number"
-                  id="quantity"
-                  name="quantity"
-                  value={formState.quantity}
-                  onChange={handleInputChange}
-                  placeholder="0"
-                  min="0"
-                  step="0.1"
-                  className={getInputClass('quantity')}
+                <Select
+                  options={UNITS}
+                  value={formState.unit}
+                  onChange={(value) => handleSelectChange('unit', value)}
+                  hasError={hasError('unit')}
                 />
               </div>
 
               <div>
-                <label htmlFor="unit" className={`block text-sm font-semibold mb-2.5 ${theme === 'light' ? 'text-gray-800' : 'text-gray-200'}`}>
-                  Unit <span className="text-red-500">*</span>
+                <label
+                  htmlFor="quantity"
+                  className={`block text-sm font-semibold mb-2.5 ${
+                    theme === 'light' ? 'text-gray-800' : 'text-gray-200'
+                  }`}
+                >
+                  Quantity <span className="text-red-500">*</span>
                 </label>
-                <div className="relative z-10">
-                  <Select
-                    options={UNITS}
-                    value={formState.unit}
-                    onChange={(value) => handleSelectChange('unit', value)}
-                    hasError={hasError('unit')}
-                  />
-                </div>
+                <input
+                  type="text"
+                  inputMode={allowsDecimal ? 'decimal' : 'numeric'}
+                  id="quantity"
+                  name="quantity"
+                  value={formState.quantity}
+                  onChange={handleQuantityChange}
+                  disabled={!unitSelected}
+                  placeholder={
+                    !unitSelected
+                      ? 'Select a unit first'
+                      : allowsDecimal
+                      ? '0.0'
+                      : '0'
+                  }
+                  className={getInputClass('quantity', { disabled: !unitSelected })}
+                />
+                {unitSelected && (
+                  <p className={`text-xs mt-1.5 ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>
+                    {allowsDecimal
+                      ? 'Decimals allowed (e.g., 1.5 kg)'
+                      : `Whole numbers only (e.g., 10 ${formState.unit})`}
+                  </p>
+                )}
               </div>
 
               <div>
-                <label htmlFor="pickupLocation" className={`block text-sm font-semibold mb-2.5 ${theme === 'light' ? 'text-gray-800' : 'text-gray-200'}`}>
+                <label
+                  htmlFor="pickupLocation"
+                  className={`block text-sm font-semibold mb-2.5 ${
+                    theme === 'light' ? 'text-gray-800' : 'text-gray-200'
+                  }`}
+                >
                   Pickup Location <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -276,17 +373,19 @@ const handleSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => 
                 />
               </div>
 
-              <div>
-                <label htmlFor="expirationDate" className={`block text-sm font-semibold mb-2.5 ${theme === 'light' ? 'text-gray-800' : 'text-gray-200'}`}>
+              <div className="relative z-10">
+                <label
+                  className={`block text-sm font-semibold mb-2.5 ${
+                    theme === 'light' ? 'text-gray-800' : 'text-gray-200'
+                  }`}
+                >
                   Expiration Date <span className="text-red-500">*</span>
                 </label>
-                <div className="relative z-10">
-                  <CustomDatePicker
-                    value={formState.expirationDate}
-                    onChange={(val) => handleSelectChange('expirationDate', val)}
-                    hasError={hasError('expirationDate')}
-                  />
-                </div>
+                <CustomDatePicker
+                  value={formState.expirationDate}
+                  onChange={(val) => handleSelectChange('expirationDate', val)}
+                  hasError={hasError('expirationDate')}
+                />
               </div>
 
               <div className="md:col-span-2">
@@ -298,7 +397,12 @@ const handleSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => 
               </div>
 
               <div className="md:col-span-2">
-                <label htmlFor="description" className={`block text-sm font-semibold mb-2.5 ${theme === 'light' ? 'text-gray-800' : 'text-gray-200'}`}>
+                <label
+                  htmlFor="description"
+                  className={`block text-sm font-semibold mb-2.5 ${
+                    theme === 'light' ? 'text-gray-800' : 'text-gray-200'
+                  }`}
+                >
                   Description <span className="text-red-500">*</span>
                 </label>
                 <textarea
@@ -313,9 +417,11 @@ const handleSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => 
               </div>
             </div>
 
-            <div className={`flex gap-3 justify-end pt-6 border-t ${
-              theme === 'light' ? 'border-gray-100' : 'border-gray-700'
-            }`}>
+            <div
+              className={`flex gap-3 justify-end pt-6 border-t ${
+                theme === 'light' ? 'border-gray-100' : 'border-[#2e2e2e]'
+              }`}
+            >
               <button
                 type="button"
                 onClick={resetForm}
@@ -323,7 +429,7 @@ const handleSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => 
                 className={`px-6 py-3 border font-semibold rounded-xl transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed ${
                   theme === 'light'
                     ? 'border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300'
-                    : 'border-gray-600 text-gray-300 hover:bg-gray-700 hover:border-gray-500'
+                    : 'border-[#2e2e2e] text-gray-300 hover:bg-[#222222] hover:border-gray-600'
                 }`}
               >
                 Clear
@@ -332,11 +438,11 @@ const handleSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => 
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="flex items-center gap-2.5 px-6 py-3 font-semibold rounded-xl transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed btn-primary"
+                className="flex items-center gap-2.5 px-6 py-3 font-semibold rounded-xl transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed bg-[#16a34a] hover:bg-green-700 text-white shadow-md shadow-[#16a34a]/20"
               >
                 {isSubmitting ? (
                   <>
-                    <div className="w-5 h-5 border-2.5 border-white border-t-transparent rounded-full animate-spin" />
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                     <span>Adding...</span>
                   </>
                 ) : (
@@ -353,7 +459,5 @@ const handleSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => 
     </div>
   );
 };
-
-
 
 export default AddStock;
