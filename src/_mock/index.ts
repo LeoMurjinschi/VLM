@@ -160,6 +160,7 @@ export interface Donation {
   image: string;
   quantity: number;
   unit: string;
+  donorId?: string;
 }
 
 export const MOCK_DONATIONS: Donation[] = [
@@ -176,6 +177,7 @@ export const MOCK_DONATIONS: Donation[] = [
     image: 'https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     quantity: 15,
     unit: 'kg',
+    donorId: 'donor1',
   },
   {
     id: '2',
@@ -189,6 +191,7 @@ export const MOCK_DONATIONS: Donation[] = [
     image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     quantity: 20,
     unit: 'pieces',
+    donorId: 'donor2',
   },
   {
     id: '3',
@@ -202,6 +205,7 @@ export const MOCK_DONATIONS: Donation[] = [
     image: 'https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     quantity: 50,
     unit: 'kg',
+    donorId: 'donor1',
   },
   {
     id: '4',
@@ -216,6 +220,7 @@ export const MOCK_DONATIONS: Donation[] = [
     image: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     quantity: 12,
     unit: 'plates',
+    donorId: 'donor1',
   },
 ];
 
@@ -233,11 +238,13 @@ export interface InventoryItem {
   image: string;
   addedAt: string;
   status: 'In Stock' | 'Low Stock' | 'Expired';
+  donorId?: string;
 }
 
 export const MOCK_INVENTORY: InventoryItem[] = [
   {
     id: 'inv_1',
+    donorId: 'donor1',
     title: 'Fresh Organic Carrots',
     description:
       'High quality organic carrots from our farm. Perfect for soups, salads, and juicing. Stored in cool conditions.',
@@ -252,6 +259,7 @@ export const MOCK_INVENTORY: InventoryItem[] = [
   },
   {
     id: 'inv_2',
+    donorId: 'donor2',
     title: 'Artisan Sourdough Bread',
     description:
       'Traditional sourdough baked fresh daily. Crusty exterior with soft interior. Great for toast and sandwiches.',
@@ -266,6 +274,7 @@ export const MOCK_INVENTORY: InventoryItem[] = [
   },
   {
     id: 'inv_3',
+    donorId: 'donor1',
     title: 'Greek Yogurt Containers',
     description:
       'Premium Greek yogurt, high protein content. Kept in refrigerated storage. Best consumed within 2 weeks.',
@@ -280,6 +289,7 @@ export const MOCK_INVENTORY: InventoryItem[] = [
   },
   {
     id: 'inv_4',
+    donorId: 'donor2',
     title: 'Mixed Berries',
     description:
       'Fresh mixed berries including strawberries, blueberries, and raspberries. Keep refrigerated. Very perishable.',
@@ -294,6 +304,7 @@ export const MOCK_INVENTORY: InventoryItem[] = [
   },
   {
     id: 'inv_5',
+    donorId: 'donor1',
     title: 'Vegetable Stir-Fry Mix',
     description:
       'Pre-made frozen stir-fry mix with broccoli, peppers, and snap peas. Ready to cook. Store in freezer.',
@@ -308,6 +319,7 @@ export const MOCK_INVENTORY: InventoryItem[] = [
   },
   {
     id: 'inv_6',
+    donorId: 'donor3',
     title: 'Whole Wheat Pasta',
     description:
       'Nutritious whole wheat pasta made from premium grain. Dry goods with long shelf life. Store in cool, dry place.',

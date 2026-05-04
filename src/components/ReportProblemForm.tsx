@@ -29,7 +29,7 @@ const ReportProblemForm: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!subject.trim() || !description.trim()) {
-      toast.error('Please fill in all fields.');
+      toast.error('Describe the problem so our team can help you resolve it quickly.');
       return;
     }
     
@@ -40,7 +40,7 @@ const ReportProblemForm: React.FC = () => {
       setIsSubmitting(false);
       setSubject('');
       setDescription('');
-      toast.success('Your report has been submitted successfully. We will contact you soon! ✅');
+      toast.success('Report submitted. Our team will investigate and help you soon.');
     }, 1500);
   };
 

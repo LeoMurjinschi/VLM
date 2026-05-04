@@ -34,7 +34,7 @@ const NgoProfileForm: React.FC = () => {
     // Simulate API call
     setTimeout(() => {
       setIsSaving(false);
-      toast.success('Organization details saved successfully!');
+      toast.success('Your organization profile is set up. Ready to make impact!');
     }, 800);
   };
 

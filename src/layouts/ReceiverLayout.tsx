@@ -23,8 +23,8 @@ const ReceiverLayout: React.FC = () => {
 
       {/* === 2. OVERLAY MOBIL (Fundalul negru când deschizi meniul) === */}
       {isSidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-40 md:hidden transition-opacity"
+        <div
+          className="fixed inset-0 bg-gray-900/40 z-40 md:hidden transition-opacity"
           onClick={toggleSidebar}
         />
       )}

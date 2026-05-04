@@ -1,79 +1,82 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import DonationCard from '../components/DonationCard';
 import DonationFilter from '../components/DonationFilter';
-import { fetchDonations, sortDonations, reserveDonation } from '../services/donationsService';
-import { MagnifyingGlassIcon, FunnelIcon } from '@heroicons/react/24/outline';
+import { MagnifyingGlassIcon, FunnelIcon, InformationCircleIcon } from '@heroicons/react/24/outline';
 import { useTheme } from '../hooks/useTheme';
 import { toast } from 'react-toastify';
-import { SpinnerLoader, ErrorState } from '../components/UI/StateIndicators';
 import EmptyBasketSVG from '../components/UI/EmptyBasketSVG';
+import { useInventory } from '../context/InventoryContext';
+import { useAuth } from '../context/AuthContext';
+import { useReservations } from '../context/ReservationContext';
+import StockDetailModal from '../components/StockDetailModal';
 import type { Donation } from '../_mock';
 
 const DonationFeed: React.FC = () => {
   const { theme } = useTheme();
+  const { donations } = useInventory();
+  const { user } = useAuth();
+  const { createReservation } = useReservations();
 
-  const [donations, setDonations] = useState<Donation[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const isDonor = user?.role === 'donor';
 
   const [searchQuery, setSearchQuery] = useState('');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [activeStock, setActiveStock] = useState<Donation | null>(null);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [statusFilter, setStatusFilter] = useState<string>('All');
   const [urgencyFilter, setUrgencyFilter] = useState<string>('All');
   const [sortBy, setSortBy] = useState<string>('newest');
 
-  const currentFilters = useMemo(() => ({
-    search: searchQuery,
-    categories: selectedCategories,
-    status: statusFilter,
-    urgency: urgencyFilter,
-  }), [searchQuery, selectedCategories, statusFilter, urgencyFilter]);
+  const filteredDonations = useMemo(() => {
+    let results = [...donations];
 
-  useEffect(() => {
-    const loadDonations = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const data = await fetchDonations(currentFilters, 1, 50);
-        let sorted = data;
-        if (sortBy && sortBy !== 'newest') {
-          sorted = await sortDonations(data, sortBy);
-        }
-        setDonations(sorted);
-      } catch (err) {
-        const message = err instanceof Error ? err.message : 'Failed to load donations';
-        setError(message);
-        toast.error(message);
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadDonations();
-  }, [currentFilters, sortBy]);
-
-  const handleReserveItem = useCallback(async (id: string, amountReserved: number) => {
-    try {
-      await reserveDonation(id);
-      setDonations((prevDonations) =>
-        prevDonations.map((item) => {
-          if (item.id === id) {
-            const newQuantity = item.quantity - amountReserved;
-            return {
-              ...item,
-              quantity: newQuantity,
-              status: newQuantity === 0 ? 'Reserved' : item.status,
-            };
-          }
-          return item;
-        })
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      results = results.filter(
+        (d) => d.title.toLowerCase().includes(q) || d.description.toLowerCase().includes(q)
       );
-      toast.success('Item reserved successfully!');
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to reserve item';
-      toast.error(message);
     }
-  }, []);
+
+    if (selectedCategories.length > 0) {
+      results = results.filter((d) => selectedCategories.includes(d.category));
+    }
+
+    if (statusFilter !== 'All') {
+      results = results.filter((d) => d.status === statusFilter);
+    }
+
+    if (urgencyFilter === 'Expiring Soon') {
+      const cutoff = Date.now() + 48 * 60 * 60 * 1000;
+      results = results.filter((d) => new Date(d.expirationDate).getTime() <= cutoff);
+    }
+
+    if (sortBy === 'expires_first') {
+      results.sort(
+        (a, b) => new Date(a.expirationDate).getTime() - new Date(b.expirationDate).getTime()
+      );
+    } else if (sortBy === 'name_asc') {
+      results.sort((a, b) => a.title.localeCompare(b.title));
+    }
+
+    return results;
+  }, [donations, searchQuery, selectedCategories, statusFilter, urgencyFilter, sortBy]);
+
+  const handleReserveItem = useCallback(
+    (id: string, amountReserved: number) => {
+      if (isDonor) {
+        toast.info('Only receiver organizations can reserve donations.');
+        return;
+      }
+      try {
+        createReservation(id, amountReserved);
+        toast.success("Reserved! The donor will confirm when it's ready for pickup.");
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Failed to reserve item';
+        toast.error(message);
+      }
+    },
+    [isDonor, createReservation]
+  );
 
   const toggleCategory = useCallback((category: string) => {
     setSelectedCategories((prev) =>
@@ -90,14 +93,8 @@ const DonationFeed: React.FC = () => {
     setIsFilterOpen(false);
   }, []);
 
-  const handleRetry = useCallback(() => {
-    setError(null);
-    setLoading(true);
-  }, []);
-
   return (
     <div className="space-y-6 max-w-7xl mx-auto min-h-screen relative">
-      {/* Page header */}
       <div className={`flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-6 border-b relative z-20 ${
         theme === 'light' ? 'border-gray-200/60' : 'border-[#2e2e2e]'
       }`}>
@@ -166,19 +163,27 @@ const DonationFeed: React.FC = () => {
 
       {isFilterOpen && (
         <div
-          className={`fixed inset-0 z-10 backdrop-blur-[1px] ${
+          className={`fixed inset-0 z-10 ${
             theme === 'light' ? 'bg-gray-900/10' : 'bg-black/30'
           }`}
           onClick={() => setIsFilterOpen(false)}
         ></div>
       )}
 
-      {/* Content */}
-      {loading ? (
-        <SpinnerLoader />
-      ) : error ? (
-        <ErrorState message={error} onRetry={handleRetry} />
-      ) : donations.length === 0 ? (
+      {isDonor && (
+        <div className={`p-4 rounded-2xl border flex items-start gap-3 ${
+          theme === 'light'
+            ? 'bg-amber-50/60 border-amber-200 text-amber-800'
+            : 'bg-amber-900/10 border-amber-900/40 text-amber-300'
+        }`}>
+          <InformationCircleIcon className="w-5 h-5 mt-0.5 flex-shrink-0" />
+          <div className="text-sm leading-relaxed">
+            <span className="font-bold">Viewing only.</span> As a donor, you can browse available donations but cannot reserve them. Reservations are reserved for receiver organizations.
+          </div>
+        </div>
+      )}
+
+      {filteredDonations.length === 0 ? (
         <div className={`flex flex-col items-center justify-center min-h-[50vh] rounded-2xl border border-dashed relative z-0 ${
           theme === 'light' ? 'bg-white border-gray-300' : 'bg-[#1a1a1a] border-gray-600'
         }`}>
@@ -205,17 +210,25 @@ const DonationFeed: React.FC = () => {
           </button>
         </div>
       ) : (
-        /* Uniform 3-column grid — no masonry, no stagger */
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-12 relative z-0">
-          {donations.map((donation) => (
+          {filteredDonations.map((donation) => (
             <DonationCard
               key={donation.id}
               donation={donation}
               onReserve={handleReserveItem}
+              canReserve={!isDonor}
+              onCardClick={(d) => setActiveStock(d)}
             />
           ))}
         </div>
       )}
+
+      <StockDetailModal
+        isOpen={!!activeStock}
+        donation={activeStock}
+        onClose={() => setActiveStock(null)}
+        onReserve={handleReserveItem}
+      />
     </div>
   );
 };

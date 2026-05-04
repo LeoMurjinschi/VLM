@@ -24,7 +24,7 @@ const BusinessProfileForm: React.FC = () => {
 
     setTimeout(() => {
       setIsSaving(false);
-      toast.success('Business profile updated! 🏢');
+      toast.success('Your business profile is ready. Start donating food today!');
     }, 800);
   };
 

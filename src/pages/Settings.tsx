@@ -49,7 +49,7 @@ const Settings: React.FC = () => {
 
   const tabs = [
     { id: 'profile' as TabId, label: 'Profile Settings', icon: UserIcon },
-    ...(user?.role?.toLowerCase() === 'donator' ? [{ id: 'business' as TabId, label: 'Business Details', icon: BriefcaseIcon }] : []),
+    ...(user?.role?.toLowerCase() === 'donor' || user?.role?.toLowerCase() === 'donator' ? [{ id: 'business' as TabId, label: 'Business Details', icon: BriefcaseIcon }] : []),
     ...(user?.role?.toLowerCase() === 'receiver' || user?.role?.toLowerCase() === 'ngo' ? [{ id: 'ngo' as TabId, label: 'Organization Details', icon: BriefcaseIcon }] : []),
     { id: 'preferences' as TabId, label: 'Preferences', icon: Cog6ToothIcon },
     { id: 'security' as TabId, label: 'Security', icon: ShieldCheckIcon },
@@ -211,7 +211,7 @@ const Settings: React.FC = () => {
               </div>
             )}
             
-            {activeTab === 'business' && (user.role ?? '').toLowerCase() === 'donator' && (
+            {activeTab === 'business' && ['donor', 'donator'].includes((user.role ?? '').toLowerCase()) && (
               <div className="space-y-6 animate-fade-in-up">
                 <BusinessProfileForm />
                 <PickupLocations />
