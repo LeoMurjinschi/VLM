@@ -36,6 +36,7 @@ const StatusBadge: React.FC<{ status: Reservation['status'] }> = ({ status }) =>
   const map: Record<string, { label: string; cls: string }> = {
     pending: { label: 'Waiting for donor', cls: 'bg-amber-500/15 text-amber-600 dark:text-amber-400' },
     donor_confirmed: { label: 'Ready for Pickup', cls: 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400' },
+    receiver_confirmed: { label: 'Awaiting donor confirmation', cls: 'bg-blue-500/15 text-blue-600 dark:text-blue-400' },
     completed: { label: 'Completed', cls: 'bg-gray-500/15 text-gray-500' },
     cancelled: { label: 'Cancelled', cls: 'bg-red-500/15 text-red-500' },
   };
@@ -64,7 +65,7 @@ const MyPickups: React.FC = () => {
   );
 
   const activeList = useMemo(
-    () => receiverReservations.filter((r) => r.status === 'pending' || r.status === 'donor_confirmed'),
+    () => receiverReservations.filter((r) => r.status === 'pending' || r.status === 'donor_confirmed' || r.status === 'receiver_confirmed'),
     [receiverReservations]
   );
 
@@ -92,8 +93,10 @@ const MyPickups: React.FC = () => {
     toast.info('Reservation cancelled. Quantity returned to the feed.');
   };
 
-  const handleMessage = (donorId: string) => {
-    navigate(`/receiver/messages?user=${donorId}`);
+  const handleMessage = (donorName: string) => {
+    navigate('/receiver/messages', {
+      state: { openChatWith: { name: donorName, role: 'Donor' } },
+    });
   };
 
   const tabs = [
@@ -231,48 +234,59 @@ const MyPickups: React.FC = () => {
                   </div>
 
                   {/* Hover actions */}
-                  {(r.status === 'pending' || r.status === 'donor_confirmed') && (
+                  {(r.status === 'pending' || r.status === 'donor_confirmed' || r.status === 'receiver_confirmed') && (
                     <div className={`absolute bottom-0 inset-x-0 p-3 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out flex gap-2 border-t ${
                       isDark ? 'bg-[#1a1a1a] border-[#2e2e2e]' : 'bg-white border-gray-200'
                     }`}>
-                      <button
-                        onClick={() => setMapReservation(r)}
-                        className={`flex-1 py-2 rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-1.5 ${
-                          isDark ? 'bg-[#222] text-gray-200 hover:bg-gray-800' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        }`}
-                      >
-                        <MapIcon className="w-4 h-4" /> Map
-                      </button>
+                      {r.status === 'receiver_confirmed' ? (
+                        <div className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-sm font-semibold ${
+                          isDark ? 'bg-blue-500/10 text-blue-400' : 'bg-blue-50 text-blue-600'
+                        }`}>
+                          <CheckCircleIcon className="w-4 h-4" />
+                          Pickup reported — awaiting donor
+                        </div>
+                      ) : (
+                        <>
+                          <button
+                            onClick={() => setMapReservation(r)}
+                            className={`flex-1 py-2 rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-1.5 ${
+                              isDark ? 'bg-[#222] text-gray-200 hover:bg-gray-800' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                            }`}
+                          >
+                            <MapIcon className="w-4 h-4" /> Map
+                          </button>
 
-                      <button
-                        onClick={() => handleMessage(r.donorId)}
-                        title="Message donor"
-                        className={`p-2 rounded-xl transition-all flex items-center justify-center ${
-                          isDark ? 'bg-[#222] text-gray-300 hover:bg-gray-800' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                        }`}
-                      >
-                        <ChatBubbleLeftRightIcon className="w-4 h-4" />
-                      </button>
+                          <button
+                            onClick={() => handleMessage(r.donorName)}
+                            title="Message donor"
+                            className={`p-2 rounded-xl transition-all flex items-center justify-center ${
+                              isDark ? 'bg-[#222] text-gray-300 hover:bg-gray-800' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                            }`}
+                          >
+                            <ChatBubbleLeftRightIcon className="w-4 h-4" />
+                          </button>
 
-                      {r.status === 'pending' && (
-                        <button
-                          onClick={() => handleCancel(r.id)}
-                          title="Cancel reservation"
-                          className={`p-2 rounded-xl transition-all flex items-center justify-center ${
-                            isDark ? 'text-red-400 bg-red-400/10 hover:bg-red-400/20' : 'text-red-500 bg-red-50 hover:bg-red-100'
-                          }`}
-                        >
-                          <XMarkIcon className="w-4 h-4" />
-                        </button>
-                      )}
+                          {r.status === 'pending' && (
+                            <button
+                              onClick={() => handleCancel(r.id)}
+                              title="Cancel reservation"
+                              className={`p-2 rounded-xl transition-all flex items-center justify-center ${
+                                isDark ? 'text-red-400 bg-red-400/10 hover:bg-red-400/20' : 'text-red-500 bg-red-50 hover:bg-red-100'
+                              }`}
+                            >
+                              <XMarkIcon className="w-4 h-4" />
+                            </button>
+                          )}
 
-                      {r.status === 'donor_confirmed' && (
-                        <button
-                          onClick={() => setConfirmingReservation(r)}
-                          className="flex-1 py-2 rounded-xl font-bold text-sm bg-[#16a34a] text-white hover:bg-[#15803d] transition-all flex items-center justify-center gap-1.5 shadow-md shadow-green-500/20"
-                        >
-                          <CheckCircleIcon className="w-4 h-4" /> Confirm
-                        </button>
+                          {r.status === 'donor_confirmed' && (
+                            <button
+                              onClick={() => setConfirmingReservation(r)}
+                              className="flex-1 py-2 rounded-xl font-bold text-sm bg-[#16a34a] text-white hover:bg-[#15803d] transition-all flex items-center justify-center gap-1.5 shadow-md shadow-green-500/20"
+                            >
+                              <CheckCircleIcon className="w-4 h-4" /> Confirm Pickup
+                            </button>
+                          )}
+                        </>
                       )}
                     </div>
                   )}

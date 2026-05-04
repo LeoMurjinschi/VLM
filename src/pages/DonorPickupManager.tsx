@@ -7,6 +7,7 @@ import {
   ClockIcon,
   MapPinIcon,
   ArchiveBoxIcon,
+  CheckCircleIcon,
 } from '@heroicons/react/24/outline';
 import { useTheme } from '../hooks/useTheme';
 import { useAuth } from '../context/AuthContext';
@@ -36,6 +37,7 @@ function expiresLabel(iso: string): string {
 const STATUS_LABEL: Record<ReservationStatus, string> = {
   pending: 'Pending',
   donor_confirmed: 'Ready',
+  receiver_confirmed: 'Picked Up — Confirm',
   completed: 'Completed',
   cancelled: 'Cancelled',
 };
@@ -43,6 +45,7 @@ const STATUS_LABEL: Record<ReservationStatus, string> = {
 const STATUS_COLORS: Record<ReservationStatus, string> = {
   pending: 'bg-amber-500/15 text-amber-600 dark:text-amber-400',
   donor_confirmed: 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400',
+  receiver_confirmed: 'bg-blue-500/15 text-blue-600 dark:text-blue-400',
   completed: 'bg-gray-500/15 text-gray-500',
   cancelled: 'bg-red-500/15 text-red-500',
 };
@@ -61,12 +64,14 @@ interface StockGroup {
 const DonorPickupManager: React.FC = () => {
   const { theme } = useTheme();
   const { user } = useAuth();
-  const { myReservations, confirmReadiness, cancelReservation } = useReservations();
+  const { myReservations, confirmReadiness, cancelReservation, donorFinalConfirm } = useReservations();
   const navigate = useNavigate();
   const isDark = theme === 'dark';
 
   const [activeTab, setActiveTab] = useState<FilterTab>('all');
   const [confirmingId, setConfirmingId] = useState<string | null>(null);
+  const [finalConfirmReservation, setFinalConfirmReservation] = useState<Reservation | null>(null);
+  const [finalConfirmQty, setFinalConfirmQty] = useState<number>(0);
 
   const donorReservations = useMemo(
     () => myReservations.filter((r) => r.donorId === user?.id),
@@ -77,6 +82,7 @@ const DonorPickupManager: React.FC = () => {
     all: donorReservations.length,
     pending: donorReservations.filter((r) => r.status === 'pending').length,
     donor_confirmed: donorReservations.filter((r) => r.status === 'donor_confirmed').length,
+    receiver_confirmed: donorReservations.filter((r) => r.status === 'receiver_confirmed').length,
     completed: donorReservations.filter((r) => r.status === 'completed').length,
     cancelled: donorReservations.filter((r) => r.status === 'cancelled').length,
   }), [donorReservations]);
@@ -121,14 +127,29 @@ const DonorPickupManager: React.FC = () => {
     toast.info('Reservation cancelled. Quantity returned to stock.');
   };
 
-  const handleMessage = (receiverId: string) => {
-    navigate(`/donor/messages?user=${receiverId}`);
+  const handleMessage = (receiverName: string) => {
+    navigate('/donor/messages', {
+      state: { openChatWith: { name: receiverName, role: 'Receiver' } },
+    });
+  };
+
+  const handleOpenFinalConfirm = (r: Reservation) => {
+    setFinalConfirmReservation(r);
+    setFinalConfirmQty(r.quantityPickedUpByReceiver ?? r.quantityReserved);
+  };
+
+  const handleFinalConfirm = () => {
+    if (!finalConfirmReservation) return;
+    donorFinalConfirm(finalConfirmReservation.id, finalConfirmQty);
+    setFinalConfirmReservation(null);
+    toast.success('Pickup confirmed! Stock transfer recorded.');
   };
 
   const tabs: { key: FilterTab; label: string; count: number }[] = [
     { key: 'all', label: 'All', count: counts.all },
     { key: 'pending', label: 'Pending', count: counts.pending },
     { key: 'donor_confirmed', label: 'Ready', count: counts.donor_confirmed },
+    { key: 'receiver_confirmed', label: 'Awaiting You', count: counts.receiver_confirmed },
     { key: 'completed', label: 'Completed', count: counts.completed },
     { key: 'cancelled', label: 'Cancelled', count: counts.cancelled },
   ];
@@ -285,10 +306,10 @@ const DonorPickupManager: React.FC = () => {
                         </span>
 
                         {/* Actions */}
-                        {(r.status === 'pending' || r.status === 'donor_confirmed') && (
+                        {(r.status === 'pending' || r.status === 'donor_confirmed' || r.status === 'receiver_confirmed') && (
                           <div className="flex gap-2 flex-shrink-0">
                             <button
-                              onClick={() => handleMessage(r.receiverId)}
+                              onClick={() => handleMessage(r.receiverName)}
                               title="Message receiver"
                               className={`p-2 rounded-lg transition-all ${
                                 isDark ? 'text-gray-400 hover:text-white hover:bg-gray-800' : 'text-gray-400 hover:text-gray-700 hover:bg-gray-100'
@@ -296,15 +317,17 @@ const DonorPickupManager: React.FC = () => {
                             >
                               <ChatBubbleLeftRightIcon className="w-4 h-4" />
                             </button>
-                            <button
-                              onClick={() => handleCancel(r.id)}
-                              title="Cancel reservation"
-                              className={`p-2 rounded-lg transition-all ${
-                                isDark ? 'text-red-400 hover:bg-red-400/10' : 'text-red-500 hover:bg-red-50'
-                              }`}
-                            >
-                              <XMarkIcon className="w-4 h-4" />
-                            </button>
+                            {r.status !== 'receiver_confirmed' && (
+                              <button
+                                onClick={() => handleCancel(r.id)}
+                                title="Cancel reservation"
+                                className={`p-2 rounded-lg transition-all ${
+                                  isDark ? 'text-red-400 hover:bg-red-400/10' : 'text-red-500 hover:bg-red-50'
+                                }`}
+                              >
+                                <XMarkIcon className="w-4 h-4" />
+                              </button>
+                            )}
                             {r.status === 'pending' && (
                               <button
                                 onClick={() => handleMarkReady(r.id)}
@@ -314,7 +337,22 @@ const DonorPickupManager: React.FC = () => {
                                 Mark Ready
                               </button>
                             )}
+                            {r.status === 'receiver_confirmed' && (
+                              <button
+                                onClick={() => handleOpenFinalConfirm(r)}
+                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-600 text-white hover:bg-blue-700 transition-all shadow-sm shadow-blue-500/20"
+                              >
+                                <CheckCircleIcon className="w-4 h-4" />
+                                Confirm Pickup
+                              </button>
+                            )}
                           </div>
+                        )}
+
+                        {r.status === 'receiver_confirmed' && r.quantityPickedUpByReceiver !== undefined && (
+                          <span className={`text-xs flex-shrink-0 font-semibold ${isDark ? 'text-blue-400' : 'text-blue-600'}`}>
+                            Receiver reports: {r.quantityPickedUpByReceiver} {r.unit}
+                          </span>
                         )}
 
                         {r.status === 'completed' && r.quantityConfirmed !== undefined && (
@@ -329,6 +367,90 @@ const DonorPickupManager: React.FC = () => {
               </div>
             </div>
           ))}
+        </div>
+      )}
+      {/* Final confirm modal */}
+      {finalConfirmReservation && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+          <div
+            className={`absolute inset-0 ${isDark ? 'bg-black/60' : 'bg-black/40'}`}
+            onClick={() => setFinalConfirmReservation(null)}
+          />
+          <div className={`relative w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-fade-in-up ${isDark ? 'bg-[#1a1a1a]' : 'bg-white'}`}>
+            <div className={`px-6 pt-6 pb-4 border-b ${isDark ? 'border-[#2e2e2e]' : 'border-gray-100'}`}>
+              <div className="flex items-start justify-between">
+                <div>
+                  <span className={`inline-block px-2.5 py-1 text-[10px] font-bold rounded-md uppercase tracking-widest mb-2 ${
+                    isDark ? 'bg-blue-400/10 text-blue-400' : 'bg-blue-50 text-blue-600'
+                  }`}>
+                    Confirm Pickup
+                  </span>
+                  <h3 className={`text-xl font-bold leading-tight ${isDark ? 'text-white' : 'text-[#1a1a1a]'}`}>
+                    {finalConfirmReservation.stockTitle}
+                  </h3>
+                  <p className={`text-sm mt-0.5 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                    Reserved by {finalConfirmReservation.receiverName}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setFinalConfirmReservation(null)}
+                  className={`p-1.5 rounded-lg transition-colors ml-4 flex-shrink-0 ${
+                    isDark ? 'text-gray-400 hover:text-white hover:bg-gray-800' : 'text-gray-400 hover:text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  <XMarkIcon className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            <div className="px-6 py-5 space-y-4">
+              <div className={`p-3 rounded-xl text-sm ${isDark ? 'bg-[#222] text-gray-300' : 'bg-gray-50 text-gray-600'}`}>
+                <span className="font-semibold">Receiver reported: </span>
+                {finalConfirmReservation.quantityPickedUpByReceiver} {finalConfirmReservation.unit}
+              </div>
+
+              <div>
+                <label className={`block text-sm font-semibold mb-1.5 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Actual quantity handed over ({finalConfirmReservation.unit})
+                </label>
+                <input
+                  type="number"
+                  min={0.1}
+                  max={finalConfirmReservation.quantityReserved}
+                  step={0.1}
+                  value={finalConfirmQty}
+                  onChange={(e) => setFinalConfirmQty(Number(e.target.value))}
+                  className={`w-full px-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-sm font-medium ${
+                    isDark ? 'bg-[#222] border-[#2e2e2e] text-gray-100' : 'bg-white border-gray-200 text-gray-700'
+                  }`}
+                />
+                {finalConfirmQty < finalConfirmReservation.quantityReserved && finalConfirmQty > 0 && (
+                  <p className={`text-xs mt-1.5 ${isDark ? 'text-amber-400' : 'text-amber-600'}`}>
+                    The remaining {(finalConfirmReservation.quantityReserved - finalConfirmQty).toFixed(1)} {finalConfirmReservation.unit} will be returned to the feed.
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="px-6 pb-6 flex gap-3">
+              <button
+                onClick={() => setFinalConfirmReservation(null)}
+                className={`flex-1 py-2.5 rounded-xl font-semibold text-sm transition-all ${
+                  isDark ? 'bg-[#222] text-gray-300 hover:bg-gray-800' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleFinalConfirm}
+                disabled={finalConfirmQty <= 0}
+                className="flex-1 py-2.5 rounded-xl font-semibold text-sm bg-blue-600 hover:bg-blue-700 text-white transition-all flex items-center justify-center gap-2 shadow-md shadow-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <CheckCircleIcon className="w-4 h-4" />
+                Confirm Pickup
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

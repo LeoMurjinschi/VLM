@@ -18,6 +18,7 @@ interface ReservationContextType {
   createReservation: (stockId: string, quantity: number) => Reservation;
   confirmReadiness: (reservationId: string) => void;
   confirmPickup: (reservationId: string, actualQty: number) => void;
+  donorFinalConfirm: (reservationId: string, actualQty: number) => void;
   cancelReservation: (reservationId: string) => void;
   getReservationsForStock: (stockId: string) => Reservation[];
 }
@@ -94,6 +95,19 @@ export const ReservationProvider: React.FC<{ children: ReactNode }> = ({ childre
     if (!reservation || reservation.status !== 'donor_confirmed') return;
     if (reservation.receiverId !== user.id) return;
 
+    reservationStore.update(reservationId, {
+      status: 'receiver_confirmed' as ReservationStatus,
+      quantityPickedUpByReceiver: actualQty,
+      receiverConfirmedAt: new Date().toISOString(),
+    });
+  }, [user]);
+
+  const donorFinalConfirm = useCallback((reservationId: string, actualQty: number) => {
+    if (!user || user.role !== 'donor') return;
+    const reservation = reservationStore.getById(reservationId);
+    if (!reservation || reservation.status !== 'receiver_confirmed') return;
+    if (reservation.donorId !== user.id) return;
+
     const diff = reservation.quantityReserved - actualQty;
     if (diff > 0) {
       const stock = stockStore.getById(reservation.stockId);
@@ -137,9 +151,10 @@ export const ReservationProvider: React.FC<{ children: ReactNode }> = ({ childre
     createReservation,
     confirmReadiness,
     confirmPickup,
+    donorFinalConfirm,
     cancelReservation,
     getReservationsForStock,
-  }), [reservations, myReservations, createReservation, confirmReadiness, confirmPickup, cancelReservation, getReservationsForStock]);
+  }), [reservations, myReservations, createReservation, confirmReadiness, confirmPickup, donorFinalConfirm, cancelReservation, getReservationsForStock]);
 
   return <ReservationContext.Provider value={value}>{children}</ReservationContext.Provider>;
 };

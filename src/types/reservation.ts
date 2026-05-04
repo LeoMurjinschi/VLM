@@ -1,4 +1,4 @@
-export type ReservationStatus = 'pending' | 'donor_confirmed' | 'completed' | 'cancelled';
+export type ReservationStatus = 'pending' | 'donor_confirmed' | 'receiver_confirmed' | 'completed' | 'cancelled';
 
 export interface Reservation {
   id: string;
@@ -14,10 +14,12 @@ export interface Reservation {
   receiverId: string;
   receiverName: string;
   quantityReserved: number;
+  quantityPickedUpByReceiver?: number;
   quantityConfirmed?: number;
   status: ReservationStatus;
   reservedAt: string;
   donorConfirmedAt?: string;
+  receiverConfirmedAt?: string;
   completedAt?: string;
   cancelledAt?: string;
   cancelledBy?: 'donor' | 'receiver';
