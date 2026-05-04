@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTheme } from '../hooks/useTheme';
 import { useAuth } from '../context/AuthContext';
 import PageLayout from '../components/PageLayout';
@@ -12,31 +12,17 @@ import {
   UserPlusIcon,          // Pentru echipa
   Cog8ToothIcon          // Pentru setari sistem
 } from '@heroicons/react/24/outline';
-
-// Date mock mult mai complexe, acoperind toate aspectele aplicației
-const ALL_NOTIFICATIONS = [
-  { id: 1, title: 'Urgent: Hot Meals Available', desc: 'Restaurant Casa has 20 hot meals ready for pickup now. They need to be picked up in the next hour.', time: '5 min ago', date: 'Today', unread: true, type: 'urgent' },
-  { id: 2, title: 'New Device Login', desc: 'We noticed a new login from Google Chrome on Windows (Bucharest). If this wasn\'t you, change your password immediately.', time: '1 hour ago', date: 'Today', unread: true, type: 'security' },
-  { id: 3, title: 'Pickup Completed', desc: 'Successfully logged 15kg of bakery items from Panaderia.', time: '2 hours ago', date: 'Today', unread: true, type: 'success' },
-  { id: 4, title: 'Team Member Added', desc: 'Maria P. has accepted your invitation and joined your authorized volunteer fleet.', time: '5 hours ago', date: 'Today', unread: false, type: 'team' },
-  { id: 5, title: 'Donation Canceled', desc: 'A donor canceled a scheduled pickup for 10 portions of soup.', time: '1 day ago', date: 'Yesterday', unread: false, type: 'warning' },
-  { id: 6, title: 'Password Updated', desc: 'Your account password was successfully changed from the Settings page.', time: '2 days ago', date: 'Oct 25', unread: false, type: 'system' },
-  { id: 7, title: 'Weekly Summary', desc: 'You rescued 120kg of food this week. Great job, FoodHero!', time: '3 days ago', date: 'Oct 24', unread: false, type: 'info' },
-  { id: 8, title: 'System Maintenance', desc: 'The app will be offline for 30 minutes tonight at 2 AM for server upgrades.', time: '1 week ago', date: 'Oct 18', unread: false, type: 'system' },
-];
-
-const ADMIN_NOTIFICATIONS = [
-  { id: 101, title: 'New Sign-Up Request', desc: 'Mishanea SRL submitted an NGO application.', time: '5 min ago', date: 'Today', unread: true, type: 'warning' },
-  { id: 102, title: 'Donation Flagged', desc: 'A donation from Andrei M. was flagged by users. Immediate review required.', time: '1 hour ago', date: 'Today', unread: true, type: 'urgent' },
-  { id: 103, title: 'Review Reported', desc: 'A recent review violates community standards.', time: '2 hours ago', date: 'Today', unread: false, type: 'security' },
-  { id: 104, title: 'System Maintenance', desc: 'The database backup completed successfully.', time: '1 day ago', date: 'Yesterday', unread: false, type: 'system' }
-];
+import { getMockNotifications, type AppNotification } from '../_mock/notifications';
 
 const NotificationHistory: React.FC = () => {
   const { theme } = useTheme();
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
-  const [notifications, setNotifications] = useState(isAdmin ? ADMIN_NOTIFICATIONS : ALL_NOTIFICATIONS);
+  const [notifications, setNotifications] = useState<AppNotification[]>(getMockNotifications(user?.role));
+  
+  useEffect(() => {
+    setNotifications(getMockNotifications(user?.role));
+  }, [user?.role]);
   const [filter, setFilter] = useState<'all' | 'unread' | 'urgent' | 'security'>('all');
 
   const filteredNotifications = notifications.filter(notif => {
