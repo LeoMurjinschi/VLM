@@ -1,0 +1,17 @@
+C:\Users\vasil\source\repos\VLM\VLM.DataAccesLayer\bin\Debug\net8.0\VLM.DataAccesLayer.deps.json
+C:\Users\vasil\source\repos\VLM\VLM.DataAccesLayer\bin\Debug\net8.0\VLM.DataAccesLayer.dll
+C:\Users\vasil\source\repos\VLM\VLM.DataAccesLayer\bin\Debug\net8.0\VLM.DataAccesLayer.pdb
+C:\Users\vasil\source\repos\VLM\VLM.DataAccesLayer\obj\Debug\net8.0\VLM.DataAccesLayer.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\vasil\source\repos\VLM\VLM.DataAccesLayer\obj\Debug\net8.0\VLM.DataAccesLayer.AssemblyInfoInputs.cache
+C:\Users\vasil\source\repos\VLM\VLM.DataAccesLayer\obj\Debug\net8.0\VLM.DataAccesLayer.AssemblyInfo.cs
+C:\Users\vasil\source\repos\VLM\VLM.DataAccesLayer\obj\Debug\net8.0\VLM.DataAccesLayer.csproj.CoreCompileInputs.cache
+C:\Users\vasil\source\repos\VLM\VLM.DataAccesLayer\obj\Debug\net8.0\VLM.DataAccesLayer.dll
+C:\Users\vasil\source\repos\VLM\VLM.DataAccesLayer\obj\Debug\net8.0\refint\VLM.DataAccesLayer.dll
+C:\Users\vasil\source\repos\VLM\VLM.DataAccesLayer\obj\Debug\net8.0\VLM.DataAccesLayer.pdb
+C:\Users\vasil\source\repos\VLM\VLM.DataAccesLayer\obj\Debug\net8.0\ref\VLM.DataAccesLayer.dll
+C:\Users\vasil\source\repos\VLM\VLM.DataAccesLayer\bin\Debug\net8.0\VLM.DataAccesLayer.runtimeconfig.json
+C:\Users\vasil\source\repos\VLM\VLM.DataAccesLayer\bin\Debug\net8.0\VLM.Domain.dll
+C:\Users\vasil\source\repos\VLM\VLM.DataAccesLayer\bin\Debug\net8.0\VLM.Domain.pdb
+C:\Users\vasil\source\repos\VLM\VLM.DataAccesLayer\obj\Debug\net8.0\VLM.DataAccesLayer.csproj.AssemblyReference.cache
+C:\Users\vasil\source\repos\VLM\VLM.DataAccesLayer\obj\Debug\net8.0\VLM.Data.DCCF2366.Up2Date
+C:\Users\vasil\source\repos\VLM\VLM.DataAccesLayer\obj\Debug\net8.0\VLM.DataAccesLayer.genruntimeconfig.cache

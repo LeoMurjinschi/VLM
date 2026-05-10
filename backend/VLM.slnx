@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="VLM.API/VLM.API.csproj" />
+  <Project Path="VLM.BusinessLayer/VLM.BusinessLayer.csproj" />
+  <Project Path="VLM.DataAccessLayer/VLM.DataAccessLayer.csproj" />
+  <Project Path="VLM.Domain/VLM.Domain.csproj" />
+</Solution>
