@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\vasil\\Downloads\\VLM\\VLM\\VLM.API\\VLM.API.csproj": {}
+    "C:\\Users\\vasil\\VLM\\backend\\VLM.API\\VLM.API.csproj": {}
   },
   "projects": {
-    "C:\\Users\\vasil\\Downloads\\VLM\\VLM\\VLM.API\\VLM.API.csproj": {
+    "C:\\Users\\vasil\\VLM\\backend\\VLM.API\\VLM.API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\vasil\\Downloads\\VLM\\VLM\\VLM.API\\VLM.API.csproj",
+        "projectUniqueName": "C:\\Users\\vasil\\VLM\\backend\\VLM.API\\VLM.API.csproj",
         "projectName": "VLM.API",
-        "projectPath": "C:\\Users\\vasil\\Downloads\\VLM\\VLM\\VLM.API\\VLM.API.csproj",
+        "projectPath": "C:\\Users\\vasil\\VLM\\backend\\VLM.API\\VLM.API.csproj",
         "packagesPath": "C:\\Users\\vasil\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\vasil\\Downloads\\VLM\\VLM\\VLM.API\\obj\\",
+        "outputPath": "C:\\Users\\vasil\\VLM\\backend\\VLM.API\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -32,11 +32,11 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\vasil\\Downloads\\VLM\\VLM\\VLM.BusinessLayer\\VLM.BusinessLayer.csproj": {
-                "projectPath": "C:\\Users\\vasil\\Downloads\\VLM\\VLM\\VLM.BusinessLayer\\VLM.BusinessLayer.csproj"
+              "C:\\Users\\vasil\\VLM\\backend\\VLM.BusinessLayer\\VLM.BusinessLayer.csproj": {
+                "projectPath": "C:\\Users\\vasil\\VLM\\backend\\VLM.BusinessLayer\\VLM.BusinessLayer.csproj"
               },
-              "C:\\Users\\vasil\\Downloads\\VLM\\VLM\\VLM.Domain\\VLM.Domain.csproj": {
-                "projectPath": "C:\\Users\\vasil\\Downloads\\VLM\\VLM\\VLM.Domain\\VLM.Domain.csproj"
+              "C:\\Users\\vasil\\VLM\\backend\\VLM.Domain\\VLM.Domain.csproj": {
+                "projectPath": "C:\\Users\\vasil\\VLM\\backend\\VLM.Domain\\VLM.Domain.csproj"
               }
             }
           }
@@ -91,14 +91,14 @@
         }
       }
     },
-    "C:\\Users\\vasil\\Downloads\\VLM\\VLM\\VLM.BusinessLayer\\VLM.BusinessLayer.csproj": {
+    "C:\\Users\\vasil\\VLM\\backend\\VLM.BusinessLayer\\VLM.BusinessLayer.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\vasil\\Downloads\\VLM\\VLM\\VLM.BusinessLayer\\VLM.BusinessLayer.csproj",
+        "projectUniqueName": "C:\\Users\\vasil\\VLM\\backend\\VLM.BusinessLayer\\VLM.BusinessLayer.csproj",
         "projectName": "VLM.BusinessLayer",
-        "projectPath": "C:\\Users\\vasil\\Downloads\\VLM\\VLM\\VLM.BusinessLayer\\VLM.BusinessLayer.csproj",
+        "projectPath": "C:\\Users\\vasil\\VLM\\backend\\VLM.BusinessLayer\\VLM.BusinessLayer.csproj",
         "packagesPath": "C:\\Users\\vasil\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\vasil\\Downloads\\VLM\\VLM\\VLM.BusinessLayer\\obj\\",
+        "outputPath": "C:\\Users\\vasil\\VLM\\backend\\VLM.BusinessLayer\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -119,11 +119,11 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\vasil\\Downloads\\VLM\\VLM\\VLM.DataAccessLayer\\VLM.DataAccessLayer.csproj": {
-                "projectPath": "C:\\Users\\vasil\\Downloads\\VLM\\VLM\\VLM.DataAccessLayer\\VLM.DataAccessLayer.csproj"
+              "C:\\Users\\vasil\\VLM\\backend\\VLM.DataAccessLayer\\VLM.DataAccessLayer.csproj": {
+                "projectPath": "C:\\Users\\vasil\\VLM\\backend\\VLM.DataAccessLayer\\VLM.DataAccessLayer.csproj"
               },
-              "C:\\Users\\vasil\\Downloads\\VLM\\VLM\\VLM.Domain\\VLM.Domain.csproj": {
-                "projectPath": "C:\\Users\\vasil\\Downloads\\VLM\\VLM\\VLM.Domain\\VLM.Domain.csproj"
+              "C:\\Users\\vasil\\VLM\\backend\\VLM.Domain\\VLM.Domain.csproj": {
+                "projectPath": "C:\\Users\\vasil\\VLM\\backend\\VLM.Domain\\VLM.Domain.csproj"
               }
             }
           }
@@ -163,14 +163,14 @@
         }
       }
     },
-    "C:\\Users\\vasil\\Downloads\\VLM\\VLM\\VLM.DataAccessLayer\\VLM.DataAccessLayer.csproj": {
+    "C:\\Users\\vasil\\VLM\\backend\\VLM.DataAccessLayer\\VLM.DataAccessLayer.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\vasil\\Downloads\\VLM\\VLM\\VLM.DataAccessLayer\\VLM.DataAccessLayer.csproj",
+        "projectUniqueName": "C:\\Users\\vasil\\VLM\\backend\\VLM.DataAccessLayer\\VLM.DataAccessLayer.csproj",
         "projectName": "VLM.DataAccessLayer",
-        "projectPath": "C:\\Users\\vasil\\Downloads\\VLM\\VLM\\VLM.DataAccessLayer\\VLM.DataAccessLayer.csproj",
+        "projectPath": "C:\\Users\\vasil\\VLM\\backend\\VLM.DataAccessLayer\\VLM.DataAccessLayer.csproj",
         "packagesPath": "C:\\Users\\vasil\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\vasil\\Downloads\\VLM\\VLM\\VLM.DataAccessLayer\\obj\\",
+        "outputPath": "C:\\Users\\vasil\\VLM\\backend\\VLM.DataAccessLayer\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -191,8 +191,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\vasil\\Downloads\\VLM\\VLM\\VLM.Domain\\VLM.Domain.csproj": {
-                "projectPath": "C:\\Users\\vasil\\Downloads\\VLM\\VLM\\VLM.Domain\\VLM.Domain.csproj"
+              "C:\\Users\\vasil\\VLM\\backend\\VLM.Domain\\VLM.Domain.csproj": {
+                "projectPath": "C:\\Users\\vasil\\VLM\\backend\\VLM.Domain\\VLM.Domain.csproj"
               }
             }
           }
@@ -248,14 +248,14 @@
         }
       }
     },
-    "C:\\Users\\vasil\\Downloads\\VLM\\VLM\\VLM.Domain\\VLM.Domain.csproj": {
+    "C:\\Users\\vasil\\VLM\\backend\\VLM.Domain\\VLM.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\vasil\\Downloads\\VLM\\VLM\\VLM.Domain\\VLM.Domain.csproj",
+        "projectUniqueName": "C:\\Users\\vasil\\VLM\\backend\\VLM.Domain\\VLM.Domain.csproj",
         "projectName": "VLM.Domain",
-        "projectPath": "C:\\Users\\vasil\\Downloads\\VLM\\VLM\\VLM.Domain\\VLM.Domain.csproj",
+        "projectPath": "C:\\Users\\vasil\\VLM\\backend\\VLM.Domain\\VLM.Domain.csproj",
         "packagesPath": "C:\\Users\\vasil\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\vasil\\Downloads\\VLM\\VLM\\VLM.Domain\\obj\\",
+        "outputPath": "C:\\Users\\vasil\\VLM\\backend\\VLM.Domain\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

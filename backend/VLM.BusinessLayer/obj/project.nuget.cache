@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "auv38ctFs6M=",
+  "dgSpecHash": "2GkVwK6Iu4c=",
   "success": true,
-  "projectFilePath": "C:\\Users\\vasil\\Downloads\\VLM\\VLM\\VLM.BusinessLayer\\VLM.BusinessLayer.csproj",
+  "projectFilePath": "C:\\Users\\vasil\\VLM\\backend\\VLM.BusinessLayer\\VLM.BusinessLayer.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\vasil\\.nuget\\packages\\microsoft.entityframeworkcore\\8.0.11\\microsoft.entityframeworkcore.8.0.11.nupkg.sha512",
     "C:\\Users\\vasil\\.nuget\\packages\\microsoft.entityframeworkcore.abstractions\\8.0.11\\microsoft.entityframeworkcore.abstractions.8.0.11.nupkg.sha512",
