@@ -1,10 +1,24 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useTheme } from './../hooks/useTheme';
 import { CheckCircleIcon, InformationCircleIcon, StarIcon } from '@heroicons/react/24/solid';
 import { MOCK_RECENT_ACTIVITY } from '../_mock';
+import { useInventory } from '../context/InventoryContext';
 
 const RecentActivity: React.FC = () => {
   const { theme } = useTheme();
+  const { inventory } = useInventory();
+
+  const activities = useMemo(() => {
+    const fromStore = inventory.slice(0, 4).map((item, idx) => ({
+      id: 1000 + idx,
+      action: 'New Stock Added',
+      detail: `${item.quantity} ${item.unit} of "${item.title}" added to inventory.`,
+      time: item.addedAt,
+      type: 'info' as const,
+    }));
+    const milestone = MOCK_RECENT_ACTIVITY.find((a) => a.type === 'warning');
+    return [...(milestone ? [milestone] : []), ...fromStore].slice(0, 5);
+  }, [inventory]);
 
   const getIcon = (type: string) => {
     switch (type) {
@@ -23,7 +37,7 @@ const RecentActivity: React.FC = () => {
       </h3>
       
       <div className="space-y-6 relative before:absolute before:inset-0 before:ml-2.5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-gray-200 dark:before:via-gray-600 before:to-transparent">
-        {MOCK_RECENT_ACTIVITY.map((activity) => (
+        {activities.map((activity) => (
           <div key={activity.id} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
             
 

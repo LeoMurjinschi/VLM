@@ -45,13 +45,12 @@ const ReservationCard: React.FC<ReservationCardProps> = ({
   };
 
   return (
-    <div className={`group relative rounded-2xl overflow-hidden flex flex-col transition-all duration-300 ease-out
-      hover:-translate-y-1.5 hover:shadow-xl h-full
+    <div className={`group relative rounded-lg overflow-hidden flex flex-col transition-colors h-full
       ${theme === 'light'
-        ? 'bg-white border border-gray-200/80 shadow-sm hover:shadow-gray-200/60'
-        : 'bg-[#1a1a1a] border border-[#2e2e2e] shadow-sm hover:shadow-black/30'
+        ? 'bg-white border border-gray-200'
+        : 'bg-[#1a1a1a] border border-[#2e2e2e]'
       }
-      ${isUrgent ? 'ring-2 ring-red-400/40' : ''}
+      ${isUrgent ? 'ring-2 ring-red-400' : ''}
     `}>
       
       {/* Image section */}
@@ -124,8 +123,8 @@ const ReservationCard: React.FC<ReservationCardProps> = ({
       </div>
 
       {/* Slide-up Actions button on hover */}
-      <div className={`absolute bottom-0 inset-x-0 p-4 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out flex gap-2 ${
-        theme === 'light' ? 'bg-white/95 backdrop-blur-sm' : 'bg-[#1a1a1a]/95 backdrop-blur-sm'
+      <div className={`absolute bottom-0 inset-x-0 p-4 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out flex gap-2 border-t ${
+        theme === 'light' ? 'bg-white border-gray-200' : 'bg-[#1a1a1a] border-[#2e2e2e]'
       }`}>
         <button 
           onClick={onOpenMap}

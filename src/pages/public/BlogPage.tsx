@@ -65,7 +65,7 @@ const BlogPage = () => {
                                     <div className="relative h-56 overflow-hidden">
                                         <img src={post.image} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90" />
                                         <div className="absolute top-4 left-4">
-                                            <span className={`inline-flex items-center gap-1 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm ${
+                                            <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm ${
                                                 theme === 'light' ? 'bg-white/90 text-[#16a34a]' : 'bg-[#1a1a1a]/90 text-green-400'
                                             }`}>
                                                 <Tag size={12} /> {post.category}
@@ -147,7 +147,7 @@ const BlogPage = () => {
                     onClick={() => setSelectedPost(null)}
                 >
                     {/* Blurred backdrop */}
-                    <div className="absolute inset-0 bg-gray-900/80 backdrop-blur-sm" />
+                    <div className="absolute inset-0 bg-gray-900/80" />
 
                     {/* Modal content */}
                     <div
@@ -159,7 +159,7 @@ const BlogPage = () => {
                         {/* Close button */}
                         <button
                             onClick={() => setSelectedPost(null)}
-                            className={`absolute top-4 right-4 z-20 w-10 h-10 rounded-full backdrop-blur-sm shadow-md flex items-center justify-center transition-all ${
+                            className={`absolute top-4 right-4 z-20 w-10 h-10 rounded-full shadow-md flex items-center justify-center transition-all ${
                                 theme === 'light' ? 'bg-white/90 text-gray-600 hover:text-gray-900 hover:bg-white' : 'bg-[#1a1a1a]/90 text-gray-400 hover:text-white hover:bg-[#1a1a1a]'
                             }`}
                         >

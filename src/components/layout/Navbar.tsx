@@ -10,8 +10,8 @@ const Navbar = () => {
   const toggleMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
 
   return (
-    <nav className={`sticky top-0 z-50 backdrop-blur-md border-b transition-colors duration-300 ${
-      theme === 'light' ? 'bg-white/80 border-gray-100 shadow-sm' : 'bg-[#1a1a1a]/80 border-[#2e2e2e] shadow-md'
+    <nav className={`sticky top-0 z-50 border-b transition-colors duration-300 ${
+      theme === 'light' ? 'bg-white border-gray-200' : 'bg-[#1a1a1a] border-[#2e2e2e]'
     }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">

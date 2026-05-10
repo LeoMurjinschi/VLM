@@ -16,8 +16,8 @@ const AdminLayout: React.FC = () => {
       </aside>
 
       {isMobileMenuOpen && (
-        <div 
-          className={`fixed inset-0 backdrop-blur-sm z-40 md:hidden transition-opacity ${theme === 'light' ? 'bg-gray-900/60' : 'bg-black/60'}`}
+        <div
+          className={`fixed inset-0 z-40 md:hidden transition-opacity ${theme === 'light' ? 'bg-gray-900/40' : 'bg-black/40'}`}
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}

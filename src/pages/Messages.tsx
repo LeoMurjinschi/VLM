@@ -52,29 +52,30 @@ const Messages: React.FC = () => {
   
   // Handlers for dynamic deep linking
   useEffect(() => {
-    if (location.state && location.state.openChatWith) {
-      const targetUser = location.state.openChatWith;
-      const existingContact = contacts.find(c => c.name === targetUser.name);
-      
-      if (existingContact) {
-        setActiveChatId(existingContact.id);
-      } else {
-        const newId = Date.now();
-        const newContact: Contact = {
-          id: newId,
-          name: targetUser.name,
-          role: targetUser.role || 'User',
-          initials: targetUser.name.substring(0, 2).toUpperCase(),
-          lastMessage: '',
-          time: 'Just now',
-          unread: 0
-        };
-        setContacts(prev => [newContact, ...prev]);
-        setActiveChatId(newId);
+    if (!location.state?.openChatWith) return;
+    const targetUser = location.state.openChatWith;
+
+    setContacts(prev => {
+      const existing = prev.find(c => c.name === targetUser.name);
+      if (existing) {
+        setActiveChatId(existing.id);
+        return prev;
       }
-      setIsMobileListVisible(false);
-    }
-  }, [location.state, contacts]);
+      const newId = Date.now();
+      const newContact: Contact = {
+        id: newId,
+        name: targetUser.name,
+        role: targetUser.role || 'User',
+        initials: targetUser.name.substring(0, 2).toUpperCase(),
+        lastMessage: '',
+        time: 'Just now',
+        unread: 0,
+      };
+      setActiveChatId(newId);
+      return [newContact, ...prev];
+    });
+    setIsMobileListVisible(false);
+  }, [location.state]);
   
   const isMuted = activeChatId ? mutedContacts.includes(activeChatId) : false;
 

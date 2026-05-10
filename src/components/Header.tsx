@@ -17,10 +17,15 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
   const { user: authUser } = useAuth();
   
   const mockUser = usersData.find(u => u.id === authUser?.id || u.email === authUser?.email) || usersData[0];
-  const basePath = authUser?.role === 'donor' ? '/donor' : '/receiver';
+  const basePath =
+    authUser?.role === 'donor'
+      ? '/donor'
+      : authUser?.role === 'admin'
+      ? '/admin'
+      : '/receiver';
   const dashboardUrl = `${basePath}/dashboard`;
   const messagesUrl = `${basePath}/messages`;
-  const settingsUrl = `${basePath}/settings`;
+  const profileUrl = `${basePath}/profile`;
 
   const userDetails = {
     name: mockUser.name || 'Vasile Rodideal',
@@ -74,7 +79,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
              theme === 'light' ? 'bg-gray-200' : 'bg-gray-700'
            }`}></div>
            
-           <Link to={settingsUrl} className={`flex items-center gap-3 cursor-pointer p-1.5 rounded-xl transition-colors ${
+           <Link to={profileUrl} className={`flex items-center gap-3 cursor-pointer p-1.5 rounded-xl transition-colors ${
              theme === 'light'
                ? 'hover:bg-gray-50'
                : 'hover:bg-gray-800'
