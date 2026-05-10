@@ -1,4 +1,5 @@
 import { MOCK_REVIEWS, MOCK_DONOR_PROFILES, type Review, type ReviewAggregate, type ReviewTargetType } from '../_mock/reviews';
+import { reviewService } from '../api';
 
 const SIMULATED_LATENCY_MS = 300;
 
@@ -11,6 +12,35 @@ export const fetchReviews = async (
   targetType: ReviewTargetType,
   targetId: string
 ): Promise<Review[]> => {
+  // Try the real API first for donor reviews
+  if (targetType === 'donor') {
+    const numericId = parseInt(targetId);
+    if (!isNaN(numericId)) {
+      try {
+        const apiReviews = await reviewService.getByDonor(numericId);
+        if (apiReviews.length > 0) {
+          return apiReviews.map((r) => ({
+            id: String(r.id),
+            targetType: 'donor' as ReviewTargetType,
+            targetId,
+            targetName: `User ${r.receiverId}`,
+            authorId: String(r.donorId),
+            authorName: `User ${r.donorId}`,
+            authorAvatar: `https://i.pravatar.cc/40?u=${r.donorId}`,
+            authorRole: 'receiver' as const,
+            rating: r.rating,
+            comment: r.text,
+            date: r.createdDate.slice(0, 10),
+            status: 'approved' as const,
+            tags: [],
+          }));
+        }
+      } catch {
+        // fall through to mock
+      }
+    }
+  }
+
   await delay();
   return reviewStore
     .filter(
