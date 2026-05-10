@@ -1,0 +1,58 @@
+[
+  {
+    "id": "donor1",
+    "name": "Donor Company 1",
+    "email": "donor1@test.com",
+    "password": "password123",
+    "role": "donor",
+    "avatar": "https://i.pravatar.cc/150?u=donor1"
+  },
+  {
+    "id": "donor2",
+    "name": "Donor Bakery 2",
+    "email": "leomurjinschi@gmail.com",
+    "password": "password123",
+    "role": "donor",
+    "avatar": "https://i.pravatar.cc/150?u=donor2"
+  },
+  {
+    "id": "donor3",
+    "name": "Donor Supermarket 3",
+    "email": "donor3@test.com",
+    "password": "password123",
+    "role": "donor",
+    "avatar": "https://i.pinimg.com/736x/fa/8e/28/fa8e28964c40bb0d9b7e8ccf6a07a4b6.jpg"
+  },
+  {
+    "id": "receiver1",
+    "name": "Receiver Charity 1",
+    "email": "rec1@test.com",
+    "password": "password123",
+    "role": "receiver",
+    "avatar": "https://i.pravatar.cc/150?u=receiver1"
+  },
+  {
+    "id": "receiver2",
+    "name": "Receiver Shelter 2",
+    "email": "rec2@test.com",
+    "password": "password123",
+    "role": "receiver",
+    "avatar": "https://i.pravatar.cc/150?u=receiver2"
+  },
+  {
+    "id": "receiver3",
+    "name": "Vasilii",
+    "email": "rec3@test.com",
+    "password": "password123",
+    "role": "receiver",
+    "avatar": "https://i.pinimg.com/736x/fa/8e/28/fa8e28964c40bb0d9b7e8ccf6a07a4b6.jpg"
+  },
+  {
+    "id": "admin1",
+    "name": "Admin FoodShare",
+    "email": "foodshare.support@gmail.com",
+    "password": "admin123",
+    "role": "admin",
+    "avatar": "https://i.pravatar.cc/150?u=admin1"
+  }
+]
