@@ -2,9 +2,9 @@ import React, { useState, useCallback, useMemo } from 'react';
 import { ArchiveBoxIcon, MagnifyingGlassIcon, FunnelIcon } from '@heroicons/react/24/outline';
 import InventoryCard from '../components/InventoryCard';
 import { useTheme } from '../hooks/useTheme';
-import Select from '../components/ui/Select';
+import Select from '../components/UI/Select';
 import { toast } from 'react-toastify';
-import EmptyBasketSVG from '../components/ui/EmptyBasketSVG';
+import EmptyBasketSVG from '../components/UI/EmptyBasketSVG';
 import { useInventory } from '../context/InventoryContext';
 import type { InventoryItem } from '../_mock';
 

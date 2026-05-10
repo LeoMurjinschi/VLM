@@ -5,8 +5,8 @@ import {
   User, Store, Heart, CheckCircle, XCircle, Upload, X
 } from 'lucide-react';
 import { AuthLayout } from '../../components/auth/AuthLayout';
-import { InputField } from '../../components/ui/InputField';
-import { AuthButton } from '../../components/ui/AuthButton';
+import { InputField } from '../../components/UI/InputField';
+import { AuthButton } from '../../components/UI/AuthButton';
 import { useTheme } from '../../hooks/useTheme';
 
 const SignupPage = () => {

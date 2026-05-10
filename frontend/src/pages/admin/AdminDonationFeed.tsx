@@ -11,7 +11,7 @@ import { useTheme } from '../../hooks/useTheme';
 import { toast } from 'react-toastify';
 import { MOCK_ADMIN_DONATIONS, type AdminDonationItem } from '../../_mock/adminMockData';
 import DonationFilter from '../../components/DonationFilter';
-import Modal from '../../components/ui/Modal';
+import Modal from '../../components/UI/Modal';
 import EmptyBasketSVG from '../../components/UI/EmptyBasketSVG';
 
 // Inline simple Admin Donation Card

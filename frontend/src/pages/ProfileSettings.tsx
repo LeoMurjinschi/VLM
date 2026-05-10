@@ -127,7 +127,7 @@ const ProfileSettings: React.FC = () => {
   // --- LOGICĂ SIMULARE: SUBMIT TICKET ---
   const handleSubmitTicket = () => {
     if (!ticketMessage.trim()) {
-      toast.error('Tell us what's wrong so we can help you quickly.');
+      toast.error("Tell us what's wrong so we can help you quickly.");
       return;
     }
     // Simulare de succes

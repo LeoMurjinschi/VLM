@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { Mail, MessageCircle, Phone, MapPin, ChevronDown, ChevronUp, LifeBuoy } from 'lucide-react';
 import Navbar from '../../components/layout/Navbar';
 import Footer from '../../components/layout/Footer';
-import { AuthButton } from '../../components/ui/AuthButton';
-import { InputField } from '../../components/ui/InputField';
+import { AuthButton } from '../../components/UI/AuthButton';
+import { InputField } from '../../components/UI/InputField';
 import { FAQS } from '../../data/mockData';
 import { useTheme } from '../../hooks/useTheme';
 

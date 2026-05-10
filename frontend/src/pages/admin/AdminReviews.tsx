@@ -18,7 +18,7 @@ import {
   EyeSlashIcon
 } from '@heroicons/react/24/outline';
 import { StarIcon as StarIconSolid } from '@heroicons/react/24/solid';
-import Modal from '../../components/ui/Modal';
+import Modal from '../../components/UI/Modal';
 
 // Extended interface for local UI state
 interface LocalAdminReview extends AdminReview {

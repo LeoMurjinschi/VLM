@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Calendar, Tag, ArrowRight, CheckCircle, X } from 'lucide-react';
 import Navbar from '../../components/layout/Navbar';
 import Footer from '../../components/layout/Footer';
-import { AuthButton } from '../../components/ui/AuthButton';
+import { AuthButton } from '../../components/UI/AuthButton';
 import { BLOG_POSTS } from '../../data/mockData';
 import { useTheme } from '../../hooks/useTheme';
 

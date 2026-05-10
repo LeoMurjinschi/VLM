@@ -10,7 +10,7 @@ import {
   MapPinIcon,
   BuildingOfficeIcon
 } from '@heroicons/react/24/outline';
-import Modal from '../../components/ui/Modal';
+import Modal from '../../components/UI/Modal';
 
 const AdminSignups: React.FC = () => {
   const { theme } = useTheme();

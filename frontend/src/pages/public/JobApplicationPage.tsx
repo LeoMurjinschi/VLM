@@ -3,8 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Briefcase, ArrowLeft, FileUp, CheckCircle, User, Mail, Phone, Link as LinkIcon, Upload, X } from 'lucide-react';
 import Navbar from '../../components/layout/Navbar';
 import Footer from '../../components/layout/Footer';
-import { InputField } from '../../components/ui/InputField';
-import { AuthButton } from '../../components/ui/AuthButton';
+import { InputField } from '../../components/UI/InputField';
+import { AuthButton } from '../../components/UI/AuthButton';
 import { OPEN_POSITIONS } from '../../data/mockData';
 import { useTheme } from '../../hooks/useTheme';
 

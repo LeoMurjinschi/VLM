@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTheme } from './../hooks/useTheme';
 import { UserCircleIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
-import ImageDragDrop from './ui/ImageDragDrop';
+import ImageDragDrop from './UI/ImageDragDrop';
 import type { User } from './../_mock';
 
 

@@ -1,7 +1,7 @@
 import { Briefcase, MapPin, Clock, ArrowRight, Heart, Zap, Globe } from 'lucide-react';
 import Navbar from '../../components/layout/Navbar';
 import Footer from '../../components/layout/Footer';
-import { AuthButton } from '../../components/ui/AuthButton';
+import { AuthButton } from '../../components/UI/AuthButton';
 import { OPEN_POSITIONS } from '../../data/mockData';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../../hooks/useTheme';

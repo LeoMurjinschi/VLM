@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, KeyRound, CheckCircle, XCircle, ArrowLeft } from 'lucide-react';
 import { AuthLayout } from '../../components/auth/AuthLayout';
-import { InputField } from '../../components/ui/InputField';
-import { AuthButton } from '../../components/ui/AuthButton';
+import { InputField } from '../../components/UI/InputField';
+import { AuthButton } from '../../components/UI/AuthButton';
 import { useTheme } from '../../hooks/useTheme';
 
 const ForgotPasswordPage = () => {

@@ -13,7 +13,7 @@ import {
   ChatBubbleOvalLeftEllipsisIcon
 } from '@heroicons/react/24/outline';
 import { useNavigate } from 'react-router-dom';
-import Modal from '../../components/ui/Modal';
+import Modal from '../../components/UI/Modal';
 
 const AdminAccounts: React.FC = () => {
   const { theme } = useTheme();
