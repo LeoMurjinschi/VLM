@@ -1,7 +1,7 @@
 import { MOCK_INVENTORY } from '../_mock';
 import type { InventoryItem, Donation } from '../_mock';
 
-const STORAGE_KEY = 'foodshare_stock_v1';
+const STORAGE_KEY = 'foodshare_stock_v2';
 
 type Listener = () => void;
 const listeners = new Set<Listener>();
@@ -90,6 +90,7 @@ export function toDonation(item: InventoryItem): Donation {
     category: item.category,
     status: item.quantity <= 0 ? 'Reserved' : 'Available',
     pickupLocation: item.pickupLocation,
+    mapEmbedUrl: `https://maps.google.com/maps?q=${encodeURIComponent(item.pickupLocation)}&t=&z=15&ie=UTF8&iwloc=&output=embed`,
     expirationDate: item.expirationDate,
     postedAt: item.addedAt,
     image: item.image,

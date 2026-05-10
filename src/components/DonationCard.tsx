@@ -8,6 +8,8 @@ import {
   MinusIcon,
   PlusIcon,
   CheckIcon,
+  MapIcon,
+  XMarkIcon,
 } from '@heroicons/react/24/outline';
 import type { Donation } from '../_mock';
 import { MOCK_DONOR_PROFILES } from '../_mock/reviews';
@@ -58,6 +60,7 @@ const DonationCard: React.FC<DonationCardProps> = ({
     return { bg: 'bg-gray-500/80', text: 'text-white' };
   };
 
+  const [isMapOpen, setIsMapOpen] = useState(false);
   const stockAggregate = useMemo(() => computeAggregate('stock', donation.id), [donation.id]);
   const donorProfile = useMemo(
     () => (donation.donorId ? MOCK_DONOR_PROFILES.find((d) => d.id === donation.donorId) ?? null : null),
@@ -227,6 +230,23 @@ const DonationCard: React.FC<DonationCardProps> = ({
                 </span>
               </span>
             </div>
+
+            {donation.mapEmbedUrl && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsMapOpen(true);
+                }}
+                className={`w-full mt-2 px-3 py-2 rounded-xl font-semibold text-sm transition-all active:scale-[0.98] flex items-center justify-center gap-2 border ${
+                  theme === 'light'
+                    ? 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
+                    : 'bg-[#161616] border-[#2e2e2e] text-gray-200 hover:bg-[#1f1f1f]'
+                }`}
+              >
+                <MapIcon className="w-4 h-4" /> View location
+              </button>
+            )}
           </div>
 
           {showCommentPreview && (
@@ -390,6 +410,65 @@ const DonationCard: React.FC<DonationCardProps> = ({
           setEditOpen(false);
         }}
       />
+
+      {isMapOpen && donation.mapEmbedUrl && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+          onClick={() => setIsMapOpen(false)}
+        >
+          <div
+            className={`w-full max-w-3xl rounded-3xl overflow-hidden shadow-2xl border ${
+              theme === 'light' ? 'bg-white border-gray-200' : 'bg-[#1a1a1a] border-[#2e2e2e]'
+            }`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className={`flex items-center justify-between px-5 py-4 border-b ${
+              theme === 'light' ? 'border-gray-100' : 'border-[#2e2e2e]'
+            }`}>
+              <div>
+                <p className={`text-sm font-semibold ${theme === 'light' ? 'text-gray-900' : 'text-white'}`}>
+                  Location preview
+                </p>
+                <p className={`text-xs ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>
+                  {donation.pickupLocation}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsMapOpen(false)}
+                className={`p-2 rounded-lg ${
+                  theme === 'light' ? 'hover:bg-gray-100' : 'hover:bg-[#262626]'
+                }`}
+                aria-label="Close map preview"
+              >
+                <XMarkIcon className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="h-[320px]">
+              <iframe
+                src={donation.mapEmbedUrl}
+                title={`Map of ${donation.pickupLocation}`}
+                className="w-full h-full border-0"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+              />
+            </div>
+
+            <div className={`px-5 py-4 border-t ${
+              theme === 'light' ? 'border-gray-100' : 'border-[#2e2e2e]'
+            }`}>
+              <button
+                type="button"
+                onClick={() => setIsMapOpen(false)}
+                className="w-full px-4 py-2 rounded-2xl bg-[#16a34a] text-white font-semibold hover:bg-[#15803d] transition-all"
+              >
+                Close map
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

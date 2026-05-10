@@ -155,6 +155,7 @@ export interface Donation {
   category: string;
   status: 'Available' | 'Reserved';
   pickupLocation: string;
+  mapEmbedUrl?: string;
   expirationDate: string;
   postedAt: string;
   image: string;
@@ -171,7 +172,9 @@ export const MOCK_DONATIONS: Donation[] = [
       'A box of red apples, slightly bruised but perfectly edible. Great for pies or compote. Need to be picked up today.',
     category: 'Fruits',
     status: 'Available',
-    pickupLocation: 'Green Valley Market, Sector 1',
+    pickupLocation: 'Piața Centrală, Chișinău, Moldova',
+    mapEmbedUrl:
+      'https://maps.google.com/maps?q=Pia%C8%9Ba%20Central%C4%83,%20Chi%C8%99in%C4%83u,%20Moldova&t=&z=15&ie=UTF8&iwloc=&output=embed',
     expirationDate: '2026-03-01T18:00:00Z',
     postedAt: '2 hours ago',
     image: 'https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
@@ -185,7 +188,9 @@ export const MOCK_DONATIONS: Donation[] = [
     description: "Mixed artisan bread loaves from today's batch. Sourdough and whole wheat available.",
     category: 'Bakery',
     status: 'Available',
-    pickupLocation: 'Artisan Bakery, Center',
+    pickupLocation: 'Strada 31 August 1989 78, Chișinău, Moldova',
+    mapEmbedUrl:
+      'https://maps.google.com/maps?q=Strada%2031%20August%201989%2078,%20Chi%C8%99in%C4%83u,%20Moldova&t=&z=15&ie=UTF8&iwloc=&output=embed',
     expirationDate: '2026-02-23T20:00:00Z',
     postedAt: '30 mins ago',
     image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
@@ -199,7 +204,9 @@ export const MOCK_DONATIONS: Donation[] = [
     description: 'Leftover stock from local farm delivery. Needs to be cooked soon.',
     category: 'Vegetables',
     status: 'Reserved',
-    pickupLocation: 'Farm Connect Warehouse',
+    pickupLocation: 'Strada Calea Ieșilor 100, Chișinău, Moldova',
+    mapEmbedUrl:
+      'https://maps.google.com/maps?q=Strada%20Calea%20Ie%C8%99ilor%20100,%20Chi%C8%99in%C4%83u,%20Moldova&t=&z=15&ie=UTF8&iwloc=&output=embed',
     expirationDate: '2026-02-24T12:00:00Z',
     postedAt: '5 hours ago',
     image: 'https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
@@ -214,7 +221,9 @@ export const MOCK_DONATIONS: Donation[] = [
       'Vegetable cream soup portions prepared for lunch but not sold. Kept at safe temperatures.',
     category: 'Cooked Food',
     status: 'Available',
-    pickupLocation: 'Bistro 44',
+    pickupLocation: 'Strada 31 August 1989 44, Chișinău, Moldova',
+    mapEmbedUrl:
+      'https://maps.google.com/maps?q=Strada%2031%20August%201989%2044,%20Chi%C8%99in%C4%83u,%20Moldova&t=&z=15&ie=UTF8&iwloc=&output=embed',
     expirationDate: '2026-02-22T22:00:00Z',
     postedAt: '1 hour ago',
     image: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
@@ -251,7 +260,7 @@ export const MOCK_INVENTORY: InventoryItem[] = [
     category: 'Vegetables',
     quantity: 45,
     unit: 'kg',
-    pickupLocation: 'Farm Warehouse A',
+    pickupLocation: 'Piața Centrală, Chișinău, Moldova',
     expirationDate: '2026-03-15T18:00:00Z',
     image: 'https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     addedAt: '3 days ago',
@@ -266,7 +275,7 @@ export const MOCK_INVENTORY: InventoryItem[] = [
     category: 'Bakery',
     quantity: 8,
     unit: 'pieces',
-    pickupLocation: 'Central Bakery',
+    pickupLocation: 'Strada 31 August 1989 78, Chișinău, Moldova',
     expirationDate: '2026-02-24T22:00:00Z',
     image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     addedAt: '1 day ago',
@@ -281,7 +290,7 @@ export const MOCK_INVENTORY: InventoryItem[] = [
     category: 'Dairy',
     quantity: 24,
     unit: 'portions',
-    pickupLocation: 'Cold Storage Unit B',
+    pickupLocation: 'Strada Calea Ieșilor 100, Chișinău, Moldova',
     expirationDate: '2026-03-08T20:00:00Z',
     image: 'https://images.unsplash.com/photo-1488459716781-6f3ee109e5e4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     addedAt: '2 days ago',
@@ -296,7 +305,7 @@ export const MOCK_INVENTORY: InventoryItem[] = [
     category: 'Fruits',
     quantity: 12,
     unit: 'boxes',
-    pickupLocation: 'Cold Storage Unit A',
+    pickupLocation: 'Strada Arborilor 21, Chișinău, Moldova',
     expirationDate: '2026-02-23T16:00:00Z',
     image: 'https://images.unsplash.com/photo-1590721294919-c82a88798190?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     addedAt: '5 hours ago',
@@ -311,7 +320,7 @@ export const MOCK_INVENTORY: InventoryItem[] = [
     category: 'Vegetables',
     quantity: 35,
     unit: 'portions',
-    pickupLocation: 'Freezer Section C',
+    pickupLocation: 'Bulevardul Dacia 31, Chișinău, Moldova',
     expirationDate: '2026-06-22T12:00:00Z',
     image: 'https://images.unsplash.com/photo-1610139901882-e2e11488d563?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     addedAt: '1 week ago',
@@ -326,7 +335,7 @@ export const MOCK_INVENTORY: InventoryItem[] = [
     category: 'Cooked Food',
     quantity: 52,
     unit: 'kg',
-    pickupLocation: 'Dry Storage Room',
+    pickupLocation: 'Bulevardul Moscova 17, Chișinău, Moldova',
     expirationDate: '2026-12-01T00:00:00Z',
     image: 'https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     addedAt: '2 weeks ago',
