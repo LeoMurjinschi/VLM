@@ -7,4 +7,8 @@ public class DonationCreateDto
     public decimal Quantity { get; set; }
     public string Unit { get; set; } = string.Empty;
     public int DonorId { get; set; }
+    public string Category { get; set; } = string.Empty;
+    public string PickupLocation { get; set; } = string.Empty;
+    public DateTime? ExpirationDate { get; set; }
+    public string? Image { get; set; }
 }
