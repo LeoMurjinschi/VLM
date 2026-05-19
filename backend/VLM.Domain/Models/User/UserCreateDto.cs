@@ -7,4 +7,5 @@ public class UserCreateDto
     public string Password { get; set; } = string.Empty;
     public string Role { get; set; } = string.Empty;
     public string Bio { get; set; } = string.Empty;
+    public string? Avatar { get; set; }
 }

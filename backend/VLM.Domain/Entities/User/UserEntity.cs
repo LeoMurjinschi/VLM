@@ -1,5 +1,7 @@
 using VLM.Domain.Entities.Comment;
 using VLM.Domain.Entities.Donation;
+using VLM.Domain.Entities.Message;
+using VLM.Domain.Entities.Notification;
 using VLM.Domain.Entities.Reservation;
 using VLM.Domain.Entities.Review;
 
@@ -13,6 +15,8 @@ public class UserEntity
     public string PasswordHash { get; set; } = string.Empty;
     public string Role { get; set; } = string.Empty;
     public string Bio { get; set; } = string.Empty;
+    public string? Avatar { get; set; }
+    public bool IsActive { get; set; } = true;
     public DateTime CreatedDate { get; set; }
 
     // Navigation properties
@@ -21,4 +25,7 @@ public class UserEntity
     public ICollection<ReservationEntity> Reservations { get; set; } = new List<ReservationEntity>();
     public ICollection<ReviewEntity> DonorReviews { get; set; } = new List<ReviewEntity>();
     public ICollection<ReviewEntity> ReceiverReviews { get; set; } = new List<ReviewEntity>();
+    public ICollection<NotificationEntity> Notifications { get; set; } = new List<NotificationEntity>();
+    public ICollection<MessageEntity> SentMessages { get; set; } = new List<MessageEntity>();
+    public ICollection<MessageEntity> ReceivedMessages { get; set; } = new List<MessageEntity>();
 }
