@@ -11,4 +11,4 @@ public interface ICommentLogic
     ServiceResponse UpdateComment(int id, CommentCreateDto commentCreateDto);
     ServiceResponse DeleteComment(int id);
 }
->>>>>>>>> Temporary merge branch 2
+

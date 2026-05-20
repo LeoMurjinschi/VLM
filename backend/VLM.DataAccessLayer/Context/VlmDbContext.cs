@@ -1,8 +1,11 @@
 using Microsoft.EntityFrameworkCore;
+using VLM.Domain.Entities.Category;
 using VLM.Domain.Entities.Comment;
 using VLM.Domain.Entities.Donation;
+using VLM.Domain.Entities.Favorite;
 using VLM.Domain.Entities.Message;
 using VLM.Domain.Entities.Notification;
+using VLM.Domain.Entities.Report;
 using VLM.Domain.Entities.Reservation;
 using VLM.Domain.Entities.Review;
 using VLM.Domain.Entities.User;
@@ -18,6 +21,11 @@ public sealed class VlmDbContext : DbContext
     public DbSet<ReviewEntity> Reviews { get; set; }
     public DbSet<NotificationEntity> Notifications { get; set; }
     public DbSet<MessageEntity> Messages { get; set; }
+    public DbSet<UserProfileEntity> UserProfiles { get; set; }
+    public DbSet<UserSettingsEntity> UserSettings { get; set; }
+    public DbSet<CategoryEntity> Categories { get; set; }
+    public DbSet<FavoriteEntity> Favorites { get; set; }
+    public DbSet<ReportEntity> Reports { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -98,6 +106,43 @@ public sealed class VlmDbContext : DbContext
             .WithMany(u => u.ReceivedMessages)
             .HasForeignKey(m => m.ReceiverId)
             .OnDelete(DeleteBehavior.NoAction);
+
+        modelBuilder.Entity<UserProfileEntity>()
+            .HasOne(p => p.User)
+            .WithOne(u => u.Profile)
+            .HasForeignKey<UserProfileEntity>(p => p.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<UserSettingsEntity>()
+            .HasOne(s => s.User)
+            .WithOne(u => u.Settings)
+            .HasForeignKey<UserSettingsEntity>(s => s.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<FavoriteEntity>()
+            .HasOne(f => f.User)
+            .WithMany(u => u.Favorites)
+            .HasForeignKey(f => f.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<FavoriteEntity>()
+            .HasOne(f => f.Donation)
+            .WithMany(d => d.Favorites)
+            .HasForeignKey(f => f.DonationId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<ReportEntity>()
+            .HasOne(r => r.Reporter)
+            .WithMany(u => u.Reports)
+            .HasForeignKey(r => r.ReporterId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<ReportEntity>()
+            .HasOne(r => r.Donation)
+            .WithMany(d => d.Reports)
+            .HasForeignKey(r => r.DonationId)
+            .IsRequired(false)
+            .OnDelete(DeleteBehavior.SetNull);
 
         modelBuilder.Entity<UserEntity>().HasData(
             new UserEntity
