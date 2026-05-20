@@ -31,4 +31,13 @@ public class BusinessLogic
     {
         return new ReviewLogic();
     }
+    public INotificationLogic GetNotificationLogic()
+    {
+        return new NotificationLogic();
+    }
+
+    public IMessageLogic GetMessageLogic()
+    {
+        return new MessageLogic();
+    }
 }

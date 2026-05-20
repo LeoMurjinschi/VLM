@@ -11,3 +11,4 @@ public interface IReservationLogic
     ServiceResponse UpdateReservation(int id, ReservationCreateDto reservationCreateDto);
     ServiceResponse DeleteReservation(int id);
 }
+>>>>>>>>> Temporary merge branch 2

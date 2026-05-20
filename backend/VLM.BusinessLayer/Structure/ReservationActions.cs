@@ -110,6 +110,10 @@ public class ReservationActions
                 QuantityReserved = reservationCreateDto.QuantityReserved,
                 Notes = reservationCreateDto.Notes,
                 Status = "pending",
+=========
+                Notes = reservationCreateDto.Notes,
+                Status = "Pending",
+>>>>>>>>> Temporary merge branch 2
                 CreatedDate = DateTime.UtcNow
             };
 
