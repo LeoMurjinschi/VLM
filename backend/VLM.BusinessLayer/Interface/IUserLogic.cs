@@ -11,3 +11,4 @@ public interface IUserLogic
     ServiceResponse UpdateUser(int id, UserCreateDto userCreateDto);
     ServiceResponse DeleteUser(int id);
 }
+>>>>>>>>> Temporary merge branch 2

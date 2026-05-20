@@ -7,6 +7,7 @@ export interface UserCreateDto {
   password: string;
   role: string;
   bio: string;
+  avatar?: string;
 }
 
 export interface UserInfoDto {
@@ -15,6 +16,8 @@ export interface UserInfoDto {
   email: string;
   role: string;
   bio: string;
+  avatar?: string;
+  isActive: boolean;
   createdDate: string;
 }
 

@@ -11,3 +11,4 @@ public interface IReviewLogic
     ServiceResponse UpdateReview(int id, ReviewCreateDto reviewCreateDto);
     ServiceResponse DeleteReview(int id);
 }
+>>>>>>>>> Temporary merge branch 2
