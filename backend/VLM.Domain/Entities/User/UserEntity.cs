@@ -1,7 +1,9 @@
 using VLM.Domain.Entities.Comment;
 using VLM.Domain.Entities.Donation;
+using VLM.Domain.Entities.Favorite;
 using VLM.Domain.Entities.Message;
 using VLM.Domain.Entities.Notification;
+using VLM.Domain.Entities.Report;
 using VLM.Domain.Entities.Reservation;
 using VLM.Domain.Entities.Review;
 
@@ -30,4 +32,6 @@ public class UserEntity
     public ICollection<MessageEntity> ReceivedMessages { get; set; } = new List<MessageEntity>();
     public UserProfileEntity? Profile { get; set; }
     public UserSettingsEntity? Settings { get; set; }
+    public ICollection<FavoriteEntity> Favorites { get; set; } = new List<FavoriteEntity>();
+    public ICollection<ReportEntity> Reports { get; set; } = new List<ReportEntity>();
 }
