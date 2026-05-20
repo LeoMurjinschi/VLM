@@ -14,6 +14,7 @@ export interface ReviewInfoDto {
   receiverId: number;
   rating: number;
   text: string;
+  status: string;
   createdDate: string;
 }
 

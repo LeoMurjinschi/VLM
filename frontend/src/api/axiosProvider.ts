@@ -1,51 +1,55 @@
 import axios from 'axios';
 
-// ── Base URL ──────────────────────────────────────────────────────────────────
-// Points to the running .NET backend. Change port if your launchSettings.json uses a different one.
 const BASE_URL = 'http://localhost:5073/api';
 
-// ── Axios Instance ────────────────────────────────────────────────────────────
 const axiosInstance = axios.create({
   baseURL: BASE_URL,
+  timeout: 10_000,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// ── Request Interceptor ───────────────────────────────────────────────────────
-// Runs before every request — good place to attach auth tokens later
+// Attach JWT token on every request
 axiosInstance.interceptors.request.use(
   (config) => {
-    // Future: attach JWT token here
-    // const token = localStorage.getItem('token');
-    // if (token) config.headers.Authorization = `Bearer ${token}`;
+    const token = localStorage.getItem('token');
+    if (token) config.headers.Authorization = `Bearer ${token}`;
     return config;
   },
   (error) => Promise.reject(error)
 );
 
-// ── Response Interceptor ──────────────────────────────────────────────────────
-// Runs after every response — handles global error codes
+// Global response error handling
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response) {
-      switch (error.response.status) {
-        case 400:
-          console.error('Bad Request:', error.response.data);
-          break;
-        case 404:
-          console.error('Not Found:', error.response.data);
-          break;
-        case 500:
-          console.error('Server Error:', error.response.data);
-          break;
-        default:
-          console.error('Unexpected Error:', error.response.status);
-      }
-    } else {
+    if (!error.response) {
       console.error('Network Error — is the backend running?', error.message);
+      return Promise.reject(error);
     }
+
+    const { status, data } = error.response;
+
+    const messages: Record<number, string> = {
+      400: 'Bad Request',
+      401: 'Unauthorized — please log in',
+      403: 'Forbidden — you do not have permission',
+      404: 'Not Found',
+      409: 'Conflict — resource already exists',
+      422: 'Unprocessable Entity — validation failed',
+      429: 'Too Many Requests — slow down',
+      500: 'Internal Server Error',
+      502: 'Bad Gateway',
+      503: 'Service Unavailable',
+    };
+
+    console.error(`[${status}] ${messages[status] ?? 'Unexpected Error'}:`, data);
+
+    if (status === 401) {
+      localStorage.removeItem('token');
+    }
+
     return Promise.reject(error);
   }
 );
