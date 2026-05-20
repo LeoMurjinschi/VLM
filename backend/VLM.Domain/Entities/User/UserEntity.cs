@@ -28,4 +28,6 @@ public class UserEntity
     public ICollection<NotificationEntity> Notifications { get; set; } = new List<NotificationEntity>();
     public ICollection<MessageEntity> SentMessages { get; set; } = new List<MessageEntity>();
     public ICollection<MessageEntity> ReceivedMessages { get; set; } = new List<MessageEntity>();
+    public UserProfileEntity? Profile { get; set; }
+    public UserSettingsEntity? Settings { get; set; }
 }
