@@ -1,5 +1,7 @@
 // Central export — import everything from here
 export { default as axiosInstance } from './axiosProvider';
+export { authService } from './authService';
+export type { LoginRequestDto, LoginResponseDto } from './authService';
 export { donationService } from './donationService';
 export { userService } from './userService';
 export { commentService } from './commentService';

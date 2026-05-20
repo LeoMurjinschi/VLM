@@ -4,10 +4,10 @@ import { Mail, Lock, LogIn } from 'lucide-react';
 import { AuthLayout } from '../../components/auth/AuthLayout';
 import { InputField } from '../../components/UI/InputField';
 import { AuthButton } from '../../components/UI/AuthButton';
-import { useAuth} from '../../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../hooks/useTheme';
 import type { Role } from '../../context/AuthContext';
-import usersMock from '../../_mock/users.json';
+import { authService } from '../../api';
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -26,27 +26,25 @@ const LoginPage = () => {
     setIsLoading(true);
     setError('');
 
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    try {
+      const user = await authService.login({ email: formData.email, password: formData.password });
 
-    const user = usersMock.find(u => u.email === formData.email && u.password === formData.password);
-
-    if (user) {
       login({
-        id: user.id,
+        id: String(user.id),
         name: user.name,
         email: user.email,
         role: user.role as Role,
-        avatar: user.avatar
+        avatar: user.avatar,
       });
 
       if (user.role === 'admin') {
         navigate('/admin/dashboard');
       } else if (user.role === 'donor') {
         navigate('/donor/dashboard');
-      } else if (user.role === 'receiver') {
+      } else {
         navigate('/receiver/feed');
       }
-    } else {
+    } catch {
       setError('Invalid email or password. Please try again.');
       setIsLoading(false);
     }
