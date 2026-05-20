@@ -4,6 +4,7 @@ import axiosInstance from './axiosProvider';
 export interface ReservationCreateDto {
   userId: number;
   donationId: number;
+  quantityReserved: number;
   notes: string;
 }
 
@@ -11,10 +12,16 @@ export interface ReservationInfoDto {
   id: number;
   userId: number;
   donationId: number;
+  quantityReserved: number;
   status: string;
   notes: string;
   createdDate: string;
   updatedDate?: string;
+  donorConfirmedAt?: string;
+  receiverConfirmedAt?: string;
+  completedAt?: string;
+  cancelledAt?: string;
+  cancelledBy?: string;
 }
 
 // ── Service ───────────────────────────────────────────────────────────────────

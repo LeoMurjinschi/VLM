@@ -7,6 +7,10 @@ export interface DonationCreateDto {
   quantity: number;
   unit: string;
   donorId: number;
+  category: string;
+  pickupLocation: string;
+  expirationDate?: string;
+  image?: string;
 }
 
 export interface DonationInfoDto {
@@ -16,6 +20,10 @@ export interface DonationInfoDto {
   quantity: number;
   unit: string;
   donorId: number;
+  category: string;
+  pickupLocation: string;
+  expirationDate?: string;
+  image?: string;
   status: string;
   createdDate: string;
   updatedDate?: string;

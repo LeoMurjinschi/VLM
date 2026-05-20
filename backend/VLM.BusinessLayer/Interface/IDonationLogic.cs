@@ -11,3 +11,4 @@ public interface IDonationLogic
     ServiceResponse UpdateDonation(int id, DonationCreateDto donationCreateDto);
     ServiceResponse DeleteDonation(int id);
 }
+>>>>>>>>> Temporary merge branch 2
