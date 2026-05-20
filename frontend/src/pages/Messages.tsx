@@ -9,6 +9,7 @@ import ChatInput from '../components/chat/ChatInput';
 import type { Contact, ChatMessage } from '../components/chat/types';
 import { ArrowLeftIcon, EllipsisVerticalIcon, ChatBubbleLeftEllipsisIcon, TrashIcon, NoSymbolIcon, SpeakerWaveIcon, ExclamationCircleIcon } from '@heroicons/react/24/outline';
 import { toast } from 'react-toastify';
+import { messageService } from '../api';
 
 // Am șters "online" din aceste date
 const CONTACTS: Contact[] = [
@@ -49,6 +50,26 @@ const Messages: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
+  const currentUserId = parseInt((user as any)?.id || '0');
+
+  // Load real messages when active contact changes
+  useEffect(() => {
+    if (!activeChatId || !currentUserId) return;
+    messageService.getConversation(currentUserId, activeChatId)
+      .then(data => {
+        if (data.length === 0) return;
+        setMessages(prev => ({
+          ...prev,
+          [activeChatId]: data.map(m => ({
+            id: m.id,
+            senderId: m.senderId === currentUserId ? 'me' : m.senderId,
+            text: m.text,
+            time: new Date(m.createdDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          })),
+        }));
+      })
+      .catch(() => {});
+  }, [activeChatId, currentUserId]);
   
   // Handlers for dynamic deep linking
   useEffect(() => {
@@ -116,14 +137,18 @@ const Messages: React.FC = () => {
     const newMsg: ChatMessage = {
       id: Date.now(),
       senderId: 'me',
-      text: text,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      text,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     };
 
     setMessages(prev => ({
       ...prev,
-      [activeChatId]: [...(prev[activeChatId] || []), newMsg]
+      [activeChatId]: [...(prev[activeChatId] || []), newMsg],
     }));
+
+    if (currentUserId) {
+      messageService.send({ senderId: currentUserId, receiverId: activeChatId, text }).catch(() => {});
+    }
   };
 
   return (

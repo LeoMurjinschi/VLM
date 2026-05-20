@@ -12,17 +12,33 @@ import {
   UserPlusIcon,          // Pentru echipa
   Cog8ToothIcon          // Pentru setari sistem
 } from '@heroicons/react/24/outline';
-import { getMockNotifications, type AppNotification } from '../_mock/notifications';
+import { type AppNotification } from '../_mock/notifications';
+import { notificationService } from '../api';
 
 const NotificationHistory: React.FC = () => {
   const { theme } = useTheme();
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
-  const [notifications, setNotifications] = useState<AppNotification[]>(getMockNotifications(user?.role));
-  
+  const [notifications, setNotifications] = useState<AppNotification[]>([]);
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
-    setNotifications(getMockNotifications(user?.role));
-  }, [user?.role]);
+    const userId = parseInt((user as any)?.id || '0');
+    if (!userId) { setLoading(false); return; }
+    notificationService.getByUser(userId)
+      .then(data => setNotifications(data.map(n => ({
+        id: n.id,
+        title: n.title,
+        desc: n.description,
+        date: new Date(n.createdDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        time: new Date(n.createdDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        unread: !n.isRead,
+        type: n.type,
+        link: n.link,
+      }))))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [user]);
   const [filter, setFilter] = useState<'all' | 'unread' | 'urgent' | 'security'>('all');
 
   const filteredNotifications = notifications.filter(notif => {
@@ -38,6 +54,7 @@ const NotificationHistory: React.FC = () => {
 
   const markAsRead = (id: number) => {
     setNotifications(prev => prev.map(n => n.id === id ? { ...n, unread: false } : n));
+    notificationService.markAsRead(id).catch(() => {});
   };
 
   // Funcție inteligentă care returnează iconița și culoarea potrivită
