@@ -1,6 +1,7 @@
 import React, { type ReactNode, createContext, useContext, useEffect, useMemo, useState, useCallback } from 'react';
 import type { InventoryItem, Donation } from '../_mock';
 import { stockStore, toDonation } from '../services/stockStore';
+import { donationService } from '../api';
 
 interface InventoryContextType {
   inventory: InventoryItem[];
@@ -23,6 +24,34 @@ export const InventoryProvider: React.FC<{ children: ReactNode }> = ({ children 
       setInventory(stockStore.getAll());
     });
     return unsubscribe;
+  }, []);
+
+  // ── Fetch real donations from the backend API ────────────────────────────────
+  useEffect(() => {
+    donationService.getAll()
+      .then((apiDonations) => {
+        apiDonations.forEach((d) => {
+          const apiId = `api_${d.id}`;
+          if (!stockStore.getById(apiId)) {
+            const item: InventoryItem = {
+              id: apiId,
+              title: d.title,
+              description: d.description,
+              category: 'General',
+              quantity: d.quantity,
+              unit: d.unit,
+              pickupLocation: 'Contact donor for location',
+              expirationDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+              image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&q=80',
+              addedAt: d.createdDate,
+              status: d.quantity <= 0 ? 'Expired' : d.quantity < 5 ? 'Low Stock' : 'In Stock',
+              donorId: String(d.donorId),
+            };
+            stockStore.add(item);
+          }
+        });
+      })
+      .catch((err) => console.warn('API fetch failed, using mock data:', err));
   }, []);
 
   const addStock = useCallback((item: InventoryItem) => {

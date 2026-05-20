@@ -25,6 +25,10 @@ public class DonationActions
                 Quantity = donationCreateDto.Quantity,
                 Unit = donationCreateDto.Unit,
                 DonorId = donationCreateDto.DonorId,
+                Category = donationCreateDto.Category,
+                PickupLocation = donationCreateDto.PickupLocation,
+                ExpirationDate = donationCreateDto.ExpirationDate,
+                Image = donationCreateDto.Image,
                 Status = "Available",
                 CreatedDate = DateTime.UtcNow
             };
@@ -69,6 +73,10 @@ public class DonationActions
                 Quantity = entity.Quantity,
                 Unit = entity.Unit,
                 DonorId = entity.DonorId,
+                Category = entity.Category,
+                PickupLocation = entity.PickupLocation,
+                ExpirationDate = entity.ExpirationDate,
+                Image = entity.Image,
                 Status = entity.Status,
                 CreatedDate = entity.CreatedDate,
                 UpdatedDate = entity.UpdatedDate
@@ -103,6 +111,10 @@ public class DonationActions
                     Quantity = entity.Quantity,
                     Unit = entity.Unit,
                     DonorId = entity.DonorId,
+                    Category = entity.Category,
+                    PickupLocation = entity.PickupLocation,
+                    ExpirationDate = entity.ExpirationDate,
+                    Image = entity.Image,
                     Status = entity.Status,
                     CreatedDate = entity.CreatedDate,
                     UpdatedDate = entity.UpdatedDate
@@ -143,6 +155,10 @@ public class DonationActions
             entity.Quantity = donationCreateDto.Quantity;
             entity.Unit = donationCreateDto.Unit;
             entity.DonorId = donationCreateDto.DonorId;
+            entity.Category = donationCreateDto.Category;
+            entity.PickupLocation = donationCreateDto.PickupLocation;
+            entity.ExpirationDate = donationCreateDto.ExpirationDate;
+            entity.Image = donationCreateDto.Image;
             entity.UpdatedDate = DateTime.UtcNow;
 
             _dbContext.SaveChanges();

@@ -26,6 +26,8 @@ public class UserActions
                     Email = entity.Email,
                     Role = entity.Role,
                     Bio = entity.Bio,
+                    Avatar = entity.Avatar,
+                    IsActive = entity.IsActive,
                     CreatedDate = entity.CreatedDate
                 })
                 .ToList();
@@ -66,6 +68,8 @@ public class UserActions
                 Email = entity.Email,
                 Role = entity.Role,
                 Bio = entity.Bio,
+                Avatar = entity.Avatar,
+                IsActive = entity.IsActive,
                 CreatedDate = entity.CreatedDate
             };
 
@@ -96,6 +100,8 @@ public class UserActions
                 PasswordHash = userCreateDto.Password,
                 Role = userCreateDto.Role,
                 Bio = userCreateDto.Bio,
+                Avatar = userCreateDto.Avatar,
+                IsActive = true,
                 CreatedDate = DateTime.UtcNow
             };
 
@@ -135,6 +141,7 @@ public class UserActions
             entity.Email = userCreateDto.Email;
             entity.Role = userCreateDto.Role;
             entity.Bio = userCreateDto.Bio;
+            entity.Avatar = userCreateDto.Avatar;
 
             _dbContext.SaveChanges();
 

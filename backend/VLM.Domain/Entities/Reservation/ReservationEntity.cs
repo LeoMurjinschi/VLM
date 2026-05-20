@@ -8,10 +8,16 @@ public class ReservationEntity
     public int Id { get; set; }
     public int UserId { get; set; }
     public int DonationId { get; set; }
-    public string Status { get; set; } = "Pending";
+    public int QuantityReserved { get; set; } = 1;
+    public string Status { get; set; } = "pending";
     public string Notes { get; set; } = string.Empty;
     public DateTime CreatedDate { get; set; }
     public DateTime? UpdatedDate { get; set; }
+    public DateTime? DonorConfirmedAt { get; set; }
+    public DateTime? ReceiverConfirmedAt { get; set; }
+    public DateTime? CompletedAt { get; set; }
+    public DateTime? CancelledAt { get; set; }
+    public string? CancelledBy { get; set; }
 
     // Navigation properties
     public UserEntity Receiver { get; set; } = null!;

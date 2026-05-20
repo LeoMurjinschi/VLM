@@ -12,6 +12,10 @@ public class DonationEntity
     public decimal Quantity { get; set; }
     public string Unit { get; set; } = string.Empty;
     public int DonorId { get; set; }
+    public string Category { get; set; } = string.Empty;
+    public string PickupLocation { get; set; } = string.Empty;
+    public DateTime? ExpirationDate { get; set; }
+    public string? Image { get; set; }
     public string Status { get; set; } = "Available";
     public DateTime CreatedDate { get; set; }
     public DateTime? UpdatedDate { get; set; }

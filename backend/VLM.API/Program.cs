@@ -1,4 +1,7 @@
+using VLM.DataAccessLayer.Context;
+
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddDbContext<VlmDbContext>();
 
 builder.Services.AddCors(options =>
 {

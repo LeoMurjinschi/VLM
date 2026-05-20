@@ -1,4 +1,5 @@
 import { MOCK_COMMENTS, type Comment, type CommentTargetType } from '../_mock/comments';
+import { commentService } from '../api';
 
 const delay = (ms = 250) => new Promise<void>((r) => setTimeout(r, ms));
 
@@ -8,6 +9,31 @@ export const fetchComments = async (
   targetType: CommentTargetType,
   targetId: string
 ): Promise<Comment[]> => {
+  // Try the real API first for stock (donation) comments
+  if (targetType === 'stock') {
+    const numericId = parseInt(targetId.replace('api_', ''));
+    if (!isNaN(numericId)) {
+      try {
+        const apiComments = await commentService.getByDonation(numericId);
+        return apiComments.map((c) => ({
+          id: String(c.id),
+          targetType: 'stock' as CommentTargetType,
+          targetId,
+          authorId: String(c.userId),
+          authorName: `User ${c.userId}`,
+          authorAvatar: `https://i.pravatar.cc/40?u=${c.userId}`,
+          authorRole: 'receiver' as const,
+          text: c.text,
+          date: c.createdDate,
+          likes: 0,
+          parentCommentId: c.parentCommentId ? String(c.parentCommentId) : undefined,
+        }));
+      } catch {
+        // fall through to mock
+      }
+    }
+  }
+
   await delay();
   return store
     .filter((c) => c.targetType === targetType && c.targetId === targetId)
@@ -17,6 +43,23 @@ export const fetchComments = async (
 export const postComment = async (
   input: Omit<Comment, 'id' | 'date' | 'likes'>
 ): Promise<Comment> => {
+  // Also POST to the real API when commenting on a stock/donation item
+  if (input.targetType === 'stock') {
+    const numericId = parseInt(input.targetId.replace('api_', ''));
+    if (!isNaN(numericId)) {
+      try {
+        await commentService.create({
+          text: input.text,
+          userId: parseInt(input.authorId) || 1,
+          donationId: numericId,
+          parentCommentId: input.parentCommentId ? parseInt(input.parentCommentId) : undefined,
+        });
+      } catch {
+        // fall through to mock
+      }
+    }
+  }
+
   await delay(300);
   const created: Comment = {
     ...input,

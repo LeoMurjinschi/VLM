@@ -24,10 +24,16 @@ public class ReservationActions
                     Id = entity.Id,
                     UserId = entity.UserId,
                     DonationId = entity.DonationId,
+                    QuantityReserved = entity.QuantityReserved,
                     Status = entity.Status,
                     Notes = entity.Notes,
                     CreatedDate = entity.CreatedDate,
-                    UpdatedDate = entity.UpdatedDate
+                    UpdatedDate = entity.UpdatedDate,
+                    DonorConfirmedAt = entity.DonorConfirmedAt,
+                    ReceiverConfirmedAt = entity.ReceiverConfirmedAt,
+                    CompletedAt = entity.CompletedAt,
+                    CancelledAt = entity.CancelledAt,
+                    CancelledBy = entity.CancelledBy
                 })
                 .ToList();
 
@@ -65,10 +71,16 @@ public class ReservationActions
                 Id = entity.Id,
                 UserId = entity.UserId,
                 DonationId = entity.DonationId,
+                QuantityReserved = entity.QuantityReserved,
                 Status = entity.Status,
                 Notes = entity.Notes,
                 CreatedDate = entity.CreatedDate,
-                UpdatedDate = entity.UpdatedDate
+                UpdatedDate = entity.UpdatedDate,
+                DonorConfirmedAt = entity.DonorConfirmedAt,
+                ReceiverConfirmedAt = entity.ReceiverConfirmedAt,
+                CompletedAt = entity.CompletedAt,
+                CancelledAt = entity.CancelledAt,
+                CancelledBy = entity.CancelledBy
             };
 
             return new ServiceResponse
@@ -95,6 +107,7 @@ public class ReservationActions
             {
                 UserId = reservationCreateDto.UserId,
                 DonationId = reservationCreateDto.DonationId,
+                QuantityReserved = reservationCreateDto.QuantityReserved,
                 Notes = reservationCreateDto.Notes,
                 Status = "Pending",
                 CreatedDate = DateTime.UtcNow

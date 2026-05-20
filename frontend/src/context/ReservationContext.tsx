@@ -4,6 +4,7 @@ import { reservationStore } from '../services/reservationStore';
 import { stockStore } from '../services/stockStore';
 import { useAuth } from './AuthContext';
 import usersMock from '../_mock/users.json';
+import { reservationService } from '../api';
 
 function generateId(): string {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) {
@@ -73,6 +74,16 @@ export const ReservationProvider: React.FC<{ children: ReactNode }> = ({ childre
       status: 'pending',
       reservedAt: new Date().toISOString(),
     };
+
+    // Also persist to the real backend API (fire and forget)
+    const numericDonationId = parseInt(stockId.replace('api_', ''));
+    if (!isNaN(numericDonationId)) {
+      reservationService.create({
+        userId: parseInt(user.id) || 1,
+        donationId: numericDonationId,
+        notes: `Quantity: ${quantity}`,
+      }).catch((err) => console.warn('API reservation create failed:', err));
+    }
 
     return reservationStore.add(reservation);
   }, [user]);
