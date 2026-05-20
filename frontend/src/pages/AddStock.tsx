@@ -5,8 +5,7 @@ import Select from '../components/UI/Select';
 import ImageDragDrop from '../components/UI/ImageDragDrop';
 import CustomDatePicker from '../components/UI/CustomDatePicker';
 import { useTheme } from '../hooks/useTheme';
-import { addInventoryItem } from '../services/inventoryService';
-import { useInventory } from '../context/InventoryContext';
+import { donationService } from '../api';
 import { useAuth } from '../context/AuthContext';
 
 
@@ -44,7 +43,6 @@ const AddStock: React.FC = () => {
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
-  const { addStock } = useInventory();
   const [formState, setFormState] = useState<FormState>({
     title: '',
     description: '',
@@ -192,22 +190,17 @@ const AddStock: React.FC = () => {
       setIsSubmitting(true);
 
       try {
-        const newStock = await addInventoryItem({
+        await donationService.create({
           title: formState.title,
           description: formState.description,
           category: formState.category,
           quantity: qty,
           unit: formState.unit,
-          donorId: user?.id,
+          donorId: parseInt((user as any)?.id || '0'),
           pickupLocation: formState.pickupLocation,
           expirationDate: new Date(formState.expirationDate).toISOString(),
-          image:
-            formState.image ||
-            'https://images.unsplash.com/photo-1488459716781-6f3ee109e5e4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-          addedAt: 'Just now',
+          image: formState.image || undefined,
         });
-
-        addStock(newStock);
 
         toast.success('Your donation is live! Food seekers can now reserve this item.');
         resetForm();

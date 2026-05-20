@@ -32,4 +32,4 @@ public class UserLogic : UserActions, IUserLogic
         return DeleteUserAction(id);
     }
 }
->>>>>>>>> Temporary merge branch 2
+
