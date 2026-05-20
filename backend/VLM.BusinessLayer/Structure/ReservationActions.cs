@@ -109,7 +109,7 @@ public class ReservationActions
                 DonationId = reservationCreateDto.DonationId,
                 QuantityReserved = reservationCreateDto.QuantityReserved,
                 Notes = reservationCreateDto.Notes,
-                Status = "pending",
+                Status = "Pending",
                 CreatedDate = DateTime.UtcNow
             };
 
