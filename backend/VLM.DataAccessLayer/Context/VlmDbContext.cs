@@ -23,7 +23,7 @@ public sealed class VlmDbContext : DbContext
     {
         if (!optionsBuilder.IsConfigured)
         {
-            optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=onlinevlm;Username=postgres;Password=maranda123;");
+            optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=onlinevlm;Username=postgres;Password=postgres;");
         }
     }
 
