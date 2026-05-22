@@ -17,6 +17,15 @@ public class MessageController : ControllerBase
         _messageLogic = businessLogic.GetMessageLogic();
     }
 
+    [HttpGet("contacts/{userId}")]
+    public IActionResult GetContacts([FromRoute] int userId)
+    {
+        var result = _messageLogic.GetContacts(userId);
+        if (!result.IsSuccess)
+            return BadRequest(result.Message);
+        return Ok(result.Data);
+    }
+
     [HttpGet("conversation/{userId1}/{userId2}")]
     public IActionResult GetConversation([FromRoute] int userId1, [FromRoute] int userId2)
     {
