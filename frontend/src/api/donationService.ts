@@ -32,6 +32,11 @@ export interface DonationInfoDto {
 // ── Service ───────────────────────────────────────────────────────────────────
 export const donationService = {
 
+  getDonationsByDonorId: async (donorId: number): Promise<DonationInfoDto[]> => {
+    const response = await axiosInstance.get<DonationInfoDto[]>(`/donations/donor/${donorId}`);
+    return response.data;
+  },
+
   getAll: async (): Promise<DonationInfoDto[]> => {
     const response = await axiosInstance.get<DonationInfoDto[]>('/donations/list');
     return response.data;
