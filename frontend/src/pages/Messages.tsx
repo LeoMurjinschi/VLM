@@ -9,36 +9,15 @@ import ChatInput from '../components/chat/ChatInput';
 import type { Contact, ChatMessage } from '../components/chat/types';
 import { ArrowLeftIcon, EllipsisVerticalIcon, ChatBubbleLeftEllipsisIcon, TrashIcon, NoSymbolIcon, SpeakerWaveIcon, ExclamationCircleIcon } from '@heroicons/react/24/outline';
 import { toast } from 'react-toastify';
-
-// Am șters "online" din aceste date
-const CONTACTS: Contact[] = [
-  { id: 1, name: 'Mishanea SRL', role: 'Donor', initials: 'RC', lastMessage: 'We have 5 more boxes ready.', time: '10:15 AM', unread: 2 },
-  { id: 2, name: 'Andrei M.', role: 'Volunteer (Van)', initials: 'AM', lastMessage: 'I will be there in 10 mins.', time: '09:30 AM', unread: 0 },
-  { id: 3, name: 'Panaderia Central', role: 'Donor', initials: 'PC', lastMessage: 'See you tomorrow!', time: 'Yesterday', unread: 0 },
-  { id: 4, name: 'FoodShare Support', role: 'System', initials: 'FS', lastMessage: 'Your ticket has been resolved.', time: 'Oct 24', unread: 0 },
-];
-
-const INITIAL_MESSAGES: Record<number, ChatMessage[]> = {
-  1: [
-    { id: 1, senderId: 1, text: 'Zdarova, ai vre-o 5 litri de piva?', time: '10:00 AM' },
-    { id: 2, senderId: 'me', text: 'Cum bai voi beti fara mine?', time: '10:05 AM' },
-    { id: 3, senderId: 1, text: 'Pai hai vina si tuu', time: '10:06 AM' },
-    { id: 4, senderId: 1, text: 'In caminul 2, ma suni cand ajungi', time: '10:15 AM' },
-  ],
-  2: [
-    { id: 1, senderId: 2, text: 'Hey, I picked up the bakery items.', time: '09:20 AM' },
-    { id: 2, senderId: 'me', text: 'Awesome, head straight to the shelter please.', time: '09:25 AM' },
-    { id: 3, senderId: 2, text: 'I will be there in 10 mins.', time: '09:30 AM' },
-  ]
-};
+import { messageService } from '../api';
 
 const Messages: React.FC = () => {
   const { theme } = useTheme();
   const location = useLocation();
-  const [contacts, setContacts] = useState<Contact[]>(CONTACTS);
-  const [activeChatId, setActiveChatId] = useState<number | null>(1);
+  const [contacts, setContacts] = useState<Contact[]>([]);
+  const [activeChatId, setActiveChatId] = useState<number | null>(null);
   const [isMobileListVisible, setIsMobileListVisible] = useState(true);
-  const [messages, setMessages] = useState<Record<number, ChatMessage[]>>(INITIAL_MESSAGES);
+  const [messages, setMessages] = useState<Record<number, ChatMessage[]>>({});
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -49,6 +28,38 @@ const Messages: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
+  const currentUserId = parseInt((user as any)?.id || '0');
+
+  useEffect(() => {
+    if (currentUserId) {
+      messageService.getContacts(currentUserId)
+        .then(data => {
+            setContacts(data);
+            if (data.length > 0 && !activeChatId) {
+                setActiveChatId(data[0].id);
+            }
+        })
+        .catch(err => console.error("Failed to load contacts", err));
+    }
+  }, [currentUserId]);
+
+  // Load real messages when active contact changes
+  useEffect(() => {
+    if (!activeChatId || !currentUserId) return;
+    messageService.getConversation(currentUserId, activeChatId)
+      .then(data => {
+        setMessages(prev => ({
+          ...prev,
+          [activeChatId]: data.map(m => ({
+            id: m.id,
+            senderId: m.senderId === currentUserId ? 'me' : m.senderId,
+            text: m.text,
+            time: new Date(m.createdDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          })),
+        }));
+      })
+      .catch(() => {});
+  }, [activeChatId, currentUserId]);
   
   // Handlers for dynamic deep linking
   useEffect(() => {
@@ -61,7 +72,7 @@ const Messages: React.FC = () => {
         setActiveChatId(existing.id);
         return prev;
       }
-      const newId = Date.now();
+      const newId = targetUser.id || Date.now();
       const newContact: Contact = {
         id: newId,
         name: targetUser.name,
@@ -116,14 +127,18 @@ const Messages: React.FC = () => {
     const newMsg: ChatMessage = {
       id: Date.now(),
       senderId: 'me',
-      text: text,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      text,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     };
 
     setMessages(prev => ({
       ...prev,
-      [activeChatId]: [...(prev[activeChatId] || []), newMsg]
+      [activeChatId]: [...(prev[activeChatId] || []), newMsg],
     }));
+
+    if (currentUserId) {
+      messageService.send({ senderId: currentUserId, receiverId: activeChatId, text }).catch(() => {});
+    }
   };
 
   return (

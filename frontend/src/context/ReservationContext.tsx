@@ -81,6 +81,7 @@ export const ReservationProvider: React.FC<{ children: ReactNode }> = ({ childre
       reservationService.create({
         userId: parseInt(user.id) || 1,
         donationId: numericDonationId,
+        quantityReserved: quantity,
         notes: `Quantity: ${quantity}`,
       }).catch((err) => console.warn('API reservation create failed:', err));
     }
