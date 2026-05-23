@@ -192,4 +192,42 @@ public class UserActions
             };
         }
     }
+
+    public ServiceResponse LoginAction(UserLoginDto loginDto)
+    {
+        try
+        {
+            var user = _dbContext.Users.FirstOrDefault(x => x.Email && x.PasswordHash == loginDto.Password);
+            if (!user.IsActive)
+            {
+                return new ServiceResponse { IsSuccess = false, Message = "Inactive account." };
+            }
+            if (user == null)
+            {
+                return new ServiceResponse
+                {
+                    IsSuccess = false,
+                    Message = "Email or password not matching."
+                };
+            }
+
+            var tokenService = new TokenService();
+
+            var token = tokenService.GenerateToken.(user.Id, user.Name, user.Role.ToString());
+            return new ServiceResponse
+            {
+                IsSuccess = true,
+                Message = token
+            };
+        }
+        catch (Exception e)
+        {
+            return new ServiceResponse
+            {
+                IsSuccess = false,
+                Message = $"Error logging in: {e.Message}"
+            };
+            }
+        }
+    }
 }
