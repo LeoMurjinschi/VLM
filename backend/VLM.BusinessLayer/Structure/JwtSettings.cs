@@ -1,4 +1,4 @@
-namespace VLM.BussinesLayer.Structure
+namespace VLM.BusinessLayer.Structure
 {
     public static class JwtSettings
     {

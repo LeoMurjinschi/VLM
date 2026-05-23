@@ -197,11 +197,11 @@ public class UserActions
     {
         try
         {
-            var user = _dbContext.Users.FirstOrDefault(x => x.Email && x.PasswordHash == loginDto.Password);
-            if (!user.IsActive)
-            {
-                return new ServiceResponse { IsSuccess = false, Message = "Inactive account." };
-            }
+            // Corectat: am adăugat "== loginDto.Email"
+            var user = _dbContext.Users.FirstOrDefault(x => 
+                x.Email == loginDto.Email && x.PasswordHash == loginDto.Password);
+            
+            // Corectat: Verificăm MAI ÎNTÂI dacă user-ul a fost găsit
             if (user == null)
             {
                 return new ServiceResponse
@@ -211,15 +211,23 @@ public class UserActions
                 };
             }
 
+            // Acum putem verifica în siguranță dacă este activ
+            if (!user.IsActive)
+            {
+                return new ServiceResponse { IsSuccess = false, Message = "Inactive account." };
+            }
+
             var tokenService = new TokenService();
 
-            var token = tokenService.GenerateToken.(user.Id, user.Name, user.Role.ToString());
+            // Corectat: Am șters punctul din fața parantezei
+            var token = tokenService.GenerateToken(user.Id, user.Name, user.Role.ToString());
+            
             return new ServiceResponse
             {
                 IsSuccess = true,
                 Message = token
             };
-        }
+        } // Corectat: Paranteza care închidea blocul 'try' lipsea
         catch (Exception e)
         {
             return new ServiceResponse
@@ -227,7 +235,6 @@ public class UserActions
                 IsSuccess = false,
                 Message = $"Error logging in: {e.Message}"
             };
-            }
         }
     }
 }
