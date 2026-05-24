@@ -22,6 +22,83 @@ namespace VLM.DataAccessLayer.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("VLM.Domain.Entities.Category.CategoryEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Icon")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Categories");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedDate = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Fresh fruits and berries",
+                            Icon = "🍎",
+                            IsActive = true,
+                            Name = "Fruits"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CreatedDate = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Fresh vegetables and greens",
+                            Icon = "🥦",
+                            IsActive = true,
+                            Name = "Vegetables"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            CreatedDate = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Bread, pastries and baked goods",
+                            Icon = "🍞",
+                            IsActive = true,
+                            Name = "Bakery"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            CreatedDate = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Milk, cheese, yogurt and eggs",
+                            Icon = "🥛",
+                            IsActive = true,
+                            Name = "Dairy"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            CreatedDate = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Prepared and cooked meals",
+                            Icon = "🍲",
+                            IsActive = true,
+                            Name = "Cooked Food"
+                        });
+                });
+
             modelBuilder.Entity("VLM.Domain.Entities.Comment.CommentEntity", b =>
                 {
                     b.Property<int>("Id")
@@ -180,6 +257,48 @@ namespace VLM.DataAccessLayer.Migrations
                         });
                 });
 
+            modelBuilder.Entity("VLM.Domain.Entities.Favorite.FavoriteEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("DonationId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DonationId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Favorites");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedDate = new DateTime(2026, 1, 10, 14, 0, 0, 0, DateTimeKind.Utc),
+                            DonationId = 1,
+                            UserId = 2
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CreatedDate = new DateTime(2026, 1, 11, 10, 0, 0, 0, DateTimeKind.Utc),
+                            DonationId = 2,
+                            UserId = 2
+                        });
+                });
+
             modelBuilder.Entity("VLM.Domain.Entities.Message.MessageEntity", b =>
                 {
                     b.Property<int>("Id")
@@ -208,6 +327,32 @@ namespace VLM.DataAccessLayer.Migrations
                     b.HasIndex("SenderId");
 
                     b.ToTable("Messages");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedDate = new DateTime(2026, 1, 12, 8, 0, 0, 0, DateTimeKind.Utc),
+                            ReceiverId = 1,
+                            SenderId = 2,
+                            Text = "Hi Alex! Is the milk still available for pickup tomorrow?"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CreatedDate = new DateTime(2026, 1, 12, 8, 30, 0, 0, DateTimeKind.Utc),
+                            ReceiverId = 2,
+                            SenderId = 1,
+                            Text = "Yes, it is! You can come anytime between 8 and 12."
+                        },
+                        new
+                        {
+                            Id = 3,
+                            CreatedDate = new DateTime(2026, 1, 12, 8, 45, 0, 0, DateTimeKind.Utc),
+                            ReceiverId = 1,
+                            SenderId = 2,
+                            Text = "Perfect, I'll be there at 9. Thank you!"
+                        });
                 });
 
             modelBuilder.Entity("VLM.Domain.Entities.Notification.NotificationEntity", b =>
@@ -248,6 +393,94 @@ namespace VLM.DataAccessLayer.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Notifications");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedDate = new DateTime(2026, 1, 12, 9, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Maria Receiver reserved 5L of Milk from your donation.",
+                            IsRead = true,
+                            Link = "/reservations/1",
+                            Title = "New Reservation",
+                            Type = "reservation",
+                            UserId = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CreatedDate = new DateTime(2026, 1, 12, 10, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Your reservation for Milk has been confirmed by the donor.",
+                            IsRead = false,
+                            Link = "/reservations/1",
+                            Title = "Reservation Confirmed",
+                            Type = "reservation",
+                            UserId = 2
+                        },
+                        new
+                        {
+                            Id = 3,
+                            CreatedDate = new DateTime(2026, 1, 10, 8, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Fresh Apples are available for pickup near you.",
+                            IsRead = false,
+                            Link = "/donations/1",
+                            Title = "New Donation Available",
+                            Type = "donation",
+                            UserId = 2
+                        });
+                });
+
+            modelBuilder.Entity("VLM.Domain.Entities.Report.ReportEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int?>("DonationId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("ReporterId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("ResolvedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DonationId");
+
+                    b.HasIndex("ReporterId");
+
+                    b.ToTable("Reports");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedDate = new DateTime(2026, 1, 13, 10, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "The quantity listed does not match what was available on pickup.",
+                            DonationId = 2,
+                            Reason = "Incorrect information",
+                            ReporterId = 2,
+                            Status = "pending"
+                        });
                 });
 
             modelBuilder.Entity("VLM.Domain.Entities.Reservation.ReservationEntity", b =>
@@ -444,6 +677,190 @@ namespace VLM.DataAccessLayer.Migrations
                         });
                 });
 
+            modelBuilder.Entity("VLM.Domain.Entities.User.UserProfileEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AcceptedCategories")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("HasIndustrialStorage")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Location")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("MissionStatement")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("OperatingHours")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("OperatingRadius")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("OrgName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("TransportType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("Verified")
+                        .HasColumnType("boolean");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("UserProfiles");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            AcceptedCategories = "Fruits,Vegetables,Dairy",
+                            Address = "Str. Principala 12, Cluj-Napoca",
+                            Description = "Local farmer donating surplus produce.",
+                            HasIndustrialStorage = false,
+                            Location = "Cluj-Napoca",
+                            MissionStatement = "Reduce food waste in our community.",
+                            OperatingHours = "Mon-Fri 8:00-18:00",
+                            OperatingRadius = 15,
+                            OrgName = "Alex's Farm",
+                            Phone = "+40712345678",
+                            TransportType = "Van",
+                            UserId = 1,
+                            Verified = true
+                        },
+                        new
+                        {
+                            Id = 2,
+                            AcceptedCategories = "Fruits,Vegetables,Bakery,Cooked Food,Dairy",
+                            Address = "Bd. Eroilor 10, Cluj-Napoca",
+                            Description = "Community kitchen serving daily meals.",
+                            HasIndustrialStorage = false,
+                            Location = "Cluj-Napoca",
+                            MissionStatement = "No one goes hungry in our neighborhood.",
+                            OperatingHours = "Daily 7:00-20:00",
+                            OperatingRadius = 10,
+                            OrgName = "Maria's Kitchen",
+                            Phone = "+40723456789",
+                            TransportType = "Car",
+                            UserId = 2,
+                            Verified = true
+                        },
+                        new
+                        {
+                            Id = 3,
+                            AcceptedCategories = "Dairy",
+                            Address = "Bd. Eroilor 5, Cluj-Napoca",
+                            Description = "Small local dairy farm.",
+                            HasIndustrialStorage = true,
+                            Location = "Cluj-Napoca",
+                            MissionStatement = "Fresh dairy products for everyone.",
+                            OperatingHours = "Mon-Sat 6:00-16:00",
+                            OperatingRadius = 20,
+                            OrgName = "John's Dairy",
+                            Phone = "+40734567890",
+                            TransportType = "Truck",
+                            UserId = 3,
+                            Verified = false
+                        });
+                });
+
+            modelBuilder.Entity("VLM.Domain.Entities.User.UserSettingsEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("EmailUpdates")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("NotifyEmail")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("NotifyPush")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("NotifySms")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Theme")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("UserSettings");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            EmailUpdates = true,
+                            NotifyEmail = true,
+                            NotifyPush = true,
+                            NotifySms = false,
+                            Theme = "light",
+                            UserId = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            EmailUpdates = false,
+                            NotifyEmail = true,
+                            NotifyPush = true,
+                            NotifySms = true,
+                            Theme = "light",
+                            UserId = 2
+                        },
+                        new
+                        {
+                            Id = 3,
+                            EmailUpdates = true,
+                            NotifyEmail = true,
+                            NotifyPush = false,
+                            NotifySms = false,
+                            Theme = "dark",
+                            UserId = 3
+                        });
+                });
+
             modelBuilder.Entity("VLM.Domain.Entities.Comment.CommentEntity", b =>
                 {
                     b.HasOne("VLM.Domain.Entities.Donation.DonationEntity", "Donation")
@@ -481,6 +898,25 @@ namespace VLM.DataAccessLayer.Migrations
                     b.Navigation("Donor");
                 });
 
+            modelBuilder.Entity("VLM.Domain.Entities.Favorite.FavoriteEntity", b =>
+                {
+                    b.HasOne("VLM.Domain.Entities.Donation.DonationEntity", "Donation")
+                        .WithMany("Favorites")
+                        .HasForeignKey("DonationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("VLM.Domain.Entities.User.UserEntity", "User")
+                        .WithMany("Favorites")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Donation");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("VLM.Domain.Entities.Message.MessageEntity", b =>
                 {
                     b.HasOne("VLM.Domain.Entities.User.UserEntity", "Receiver")
@@ -509,6 +945,24 @@ namespace VLM.DataAccessLayer.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("VLM.Domain.Entities.Report.ReportEntity", b =>
+                {
+                    b.HasOne("VLM.Domain.Entities.Donation.DonationEntity", "Donation")
+                        .WithMany("Reports")
+                        .HasForeignKey("DonationId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("VLM.Domain.Entities.User.UserEntity", "Reporter")
+                        .WithMany("Reports")
+                        .HasForeignKey("ReporterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Donation");
+
+                    b.Navigation("Reporter");
                 });
 
             modelBuilder.Entity("VLM.Domain.Entities.Reservation.ReservationEntity", b =>
@@ -549,6 +1003,28 @@ namespace VLM.DataAccessLayer.Migrations
                     b.Navigation("Receiver");
                 });
 
+            modelBuilder.Entity("VLM.Domain.Entities.User.UserProfileEntity", b =>
+                {
+                    b.HasOne("VLM.Domain.Entities.User.UserEntity", "User")
+                        .WithOne("Profile")
+                        .HasForeignKey("VLM.Domain.Entities.User.UserProfileEntity", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("VLM.Domain.Entities.User.UserSettingsEntity", b =>
+                {
+                    b.HasOne("VLM.Domain.Entities.User.UserEntity", "User")
+                        .WithOne("Settings")
+                        .HasForeignKey("VLM.Domain.Entities.User.UserSettingsEntity", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("VLM.Domain.Entities.Comment.CommentEntity", b =>
                 {
                     b.Navigation("Replies");
@@ -557,6 +1033,10 @@ namespace VLM.DataAccessLayer.Migrations
             modelBuilder.Entity("VLM.Domain.Entities.Donation.DonationEntity", b =>
                 {
                     b.Navigation("Comments");
+
+                    b.Navigation("Favorites");
+
+                    b.Navigation("Reports");
 
                     b.Navigation("Reservations");
                 });
@@ -569,15 +1049,23 @@ namespace VLM.DataAccessLayer.Migrations
 
                     b.Navigation("DonorReviews");
 
+                    b.Navigation("Favorites");
+
                     b.Navigation("Notifications");
+
+                    b.Navigation("Profile");
 
                     b.Navigation("ReceivedMessages");
 
                     b.Navigation("ReceiverReviews");
 
+                    b.Navigation("Reports");
+
                     b.Navigation("Reservations");
 
                     b.Navigation("SentMessages");
+
+                    b.Navigation("Settings");
                 });
 #pragma warning restore 612, 618
         }
