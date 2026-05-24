@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using VLM.DataAccessLayer.Context;
-using VLM.Domain.Models.Auth;
+using VLM.BusinessLayer.Structure; 
+using VLM.Domain.Models.User;
 
 namespace VLM.API.Controllers;
 
@@ -8,34 +8,27 @@ namespace VLM.API.Controllers;
 [Route("api/auth")]
 public class AuthController : ControllerBase
 {
-    private readonly VlmDbContext _dbContext;
+    private readonly UserActions _userActions;
 
     public AuthController()
     {
-        _dbContext = new VlmDbContext();
+        
+        _userActions = new UserActions();
     }
 
     [HttpPost("login")]
-    public IActionResult Login([FromBody] LoginDto loginDto)
+    public IActionResult Login([FromBody] UserLoginDto loginDto)
     {
-        var user = _dbContext.Users.FirstOrDefault(u =>
-            u.Email == loginDto.Email && u.PasswordHash == loginDto.Password);
+        
+        var result = _userActions.LoginAction(loginDto);
 
-        if (user == null)
-            return Unauthorized("Invalid email or password.");
-
-        if (!user.IsActive)
-            return Unauthorized("Account is inactive.");
-
-        var response = new LoginResponseDto
+        
+        if (!result.IsSuccess)
         {
-            Id = user.Id,
-            Name = user.Name,
-            Email = user.Email,
-            Role = user.Role,
-            Avatar = user.Avatar
-        };
+            return Unauthorized(result.Message);
+        }
 
-        return Ok(response);
+       
+        return Ok(new { token = result.Message });
     }
 }
