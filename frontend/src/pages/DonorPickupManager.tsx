@@ -127,9 +127,9 @@ const DonorPickupManager: React.FC = () => {
     toast.info('Reservation cancelled. Quantity returned to stock.');
   };
 
-  const handleMessage = (receiverName: string) => {
+  const handleMessage = (receiverId: string, receiverName: string) => {
     navigate('/donor/messages', {
-      state: { openChatWith: { name: receiverName, role: 'Receiver' } },
+      state: { openChatWith: { id: parseInt(receiverId, 10), name: receiverName, role: 'Receiver' } },
     });
   };
 
@@ -309,7 +309,7 @@ const DonorPickupManager: React.FC = () => {
                         {(r.status === 'pending' || r.status === 'donor_confirmed' || r.status === 'receiver_confirmed') && (
                           <div className="flex gap-2 flex-shrink-0">
                             <button
-                              onClick={() => handleMessage(r.receiverName)}
+                              onClick={() => handleMessage(r.receiverId, r.receiverName)}
                               title="Message receiver"
                               className={`p-2 rounded-lg transition-all ${
                                 isDark ? 'text-gray-400 hover:text-white hover:bg-gray-800' : 'text-gray-400 hover:text-gray-700 hover:bg-gray-100'

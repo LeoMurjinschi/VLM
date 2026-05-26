@@ -31,6 +31,7 @@ public class MessageActions
                     Id = u.Id,
                     Name = u.Name,
                     Role = u.Role,
+                    Avatar = u.Avatar,
                 })
                 .ToList();
 
@@ -47,10 +48,11 @@ public class MessageActions
                     Id = c.Id,
                     Name = c.Name,
                     Role = c.Role,
+                    Avatar = c.Avatar,
                     Initials = c.Name.Substring(0, Math.Min(2, c.Name.Length)).ToUpper(),
                     LastMessage = lastMessage?.Text ?? "",
                     Time = lastMessage?.CreatedDate.ToString("t") ?? "",
-                    Unread = 0 // Needs proper logic in real app
+                    Unread = 0
                 };
             }).ToList();
 

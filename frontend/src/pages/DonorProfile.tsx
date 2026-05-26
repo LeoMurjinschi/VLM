@@ -116,6 +116,7 @@ const DonorProfile: React.FC = () => {
     navigate(base, {
       state: {
         openChatWith: {
+          id: donorIdNum,
           name: profile?.name ?? donorId,
           role: 'Donor',
         },
