@@ -2,6 +2,7 @@ using DotNetEnv;
 using Microsoft.EntityFrameworkCore;
 using VLM.Domain.Entities.Category;
 using VLM.Domain.Entities.Comment;
+using VLM.Domain.Entities.Document;
 using VLM.Domain.Entities.Donation;
 using VLM.Domain.Entities.Favorite;
 using VLM.Domain.Entities.Message;
@@ -25,6 +26,9 @@ public sealed class VlmDbContext : DbContext
     public DbSet<MessageEntity> Messages { get; set; }
     public DbSet<UserProfileEntity> UserProfiles { get; set; }
     public DbSet<UserSettingsEntity> UserSettings { get; set; }
+    public DbSet<DonorProfileEntity> DonorProfiles { get; set; }
+    public DbSet<ReceiverProfileEntity> ReceiverProfiles { get; set; }
+    public DbSet<UserDocumentEntity> UserDocuments { get; set; }
     public DbSet<CategoryEntity> Categories { get; set; }
     public DbSet<FavoriteEntity> Favorites { get; set; }
     public DbSet<ReportEntity> Reports { get; set; }
@@ -132,6 +136,24 @@ public sealed class VlmDbContext : DbContext
             .HasOne(s => s.User)
             .WithOne(u => u.Settings)
             .HasForeignKey<UserSettingsEntity>(s => s.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<DonorProfileEntity>()
+            .HasOne(d => d.User)
+            .WithOne(u => u.DonorProfile)
+            .HasForeignKey<DonorProfileEntity>(d => d.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<ReceiverProfileEntity>()
+            .HasOne(r => r.User)
+            .WithOne(u => u.ReceiverProfile)
+            .HasForeignKey<ReceiverProfileEntity>(r => r.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<UserDocumentEntity>()
+            .HasOne(d => d.User)
+            .WithMany(u => u.Documents)
+            .HasForeignKey(d => d.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<FavoriteEntity>()
