@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VLM.BusinessLayer;
 using VLM.BusinessLayer.Interface;
@@ -7,6 +8,7 @@ namespace VLM.API.Controllers;
 
 [ApiController]
 [Route("api/users")]
+[Authorize]
 public class UserController : ControllerBase
 {
     private readonly IUserLogic _userLogic;
@@ -18,6 +20,7 @@ public class UserController : ControllerBase
     }
 
     [HttpGet("list")]
+    [Authorize(Roles = "admin")]
     public IActionResult GetUserList()
     {
         var result = _userLogic.GetUserList();
@@ -36,6 +39,7 @@ public class UserController : ControllerBase
     }
 
     [HttpPost("create")]
+    [AllowAnonymous]
     public IActionResult CreateUser([FromBody] UserCreateDto userCreateDto)
     {
         var result = _userLogic.CreateUser(userCreateDto);
@@ -54,6 +58,7 @@ public class UserController : ControllerBase
     }
 
     [HttpDelete("delete/{id}")]
+    [Authorize(Roles = "admin")]
     public IActionResult DeleteUser([FromRoute] int id)
     {
         var result = _userLogic.DeleteUser(id);
