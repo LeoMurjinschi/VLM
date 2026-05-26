@@ -1,3 +1,4 @@
+using DotNetEnv;
 using Microsoft.EntityFrameworkCore;
 using VLM.Domain.Entities.Category;
 using VLM.Domain.Entities.Comment;
@@ -9,6 +10,7 @@ using VLM.Domain.Entities.Report;
 using VLM.Domain.Entities.Reservation;
 using VLM.Domain.Entities.Review;
 using VLM.Domain.Entities.User;
+
 
 namespace VLM.DataAccessLayer.Context;
 
@@ -28,12 +30,25 @@ public sealed class VlmDbContext : DbContext
     public DbSet<ReportEntity> Reports { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+{
+    if (!optionsBuilder.IsConfigured)
     {
-        if (!optionsBuilder.IsConfigured)
-        {
-            optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=onlinevlm;Username=postgres;Password=postgres;");
-        }
+         var envPath = @"C:\Users\user\Documents\Universitate\tweb\VLM\.env";
+        Env.Load(envPath);
+        
+       
+        
+        var host = Environment.GetEnvironmentVariable("DATABASE_HOST") ?? "localhost";
+        var port = Environment.GetEnvironmentVariable("DATABASE_PORT") ?? "5432";
+        var user = Environment.GetEnvironmentVariable("DATABASE_USER") ?? "postgres";
+        var password = Environment.GetEnvironmentVariable("DATABASE_PASSWORD") ?? "postgres";
+        var database = Environment.GetEnvironmentVariable("DATABASE_NAME") ?? "onlinevlm";
+
+        var connectionString = $"Host={host};Port={port};Database={database};Username={user};Password={password};";
+        
+        optionsBuilder.UseNpgsql(connectionString);
     }
+}
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -221,11 +221,19 @@ public class UserActions
 
             // Corectat: Am șters punctul din fața parantezei
             var token = tokenService.GenerateToken(user.Id, user.Name, user.Role.ToString());
-            
+
             return new ServiceResponse
             {
                 IsSuccess = true,
-                Message = token
+                Data = new
+                {
+                    id = user.Id,
+                    name = user.Name,
+                    email = user.Email,
+                    role = user.Role,
+                    avatar = user.Avatar,
+                    token = token
+                }
             };
         } // Corectat: Paranteza care închidea blocul 'try' lipsea
         catch (Exception e)
