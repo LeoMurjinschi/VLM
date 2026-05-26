@@ -30,4 +30,11 @@ public class BusinessLogic
     public IFavoriteLogic GetFavoriteLogic() => new FavoriteLogic();
 
     public IReportLogic GetReportLogic() => new ReportLogic();
+    public IAdminActionLogic GetAdminActionLogic() => new AdminActionLogic();
+
+    public IAccountApprovalLogic GetAccountApprovalLogic() => new AccountApprovalLogic();
+
+    public IAdminAnnouncementLogic GetAdminAnnouncementLogic() => new AdminAnnouncementLogic();
+
+    public ISystemSettingLogic GetSystemSettingLogic() => new SystemSettingLogic();
 }

@@ -41,5 +41,20 @@ public class UserLogic : UserActions, IUserLogic
     {
         return DeleteUserAction(id);
     }
+    
+    public ServiceResponse GetPendingUsers()
+    {
+        return GetPendingUsersAction();
+    }
+
+    public ServiceResponse ApproveUser(int userId, AccountApprovalDecisionDto decisionDto)
+    {
+        return ApproveUserAction(userId, decisionDto);
+    }
+
+    public ServiceResponse RejectUser(int userId, AccountApprovalDecisionDto decisionDto)
+    {
+        return RejectUserAction(userId, decisionDto);
+    }
 }
 
