@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VLM.BusinessLayer;
 using VLM.BusinessLayer.Interface;
@@ -7,6 +8,7 @@ namespace VLM.API.Controllers;
 
 [ApiController]
 [Route("api/reservations")]
+[Authorize]
 public class ReservationController : ControllerBase
 {
     private readonly IReservationLogic _reservationLogic;
@@ -36,6 +38,7 @@ public class ReservationController : ControllerBase
     }
 
     [HttpPost("create")]
+    [Authorize(Roles = "receiver")]
     public IActionResult CreateReservation([FromBody] ReservationCreateDto reservationCreateDto)
     {
         var result = _reservationLogic.CreateReservation(reservationCreateDto);
