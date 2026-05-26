@@ -57,6 +57,15 @@ public class UserController : ControllerBase
         return Ok(result.Message);
     }
 
+    [HttpPut("info/{id}")]
+    public IActionResult UpdateUserInfo([FromRoute] int id, [FromBody] UserInfoUpdateDto dto)
+    {
+        var result = _userLogic.UpdateUserInfo(id, dto);
+        if (!result.IsSuccess)
+            return BadRequest(result.Message);
+        return Ok(result.Message);
+    }
+
     [HttpDelete("delete/{id}")]
     [Authorize(Roles = "admin")]
     public IActionResult DeleteUser([FromRoute] int id)
