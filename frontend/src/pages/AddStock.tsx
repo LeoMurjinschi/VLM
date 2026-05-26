@@ -211,7 +211,7 @@ const AddStock: React.FC = () => {
         setIsSubmitting(false);
       }
     },
-    [formState, addStock, resetForm]
+    [formState, resetForm, user]
   );
 
   return (

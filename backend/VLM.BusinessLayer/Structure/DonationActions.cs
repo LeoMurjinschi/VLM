@@ -14,6 +14,46 @@ public class DonationActions
         _dbContext = new VlmDbContext();
     }
 
+    public ServiceResponse GetDonationsByDonorIdAction(int donorId)
+    {
+        try
+        {
+            var donations = _dbContext.Donations
+                .Where(d => d.DonorId == donorId)
+                .Select(entity => new DonationInfoDto
+                {
+                    Id = entity.Id,
+                    Title = entity.Title,
+                    Description = entity.Description,
+                    Quantity = entity.Quantity,
+                    Unit = entity.Unit,
+                    DonorId = entity.DonorId,
+                    Category = entity.Category,
+                    PickupLocation = entity.PickupLocation,
+                    ExpirationDate = entity.ExpirationDate,
+                    Image = entity.Image,
+                    Status = entity.Status,
+                    CreatedDate = entity.CreatedDate,
+                    UpdatedDate = entity.UpdatedDate
+                })
+                .ToList();
+
+            return new ServiceResponse
+            {
+                IsSuccess = true,
+                Data = donations
+            };
+        }
+        catch (Exception e)
+        {
+            return new ServiceResponse
+            {
+                IsSuccess = false,
+                Message = $"Error retrieving donations: {e.Message}"
+            };
+        }
+    }
+
     public ServiceResponse CreateDonationAction(DonationCreateDto donationCreateDto)
     {
         try

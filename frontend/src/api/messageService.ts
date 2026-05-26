@@ -1,4 +1,5 @@
 import axiosInstance from './axiosProvider';
+import type { Contact } from '../components/chat/types';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 export interface MessageCreateDto {
@@ -17,6 +18,10 @@ export interface MessageInfoDto {
 
 // ── Service ───────────────────────────────────────────────────────────────────
 export const messageService = {
+  getContacts: async (userId: number): Promise<Contact[]> => {
+    const response = await axiosInstance.get<Contact[]>(`/messages/contacts/${userId}`);
+    return response.data;
+  },
 
   getConversation: async (userId1: number, userId2: number): Promise<MessageInfoDto[]> => {
     const response = await axiosInstance.get<MessageInfoDto[]>(`/messages/conversation/${userId1}/${userId2}`);

@@ -17,6 +17,15 @@ public class DonationController : ControllerBase
         _donationLogic = businessLogic.GetDonationLogic();
     }
 
+    [HttpGet("donor/{donorId}")]
+    public IActionResult GetDonationsByDonorId([FromRoute] int donorId)
+    {
+        var result = _donationLogic.GetDonationsByDonorId(donorId);
+        if (!result.IsSuccess)
+            return BadRequest(result.Message);
+        return Ok(result.Data);
+    }
+
     [HttpGet("list")]
     public IActionResult GetDonationList()
     {

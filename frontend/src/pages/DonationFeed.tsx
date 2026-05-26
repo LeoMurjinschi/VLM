@@ -1,19 +1,35 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import DonationCard from '../components/DonationCard';
 import DonationFilter from '../components/DonationFilter';
 import { MagnifyingGlassIcon, FunnelIcon, InformationCircleIcon } from '@heroicons/react/24/outline';
 import { useTheme } from '../hooks/useTheme';
 import { toast } from 'react-toastify';
 import EmptyBasketSVG from '../components/UI/EmptyBasketSVG';
-import { useInventory } from '../context/InventoryContext';
 import { useAuth } from '../context/AuthContext';
 import { useReservations } from '../context/ReservationContext';
 import StockDetailModal from '../components/StockDetailModal';
 import type { Donation } from '../_mock';
+import { donationService } from '../api';
+import type { DonationInfoDto } from '../api/donationService';
+
+const mapDonationDtoToDonation = (dto: DonationInfoDto): Donation => ({
+    id: String(dto.id),
+    title: dto.title,
+    description: dto.description,
+    quantity: dto.quantity,
+    unit: dto.unit,
+    category: dto.category,
+    pickupLocation: dto.pickupLocation,
+    expirationDate: dto.expirationDate || new Date().toISOString(),
+    image: dto.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&q=80',
+    status: dto.status as 'Available' | 'Reserved',
+    donorId: String(dto.donorId),
+    postedAt: dto.createdDate,
+  });
 
 const DonationFeed: React.FC = () => {
   const { theme } = useTheme();
-  const { donations } = useInventory();
+  const [donations, setDonations] = useState<Donation[]>([]);
   const { user } = useAuth();
   const { createReservation } = useReservations();
 
@@ -26,6 +42,20 @@ const DonationFeed: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string>('All');
   const [urgencyFilter, setUrgencyFilter] = useState<string>('All');
   const [sortBy, setSortBy] = useState<string>('newest');
+
+  useEffect(() => {
+    const fetchAllDonations = async () => {
+        try {
+            const apiDonations = await donationService.getAll();
+            const mappedDonations = apiDonations.map(mapDonationDtoToDonation);
+            setDonations(mappedDonations);
+        } catch (error) {
+            console.error("Failed to fetch donations:", error);
+            toast.error("Could not load the donation feed.");
+        }
+    };
+    fetchAllDonations();
+  }, []);
 
   const filteredDonations = useMemo(() => {
     let results = [...donations];

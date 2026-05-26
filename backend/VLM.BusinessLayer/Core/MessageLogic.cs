@@ -7,6 +7,11 @@ namespace VLM.BusinessLayer.Core;
 
 public class MessageLogic : MessageActions, IMessageLogic
 {
+    public ServiceResponse GetContacts(int userId)
+    {
+        return GetContactsAction(userId);
+    }
+
     public ServiceResponse GetConversation(int userId1, int userId2)
     {
         return GetConversationAction(userId1, userId2);
