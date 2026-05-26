@@ -20,11 +20,11 @@ public class ReservationController : ControllerBase
     }
 
     [HttpGet("list")]
+    [Authorize(Roles = "admin")]
     public IActionResult GetReservationList()
     {
         var result = _reservationLogic.GetReservationList();
-        if (!result.IsSuccess)
-            return BadRequest(result.Message);
+        if (!result.IsSuccess) return BadRequest(result.Message);
         return Ok(result.Data);
     }
 
@@ -32,8 +32,23 @@ public class ReservationController : ControllerBase
     public IActionResult GetReservationById([FromRoute] int id)
     {
         var result = _reservationLogic.GetReservationById(id);
-        if (!result.IsSuccess)
-            return NotFound(result.Message);
+        if (!result.IsSuccess) return NotFound(result.Message);
+        return Ok(result.Data);
+    }
+
+    [HttpGet("by-receiver/{userId}")]
+    public IActionResult GetByReceiver([FromRoute] int userId)
+    {
+        var result = _reservationLogic.GetReservationsByReceiver(userId);
+        if (!result.IsSuccess) return BadRequest(result.Message);
+        return Ok(result.Data);
+    }
+
+    [HttpGet("by-donor/{donorId}")]
+    public IActionResult GetByDonor([FromRoute] int donorId)
+    {
+        var result = _reservationLogic.GetReservationsByDonor(donorId);
+        if (!result.IsSuccess) return BadRequest(result.Message);
         return Ok(result.Data);
     }
 
@@ -42,26 +57,23 @@ public class ReservationController : ControllerBase
     public IActionResult CreateReservation([FromBody] ReservationCreateDto reservationCreateDto)
     {
         var result = _reservationLogic.CreateReservation(reservationCreateDto);
-        if (!result.IsSuccess)
-            return BadRequest(result.Message);
-        return Ok(result.Message);
+        if (!result.IsSuccess) return BadRequest(result.Message);
+        return Ok(result.Data);
     }
 
-    [HttpPut("update/{id}")]
-    public IActionResult UpdateReservation([FromRoute] int id, [FromBody] ReservationCreateDto reservationCreateDto)
+    [HttpPut("status/{id}")]
+    public IActionResult UpdateStatus([FromRoute] int id, [FromBody] ReservationStatusUpdateDto dto)
     {
-        var result = _reservationLogic.UpdateReservation(id, reservationCreateDto);
-        if (!result.IsSuccess)
-            return NotFound(result.Message);
-        return Ok(result.Message);
+        var result = _reservationLogic.UpdateReservationStatus(id, dto);
+        if (!result.IsSuccess) return BadRequest(result.Message);
+        return Ok(result.Data);
     }
 
     [HttpDelete("delete/{id}")]
     public IActionResult DeleteReservation([FromRoute] int id)
     {
         var result = _reservationLogic.DeleteReservation(id);
-        if (!result.IsSuccess)
-            return NotFound(result.Message);
+        if (!result.IsSuccess) return NotFound(result.Message);
         return Ok(result.Message);
     }
 }
