@@ -4,15 +4,10 @@ import {
   XMarkIcon,
   MapPinIcon,
   ClockIcon,
-  CheckBadgeIcon,
 } from '@heroicons/react/24/outline';
 import { useTheme } from '../hooks/useTheme';
 import { useAuth } from '../context/AuthContext';
-import {
-  fetchReviews,
-  fetchAggregate,
-  fetchDonorProfile,
-} from '../services/reviewsService';
+import { fetchReviews, fetchAggregate } from '../services/reviewsService';
 import type { Review, ReviewAggregate } from '../_mock/reviews';
 import type { Donation } from '../_mock';
 import ReviewSummary from './reviews/ReviewSummary';
@@ -37,7 +32,6 @@ const StockDetailModal: React.FC<StockDetailModalProps> = ({
 
   const [reviews, setReviews] = useState<Review[]>([]);
   const [aggregate, setAggregate] = useState<ReviewAggregate | null>(null);
-  const [donor, setDonor] = useState<Awaited<ReturnType<typeof fetchDonorProfile>>>(null);
   const [loading, setLoading] = useState(false);
   const [reserveAmount, setReserveAmount] = useState(1);
 
@@ -46,22 +40,18 @@ const StockDetailModal: React.FC<StockDetailModalProps> = ({
     let cancelled = false;
     (async () => {
       setLoading(true);
-      const [r, a, d] = await Promise.all([
+      const [r, a] = await Promise.all([
         fetchReviews('stock', donation.id),
         fetchAggregate('stock', donation.id),
-        donation.donorId ? fetchDonorProfile(donation.donorId) : Promise.resolve(null),
       ]);
       if (!cancelled) {
         setReviews(r);
         setAggregate(a);
-        setDonor(d);
         setReserveAmount(1);
         setLoading(false);
       }
     })();
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [isOpen, donation]);
 
   useEffect(() => {
@@ -156,9 +146,9 @@ const StockDetailModal: React.FC<StockDetailModalProps> = ({
                 {donation.description}
               </p>
 
-              {donor && (
+              {donation.donorId && donation.donorName && (
                 <Link
-                  to={`../donors/${donor.id}`}
+                  to={`../donors/${donation.donorId}`}
                   onClick={onClose}
                   className={`flex items-center gap-3 p-3 rounded-2xl border mb-3 transition-colors ${
                     theme === 'light'
@@ -166,29 +156,22 @@ const StockDetailModal: React.FC<StockDetailModalProps> = ({
                       : 'bg-[#222] border-[#2e2e2e] hover:border-[#16a34a]'
                   }`}
                 >
-                  <img
-                    src={donor.avatar}
-                    alt={donor.name}
-                    className="w-10 h-10 rounded-xl object-cover shrink-0"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1">
-                      <p
-                        className={`font-bold text-sm truncate ${
-                          theme === 'light' ? 'text-gray-900' : 'text-white'
-                        }`}
-                      >
-                        {donor.name}
-                      </p>
-                      {donor.verified && (
-                        <CheckBadgeIcon className="w-4 h-4 text-[#16a34a] shrink-0" />
-                      )}
+                  {donation.donorAvatar ? (
+                    <img
+                      src={donation.donorAvatar}
+                      alt={donation.donorName}
+                      className="w-10 h-10 rounded-xl object-cover shrink-0"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 rounded-xl bg-[#16a34a] flex items-center justify-center text-white font-bold text-base shrink-0">
+                      {donation.donorName.charAt(0)}
                     </div>
-                    <p
-                      className={`text-[11px] uppercase tracking-wider font-semibold ${
-                        theme === 'light' ? 'text-gray-500' : 'text-gray-400'
-                      }`}
-                    >
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className={`font-bold text-sm truncate ${theme === 'light' ? 'text-gray-900' : 'text-white'}`}>
+                      {donation.donorName}
+                    </p>
+                    <p className={`text-[11px] uppercase tracking-wider font-semibold ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>
                       View profile →
                     </p>
                   </div>
