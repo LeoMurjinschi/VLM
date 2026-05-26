@@ -27,6 +27,11 @@ public class UserLogic : UserActions, IUserLogic
         return UpdateUserAction(id, userCreateDto);
     }
 
+    public ServiceResponse UpdateUserInfo(int id, UserInfoUpdateDto dto)
+    {
+        return UpdateUserInfoAction(id, dto);
+    }
+
     public ServiceResponse DeleteUser(int id)
     {
         return DeleteUserAction(id);

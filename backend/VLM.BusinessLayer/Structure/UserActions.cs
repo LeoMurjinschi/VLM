@@ -161,6 +161,27 @@ public class UserActions
         }
     }
 
+    public ServiceResponse UpdateUserInfoAction(int id, UserInfoUpdateDto dto)
+    {
+        try
+        {
+            var entity = _dbContext.Users.Find(id);
+            if (entity == null)
+                return new ServiceResponse { IsSuccess = false, Message = "User not found" };
+
+            entity.Name = dto.Name;
+            entity.Email = dto.Email;
+            entity.Avatar = dto.Avatar;
+            _dbContext.SaveChanges();
+
+            return new ServiceResponse { IsSuccess = true, Message = "User info updated successfully" };
+        }
+        catch (Exception e)
+        {
+            return new ServiceResponse { IsSuccess = false, Message = $"Error updating user info: {e.Message}" };
+        }
+    }
+
     public ServiceResponse DeleteUserAction(int id)
     {
         try
