@@ -31,6 +31,8 @@ const mapDonationDtoToDonation = (dto: DonationInfoDto): Donation => ({
   image: dto.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&q=80',
   status: dto.status as 'Available' | 'Reserved',
   donorId: String(dto.donorId),
+  donorName: dto.donorName,
+  donorAvatar: dto.donorAvatar,
   postedAt: dto.createdDate,
 });
 

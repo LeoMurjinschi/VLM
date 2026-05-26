@@ -25,6 +25,12 @@ public class BusinessLogic
 
     public IUserSettingsLogic GetUserSettingsLogic() => new UserSettingsLogic();
 
+    public IDonorProfileLogic GetDonorProfileLogic() => new DonorProfileLogic();
+
+    public IReceiverProfileLogic GetReceiverProfileLogic() => new ReceiverProfileLogic();
+
+    public IUserDocumentLogic GetUserDocumentLogic() => new UserDocumentLogic();
+
     public ICategoryLogic GetCategoryLogic() => new CategoryLogic();
 
     public IFavoriteLogic GetFavoriteLogic() => new FavoriteLogic();

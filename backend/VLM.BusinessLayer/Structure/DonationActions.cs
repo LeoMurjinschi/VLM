@@ -34,7 +34,9 @@ public class DonationActions
                     Image = entity.Image,
                     Status = entity.Status,
                     CreatedDate = entity.CreatedDate,
-                    UpdatedDate = entity.UpdatedDate
+                    UpdatedDate = entity.UpdatedDate,
+                    DonorName = entity.Donor.Name,
+                    DonorAvatar = entity.Donor.Avatar
                 })
                 .ToList();
 
@@ -96,7 +98,27 @@ public class DonationActions
     {
         try
         {
-            var entity = _dbContext.Donations.Find(id);
+            var entity = _dbContext.Donations
+                .Where(d => d.Id == id)
+                .Select(d => new DonationInfoDto
+                {
+                    Id = d.Id,
+                    Title = d.Title,
+                    Description = d.Description,
+                    Quantity = d.Quantity,
+                    Unit = d.Unit,
+                    DonorId = d.DonorId,
+                    Category = d.Category,
+                    PickupLocation = d.PickupLocation,
+                    ExpirationDate = d.ExpirationDate,
+                    Image = d.Image,
+                    Status = d.Status,
+                    CreatedDate = d.CreatedDate,
+                    UpdatedDate = d.UpdatedDate,
+                    DonorName = d.Donor.Name,
+                    DonorAvatar = d.Donor.Avatar
+                })
+                .FirstOrDefault();
 
             if (entity == null)
                 return new ServiceResponse
@@ -105,22 +127,7 @@ public class DonationActions
                     Message = "Donation not found"
                 };
 
-            var dto = new DonationInfoDto
-            {
-                Id = entity.Id,
-                Title = entity.Title,
-                Description = entity.Description,
-                Quantity = entity.Quantity,
-                Unit = entity.Unit,
-                DonorId = entity.DonorId,
-                Category = entity.Category,
-                PickupLocation = entity.PickupLocation,
-                ExpirationDate = entity.ExpirationDate,
-                Image = entity.Image,
-                Status = entity.Status,
-                CreatedDate = entity.CreatedDate,
-                UpdatedDate = entity.UpdatedDate
-            };
+            var dto = entity;
 
             return new ServiceResponse
             {
@@ -157,7 +164,9 @@ public class DonationActions
                     Image = entity.Image,
                     Status = entity.Status,
                     CreatedDate = entity.CreatedDate,
-                    UpdatedDate = entity.UpdatedDate
+                    UpdatedDate = entity.UpdatedDate,
+                    DonorName = entity.Donor.Name,
+                    DonorAvatar = entity.Donor.Avatar
                 })
                 .ToList();
 

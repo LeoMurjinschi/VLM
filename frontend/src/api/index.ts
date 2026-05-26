@@ -11,6 +11,9 @@ export { notificationService } from './notificationService';
 export { messageService } from './messageService';
 export { profileService } from './profileService';
 export { settingsService } from './settingsService';
+export { donorProfileService } from './donorProfileService';
+export { receiverProfileService } from './receiverProfileService';
+export { documentService } from './documentService';
 
 // Re-export types
 export type { DonationCreateDto, DonationInfoDto } from './donationService';
@@ -22,3 +25,6 @@ export type { NotificationCreateDto, NotificationInfoDto } from './notificationS
 export type { MessageCreateDto, MessageInfoDto } from './messageService';
 export type { UserProfileDto } from './profileService';
 export type { UserSettingsDto } from './settingsService';
+export type { DonorProfileDto, PickupLocation } from './donorProfileService';
+export type { ReceiverProfileDto } from './receiverProfileService';
+export type { UserDocumentInfoDto, UserDocumentCreateDto } from './documentService';
