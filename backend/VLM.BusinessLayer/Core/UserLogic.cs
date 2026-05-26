@@ -32,6 +32,11 @@ public class UserLogic : UserActions, IUserLogic
         return UpdateUserInfoAction(id, dto);
     }
 
+    public ServiceResponse ChangePassword(int id, ChangePasswordDto dto)
+    {
+        return ChangePasswordAction(id, dto);
+    }
+
     public ServiceResponse DeleteUser(int id)
     {
         return DeleteUserAction(id);

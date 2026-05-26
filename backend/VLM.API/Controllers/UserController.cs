@@ -66,6 +66,15 @@ public class UserController : ControllerBase
         return Ok(result.Message);
     }
 
+    [HttpPut("change-password/{id}")]
+    public IActionResult ChangePassword([FromRoute] int id, [FromBody] ChangePasswordDto dto)
+    {
+        var result = _userLogic.ChangePassword(id, dto);
+        if (!result.IsSuccess)
+            return BadRequest(result.Message);
+        return Ok(result.Message);
+    }
+
     [HttpDelete("delete/{id}")]
     [Authorize(Roles = "admin")]
     public IActionResult DeleteUser([FromRoute] int id)

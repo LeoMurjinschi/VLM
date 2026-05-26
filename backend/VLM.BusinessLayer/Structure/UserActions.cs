@@ -161,6 +161,28 @@ public class UserActions
         }
     }
 
+    public ServiceResponse ChangePasswordAction(int id, ChangePasswordDto dto)
+    {
+        try
+        {
+            var entity = _dbContext.Users.Find(id);
+            if (entity == null)
+                return new ServiceResponse { IsSuccess = false, Message = "User not found" };
+
+            if (entity.PasswordHash != PasswordHasher.Hash(dto.OldPassword))
+                return new ServiceResponse { IsSuccess = false, Message = "Current password is incorrect" };
+
+            entity.PasswordHash = PasswordHasher.Hash(dto.NewPassword);
+            _dbContext.SaveChanges();
+
+            return new ServiceResponse { IsSuccess = true, Message = "Password changed successfully" };
+        }
+        catch (Exception e)
+        {
+            return new ServiceResponse { IsSuccess = false, Message = $"Error changing password: {e.Message}" };
+        }
+    }
+
     public ServiceResponse UpdateUserInfoAction(int id, UserInfoUpdateDto dto)
     {
         try
