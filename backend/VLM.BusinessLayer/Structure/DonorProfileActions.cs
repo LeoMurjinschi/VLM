@@ -48,6 +48,7 @@ public class DonorProfileActions
             entity.Phone = dto.Phone;
             entity.Address = dto.Address;
             entity.Location = dto.Location;
+            entity.PickupLocationsJson = dto.PickupLocationsJson;
 
             _dbContext.SaveChanges();
             return new ServiceResponse { IsSuccess = true, Data = MapToDto(entity) };
@@ -55,6 +56,26 @@ public class DonorProfileActions
         catch (Exception e)
         {
             return new ServiceResponse { IsSuccess = false, Message = $"Error saving donor profile: {e.Message}" };
+        }
+    }
+
+    public ServiceResponse SavePickupLocationsAction(int userId, string locationsJson)
+    {
+        try
+        {
+            var entity = _dbContext.DonorProfiles.FirstOrDefault(p => p.UserId == userId);
+            if (entity == null)
+            {
+                entity = new DonorProfileEntity { UserId = userId };
+                _dbContext.DonorProfiles.Add(entity);
+            }
+            entity.PickupLocationsJson = locationsJson;
+            _dbContext.SaveChanges();
+            return new ServiceResponse { IsSuccess = true, Data = MapToDto(entity) };
+        }
+        catch (Exception e)
+        {
+            return new ServiceResponse { IsSuccess = false, Message = $"Error saving pickup locations: {e.Message}" };
         }
     }
 
@@ -68,5 +89,6 @@ public class DonorProfileActions
         Phone = e.Phone,
         Address = e.Address,
         Location = e.Location,
+        PickupLocationsJson = e.PickupLocationsJson,
     };
 }

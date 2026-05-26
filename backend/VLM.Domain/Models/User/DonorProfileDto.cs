@@ -10,4 +10,5 @@ public class DonorProfileDto
     public string Phone { get; set; } = string.Empty;
     public string Address { get; set; } = string.Empty;
     public string Location { get; set; } = string.Empty;
+    public string PickupLocationsJson { get; set; } = "[]";
 }

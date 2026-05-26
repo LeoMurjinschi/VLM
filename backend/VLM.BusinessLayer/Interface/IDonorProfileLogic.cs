@@ -7,4 +7,5 @@ public interface IDonorProfileLogic
 {
     ServiceResponse GetDonorProfile(int userId);
     ServiceResponse UpsertDonorProfile(DonorProfileDto dto);
+    ServiceResponse SavePickupLocations(int userId, string locationsJson);
 }

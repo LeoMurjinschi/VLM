@@ -9,4 +9,5 @@ public class DonorProfileLogic : DonorProfileActions, IDonorProfileLogic
 {
     public ServiceResponse GetDonorProfile(int userId) => GetDonorProfileAction(userId);
     public ServiceResponse UpsertDonorProfile(DonorProfileDto dto) => UpsertDonorProfileAction(dto);
+    public ServiceResponse SavePickupLocations(int userId, string locationsJson) => SavePickupLocationsAction(userId, locationsJson);
 }

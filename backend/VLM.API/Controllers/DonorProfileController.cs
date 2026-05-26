@@ -34,4 +34,12 @@ public class DonorProfileController : ControllerBase
         if (!result.IsSuccess) return BadRequest(result.Message);
         return Ok(result.Data);
     }
+
+    [HttpPut("{userId}/pickup-locations")]
+    public IActionResult SavePickupLocations([FromRoute] int userId, [FromBody] string locationsJson)
+    {
+        var result = _logic.SavePickupLocations(userId, locationsJson);
+        if (!result.IsSuccess) return BadRequest(result.Message);
+        return Ok(result.Data);
+    }
 }

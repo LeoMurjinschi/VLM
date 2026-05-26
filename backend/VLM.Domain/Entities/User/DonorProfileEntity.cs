@@ -11,6 +11,7 @@ public class DonorProfileEntity
     public string Phone { get; set; } = string.Empty;
     public string Address { get; set; } = string.Empty;
     public string Location { get; set; } = string.Empty;
+    public string PickupLocationsJson { get; set; } = "[]";
 
     public UserEntity User { get; set; } = null!;
 }
