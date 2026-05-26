@@ -4,8 +4,7 @@ import { BuildingOffice2Icon, HeartIcon, TruckIcon, CheckBadgeIcon } from '@hero
 import { toast } from 'react-toastify';
 import Select from './UI/Select';
 import { useAuth } from '../context/AuthContext';
-import { profileService } from '../api';
-import type { UserProfileDto } from '../api';
+import { receiverProfileService } from '../api';
 
 const DONATION_CATEGORIES = ['Fresh Produce', 'Baked Goods', 'Prepared Hot Meals', 'Packaged Goods', 'Dairy & Refrigerated'];
 
@@ -29,7 +28,7 @@ const NgoProfileForm: React.FC = () => {
 
   useEffect(() => {
     if (!user) return;
-    profileService.getByUser(parseInt(user.id))
+    receiverProfileService.getByUser(parseInt(user.id))
       .then((profile) => {
         setFormData({
           orgName: profile.orgName || '',
@@ -45,9 +44,7 @@ const NgoProfileForm: React.FC = () => {
           location: profile.location || '',
         });
       })
-      .catch(() => {
-        // No profile yet — keep defaults
-      })
+      .catch(() => {/* no profile yet — use defaults */})
       .finally(() => setIsLoading(false));
   }, [user]);
 
@@ -65,7 +62,7 @@ const NgoProfileForm: React.FC = () => {
     if (!user) return;
     setIsSaving(true);
     try {
-      const dto: UserProfileDto = {
+      await receiverProfileService.save({
         userId: parseInt(user.id),
         orgName: formData.orgName,
         missionStatement: formData.missionStatement,
@@ -76,11 +73,7 @@ const NgoProfileForm: React.FC = () => {
         phone: formData.phone,
         address: formData.address,
         location: formData.location,
-        description: '',
-        operatingHours: '',
-        verified: false,
-      };
-      await profileService.save(dto);
+      });
       toast.success('Organization profile saved!');
     } catch {
       toast.error('Failed to save organization profile.');
@@ -119,35 +112,17 @@ const NgoProfileForm: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div>
             <label className={`block text-sm font-bold mb-2 ${theme === 'light' ? 'text-gray-700' : 'text-gray-300'}`}>Organization Name</label>
-            <input
-              type="text"
-              value={formData.orgName}
-              onChange={(e) => setFormData({ ...formData, orgName: e.target.value })}
-              className={inputClasses}
-              placeholder="e.g., City Food Bank"
-            />
+            <input type="text" value={formData.orgName} onChange={(e) => setFormData({ ...formData, orgName: e.target.value })} className={inputClasses} placeholder="e.g., City Food Bank" />
           </div>
           <div>
             <label className={`block text-sm font-bold mb-2 ${theme === 'light' ? 'text-gray-700' : 'text-gray-300'}`}>Phone Number</label>
-            <input
-              type="tel"
-              value={formData.phone}
-              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-              className={inputClasses}
-              placeholder="+373 XXX XX XXX"
-            />
+            <input type="tel" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} className={inputClasses} placeholder="+373 XXX XX XXX" />
           </div>
         </div>
 
         <div>
           <label className={`block text-sm font-bold mb-2 ${theme === 'light' ? 'text-gray-700' : 'text-gray-300'}`}>Mission Statement</label>
-          <textarea
-            rows={3}
-            value={formData.missionStatement}
-            onChange={(e) => setFormData({ ...formData, missionStatement: e.target.value })}
-            className={`${inputClasses} resize-none`}
-            placeholder="A short description of who you help"
-          />
+          <textarea rows={3} value={formData.missionStatement} onChange={(e) => setFormData({ ...formData, missionStatement: e.target.value })} className={`${inputClasses} resize-none`} placeholder="A short description of who you help" />
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -161,34 +136,21 @@ const NgoProfileForm: React.FC = () => {
           </div>
         </div>
 
-        {/* Operational Flow */}
+        {/* Donation Preferences */}
         <div className={`p-5 rounded-2xl border ${theme === 'light' ? 'bg-gray-50 border-gray-200/60' : 'bg-[#222222] border-[#2e2e2e]'}`}>
           <div className="flex items-center gap-2 mb-4">
             <HeartIcon className={`w-5 h-5 ${theme === 'light' ? 'text-[#16a34a]' : 'text-green-400'}`} />
             <h3 className={`font-bold ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>Donation Preferences</h3>
           </div>
-
           <div className="space-y-6">
             <div>
               <div className="flex justify-between items-center mb-2">
                 <label className={`block text-sm font-bold ${theme === 'light' ? 'text-gray-700' : 'text-gray-300'}`}>Operating Radius</label>
                 <span className={`text-sm font-medium ${theme === 'light' ? 'text-[#16a34a]' : 'text-green-400'}`}>{formData.operatingRadius} km</span>
               </div>
-              <input
-                type="range"
-                min="5"
-                max="50"
-                step="1"
-                value={formData.operatingRadius}
-                onChange={(e) => setFormData({ ...formData, operatingRadius: parseInt(e.target.value) })}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700 accent-[#16a34a]"
-              />
-              <div className="flex justify-between text-xs mt-1 text-gray-500">
-                <span>5 km</span>
-                <span>50 km</span>
-              </div>
+              <input type="range" min="5" max="50" step="1" value={formData.operatingRadius} onChange={(e) => setFormData({ ...formData, operatingRadius: parseInt(e.target.value) })} className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700 accent-[#16a34a]" />
+              <div className="flex justify-between text-xs mt-1 text-gray-500"><span>5 km</span><span>50 km</span></div>
             </div>
-
             <div>
               <label className={`block text-sm font-bold mb-3 ${theme === 'light' ? 'text-gray-700' : 'text-gray-300'}`}>Accepted Food Categories</label>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -198,12 +160,7 @@ const NgoProfileForm: React.FC = () => {
                       ? (theme === 'light' ? 'border-[#16a34a] bg-[#16a34a]/5' : 'border-[#16a34a]/50 bg-[#16a34a]/10')
                       : (theme === 'light' ? 'border-gray-200 hover:bg-white' : 'border-[#333333] hover:bg-[#2a2a2a]')
                   }`}>
-                    <input
-                      type="checkbox"
-                      checked={formData.acceptedCategories.includes(category)}
-                      onChange={() => handleCategoryToggle(category)}
-                      className="w-4 h-4 text-[#16a34a] rounded border-gray-300 focus:ring-[#16a34a]"
-                    />
+                    <input type="checkbox" checked={formData.acceptedCategories.includes(category)} onChange={() => handleCategoryToggle(category)} className="w-4 h-4 text-[#16a34a] rounded border-gray-300 focus:ring-[#16a34a]" />
                     <span className={`text-sm font-medium ${theme === 'light' ? 'text-gray-700' : 'text-gray-300'}`}>{category}</span>
                   </label>
                 ))}
@@ -218,21 +175,11 @@ const NgoProfileForm: React.FC = () => {
             <TruckIcon className={`w-5 h-5 ${theme === 'light' ? 'text-[#16a34a]' : 'text-green-400'}`} />
             <h3 className={`font-bold ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>Logistics & Capacity</h3>
           </div>
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className={`block text-sm font-bold mb-2 ${theme === 'light' ? 'text-gray-700' : 'text-gray-300'}`}>Transport Type</label>
-              <Select
-                options={[
-                  { value: 'car', label: 'Regular Car' },
-                  { value: 'van', label: 'Transport Van' },
-                  { value: 'refrigerated', label: 'Refrigerated Truck' },
-                ]}
-                value={formData.transportType}
-                onChange={(value) => setFormData({ ...formData, transportType: value })}
-              />
+              <Select options={[{ value: 'car', label: 'Regular Car' }, { value: 'van', label: 'Transport Van' }, { value: 'refrigerated', label: 'Refrigerated Truck' }]} value={formData.transportType} onChange={(value) => setFormData({ ...formData, transportType: value })} />
             </div>
-
             <div>
               <label className={`block text-sm font-bold mb-3 ${theme === 'light' ? 'text-gray-700' : 'text-gray-300'}`}>Storage Capabilities</label>
               <label className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-colors ${
@@ -240,12 +187,7 @@ const NgoProfileForm: React.FC = () => {
                   ? (theme === 'light' ? 'border-[#16a34a] bg-[#16a34a]/5' : 'border-[#16a34a]/50 bg-[#16a34a]/10')
                   : (theme === 'light' ? 'border-gray-200 hover:bg-white' : 'border-[#333333] hover:bg-[#2a2a2a]')
               }`}>
-                <input
-                  type="checkbox"
-                  checked={formData.hasIndustrialStorage}
-                  onChange={(e) => setFormData({ ...formData, hasIndustrialStorage: e.target.checked })}
-                  className="w-4 h-4 text-[#16a34a] rounded border-gray-300 focus:ring-[#16a34a]"
-                />
+                <input type="checkbox" checked={formData.hasIndustrialStorage} onChange={(e) => setFormData({ ...formData, hasIndustrialStorage: e.target.checked })} className="w-4 h-4 text-[#16a34a] rounded border-gray-300 focus:ring-[#16a34a]" />
                 <span className={`text-sm font-medium ${theme === 'light' ? 'text-gray-700' : 'text-gray-300'}`}>Has Industrial Freezers/Fridges</span>
               </label>
             </div>
@@ -253,18 +195,8 @@ const NgoProfileForm: React.FC = () => {
         </div>
 
         <div className="flex justify-end pt-4">
-          <button
-            type="submit"
-            disabled={isSaving}
-            className={`flex items-center gap-2 px-6 py-3 bg-[#16a34a] hover:bg-green-700 text-white font-bold rounded-xl transition-all shadow-sm shadow-[#16a34a]/20 ${
-              isSaving ? 'opacity-75 cursor-not-allowed' : 'hover:-translate-y-0.5'
-            }`}
-          >
-            {isSaving ? (
-              <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-            ) : (
-              <CheckBadgeIcon className="w-5 h-5" />
-            )}
+          <button type="submit" disabled={isSaving} className={`flex items-center gap-2 px-6 py-3 bg-[#16a34a] hover:bg-green-700 text-white font-bold rounded-xl transition-all shadow-sm ${isSaving ? 'opacity-75 cursor-not-allowed' : 'hover:-translate-y-0.5'}`}>
+            {isSaving ? <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <CheckBadgeIcon className="w-5 h-5" />}
             Save Details
           </button>
         </div>
