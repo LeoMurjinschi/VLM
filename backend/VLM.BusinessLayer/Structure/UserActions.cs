@@ -120,6 +120,19 @@ public class UserActions
             _dbContext.Users.Add(entity);
             _dbContext.SaveChanges();
 
+            _dbContext.UserProfiles.Add(new UserProfileEntity
+            {
+                UserId = entity.Id,
+                OrgName = userCreateDto.OrgName,
+                Address = userCreateDto.Address,
+                Description = string.IsNullOrWhiteSpace(userCreateDto.FiscalCode)
+                    ? string.Empty
+                    : $"IDNO: {userCreateDto.FiscalCode}",
+                OperatingRadius = 10,
+                Verified = false
+            });
+            _dbContext.SaveChanges();
+
             return new ServiceResponse
             {
                 IsSuccess = true,

@@ -147,7 +147,10 @@ const SignupPage = () => {
         email: formData.email,
         password: formData.password,
         role,
-        bio: `${formData.orgName} | ${formData.address} | IDNO: ${formData.fiscalCode}`,
+        bio: '',
+        orgName: formData.orgName,
+        address: formData.address,
+        fiscalCode: formData.fiscalCode,
       });
       setIsSubmitted(true);
     } catch {

@@ -8,6 +8,9 @@ export interface UserCreateDto {
   role: string;
   bio: string;
   avatar?: string;
+  orgName?: string;
+  address?: string;
+  fiscalCode?: string;
 }
 
 export interface UserInfoUpdateDto {
@@ -25,6 +28,10 @@ export interface UserInfoDto {
   avatar?: string;
   isActive: boolean;
   createdDate: string;
+  approvalStatus: string;
+  approvedById?: number;
+  approvedAt?: string;
+  rejectionReason?: string;
 }
 
 // ── Service ───────────────────────────────────────────────────────────────────
