@@ -3,7 +3,6 @@ import { Bars3Icon, ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline'
 import { useTheme } from '../hooks/useTheme';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import usersData from '../_mock/users.json';
 
 // 1. Importăm noua componentă
 import NotificationBell from './NotificationBell';
@@ -15,8 +14,7 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
   const { theme } = useTheme();
   const { user: authUser } = useAuth();
-  
-  const mockUser = usersData.find(u => u.id === authUser?.id || u.email === authUser?.email) || usersData[0];
+
   const basePath =
     authUser?.role === 'donor'
       ? '/donor'
@@ -28,10 +26,10 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
   const profileUrl = `${basePath}/profile`;
 
   const userDetails = {
-    name: mockUser.name || 'Vasile Rodideal',
-    role: mockUser.role || 'NGO Receiver',
-    initials: mockUser.name ? mockUser.name.substring(0, 2).toUpperCase() : 'VR',
-    avatar: mockUser.avatar
+    name: authUser?.name || '',
+    role: authUser?.role || '',
+    initials: authUser?.name ? authUser.name.substring(0, 2).toUpperCase() : '',
+    avatar: authUser?.avatar
   };
 
   return (
