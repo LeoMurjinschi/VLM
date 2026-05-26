@@ -7,28 +7,27 @@ public class BusinessLogic
 {
     public BusinessLogic() { }
 
-    public IDonationLogic GetDonationLogic()
-    {
-        return new DonationLogic();
-    }
+    public IDonationLogic GetDonationLogic() => new DonationLogic();
 
-    public IUserLogic GetUserLogic()
-    {
-        return new UserLogic();
-    }
+    public IUserLogic GetUserLogic() => new UserLogic();
 
-    public ICommentLogic GetCommentLogic()
-    {
-        return new CommentLogic();
-    }
+    public ICommentLogic GetCommentLogic() => new CommentLogic();
 
-    public IReservationLogic GetReservationLogic()
-    {
-        return new ReservationLogic();
-    }
+    public IReservationLogic GetReservationLogic() => new ReservationLogic();
 
-    public IReviewLogic GetReviewLogic()
-    {
-        return new ReviewLogic();
-    }
+    public IReviewLogic GetReviewLogic() => new ReviewLogic();
+
+    public INotificationLogic GetNotificationLogic() => new NotificationLogic();
+
+    public IMessageLogic GetMessageLogic() => new MessageLogic();
+
+    public IUserProfileLogic GetUserProfileLogic() => new UserProfileLogic();
+
+    public IUserSettingsLogic GetUserSettingsLogic() => new UserSettingsLogic();
+
+    public ICategoryLogic GetCategoryLogic() => new CategoryLogic();
+
+    public IFavoriteLogic GetFavoriteLogic() => new FavoriteLogic();
+
+    public IReportLogic GetReportLogic() => new ReportLogic();
 }

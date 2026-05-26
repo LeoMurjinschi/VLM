@@ -7,5 +7,7 @@ public class UserInfoDto
     public string Email { get; set; } = string.Empty;
     public string Role { get; set; } = string.Empty;
     public string Bio { get; set; } = string.Empty;
+    public string? Avatar { get; set; }
+    public bool IsActive { get; set; }
     public DateTime CreatedDate { get; set; }
 }

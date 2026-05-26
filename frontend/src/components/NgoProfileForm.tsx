@@ -1,41 +1,92 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTheme } from '../hooks/useTheme';
 import { BuildingOffice2Icon, HeartIcon, TruckIcon, CheckBadgeIcon } from '@heroicons/react/24/outline';
 import { toast } from 'react-toastify';
 import Select from './UI/Select';
+import { useAuth } from '../context/AuthContext';
+import { profileService } from '../api';
+import type { UserProfileDto } from '../api';
 
-export const DONATION_CATEGORIES = ['Fresh Produce', 'Baked Goods', 'Prepared Hot Meals', 'Packaged Goods', 'Dairy & Refrigerated'];
+const DONATION_CATEGORIES = ['Fresh Produce', 'Baked Goods', 'Prepared Hot Meals', 'Packaged Goods', 'Dairy & Refrigerated'];
 
 const NgoProfileForm: React.FC = () => {
   const { theme } = useTheme();
+  const { user } = useAuth();
+  const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
   const [formData, setFormData] = useState({
-    organizationName: 'City Food Bank',
-    missionStatement: 'Providing daily hot meals to homeless individuals in Sector 1',
+    orgName: '',
+    missionStatement: '',
     operatingRadius: 25,
-    acceptedCategories: ['Fresh Produce', 'Baked Goods', 'Prepared Hot Meals'],
-    transportType: 'refrigerated',
-    hasIndustrialStorage: true,
+    acceptedCategories: [] as string[],
+    transportType: 'car',
+    hasIndustrialStorage: false,
+    phone: '',
+    address: '',
+    location: '',
   });
 
-  const [isSaving, setIsSaving] = useState(false);
+  useEffect(() => {
+    if (!user) return;
+    profileService.getByUser(parseInt(user.id))
+      .then((profile) => {
+        setFormData({
+          orgName: profile.orgName || '',
+          missionStatement: profile.missionStatement || '',
+          operatingRadius: profile.operatingRadius || 25,
+          acceptedCategories: profile.acceptedCategories
+            ? profile.acceptedCategories.split(',').map(c => c.trim()).filter(Boolean)
+            : [],
+          transportType: profile.transportType || 'car',
+          hasIndustrialStorage: profile.hasIndustrialStorage || false,
+          phone: profile.phone || '',
+          address: profile.address || '',
+          location: profile.location || '',
+        });
+      })
+      .catch(() => {
+        // No profile yet — keep defaults
+      })
+      .finally(() => setIsLoading(false));
+  }, [user]);
 
   const handleCategoryToggle = (category: string) => {
     setFormData(prev => ({
       ...prev,
       acceptedCategories: prev.acceptedCategories.includes(category)
         ? prev.acceptedCategories.filter(c => c !== category)
-        : [...prev.acceptedCategories, category]
+        : [...prev.acceptedCategories, category],
     }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user) return;
     setIsSaving(true);
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      const dto: UserProfileDto = {
+        userId: parseInt(user.id),
+        orgName: formData.orgName,
+        missionStatement: formData.missionStatement,
+        operatingRadius: formData.operatingRadius,
+        acceptedCategories: formData.acceptedCategories.join(','),
+        transportType: formData.transportType,
+        hasIndustrialStorage: formData.hasIndustrialStorage,
+        phone: formData.phone,
+        address: formData.address,
+        location: formData.location,
+        description: '',
+        operatingHours: '',
+        verified: false,
+      };
+      await profileService.save(dto);
+      toast.success('Organization profile saved!');
+    } catch {
+      toast.error('Failed to save organization profile.');
+    } finally {
       setIsSaving(false);
-      toast.success('Your organization profile is set up. Ready to make impact!');
-    }, 800);
+    }
   };
 
   const inputClasses = `w-full px-4 py-3 rounded-xl border transition-all duration-200 outline-none focus:ring-2 ${
@@ -43,6 +94,14 @@ const NgoProfileForm: React.FC = () => {
       ? 'bg-white border-gray-200 focus:border-[#16a34a] focus:ring-[#16a34a]/20 text-gray-900'
       : 'bg-[#222222] border-[#2e2e2e] focus:border-[#16a34a] focus:ring-[#16a34a]/20 text-gray-100 placeholder-gray-500'
   }`;
+
+  if (isLoading) {
+    return (
+      <div className={`p-6 md:p-8 rounded-3xl border shadow-sm flex items-center justify-center h-40 ${theme === 'light' ? 'bg-white border-gray-200/60' : 'bg-[#1a1a1a] border-[#2e2e2e]'}`}>
+        <div className="w-6 h-6 border-2 border-[#16a34a] border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className={`p-6 md:p-8 rounded-3xl border shadow-sm ${theme === 'light' ? 'bg-white border-gray-200/60' : 'bg-[#1a1a1a] border-[#2e2e2e]'}`}>
@@ -57,30 +116,48 @@ const NgoProfileForm: React.FC = () => {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Basic Info */}
-        <div className="grid grid-cols-1 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div>
             <label className={`block text-sm font-bold mb-2 ${theme === 'light' ? 'text-gray-700' : 'text-gray-300'}`}>Organization Name</label>
             <input
               type="text"
-              required
-              value={formData.organizationName}
-              onChange={(e) => setFormData({ ...formData, organizationName: e.target.value })}
+              value={formData.orgName}
+              onChange={(e) => setFormData({ ...formData, orgName: e.target.value })}
               className={inputClasses}
-              placeholder="e.g., City Food Bank or Crucea Roșie"
+              placeholder="e.g., City Food Bank"
             />
           </div>
-
           <div>
-            <label className={`block text-sm font-bold mb-2 ${theme === 'light' ? 'text-gray-700' : 'text-gray-300'}`}>Mission Statement</label>
-            <textarea
-              required
-              rows={3}
-              value={formData.missionStatement}
-              onChange={(e) => setFormData({ ...formData, missionStatement: e.target.value })}
-              className={`${inputClasses} resize-none`}
-              placeholder="A short description of who you help"
+            <label className={`block text-sm font-bold mb-2 ${theme === 'light' ? 'text-gray-700' : 'text-gray-300'}`}>Phone Number</label>
+            <input
+              type="tel"
+              value={formData.phone}
+              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+              className={inputClasses}
+              placeholder="+373 XXX XX XXX"
             />
+          </div>
+        </div>
+
+        <div>
+          <label className={`block text-sm font-bold mb-2 ${theme === 'light' ? 'text-gray-700' : 'text-gray-300'}`}>Mission Statement</label>
+          <textarea
+            rows={3}
+            value={formData.missionStatement}
+            onChange={(e) => setFormData({ ...formData, missionStatement: e.target.value })}
+            className={`${inputClasses} resize-none`}
+            placeholder="A short description of who you help"
+          />
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div>
+            <label className={`block text-sm font-bold mb-2 ${theme === 'light' ? 'text-gray-700' : 'text-gray-300'}`}>Address</label>
+            <input type="text" value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })} className={inputClasses} placeholder="Street, city" />
+          </div>
+          <div>
+            <label className={`block text-sm font-bold mb-2 ${theme === 'light' ? 'text-gray-700' : 'text-gray-300'}`}>City / Location</label>
+            <input type="text" value={formData.location} onChange={(e) => setFormData({ ...formData, location: e.target.value })} className={inputClasses} placeholder="e.g., Cluj-Napoca" />
           </div>
         </div>
 
@@ -149,7 +226,7 @@ const NgoProfileForm: React.FC = () => {
                 options={[
                   { value: 'car', label: 'Regular Car' },
                   { value: 'van', label: 'Transport Van' },
-                  { value: 'refrigerated', label: 'Refrigerated Truck' }
+                  { value: 'refrigerated', label: 'Refrigerated Truck' },
                 ]}
                 value={formData.transportType}
                 onChange={(value) => setFormData({ ...formData, transportType: value })}
@@ -159,10 +236,10 @@ const NgoProfileForm: React.FC = () => {
             <div>
               <label className={`block text-sm font-bold mb-3 ${theme === 'light' ? 'text-gray-700' : 'text-gray-300'}`}>Storage Capabilities</label>
               <label className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-colors ${
-                    formData.hasIndustrialStorage
-                      ? (theme === 'light' ? 'border-[#16a34a] bg-[#16a34a]/5' : 'border-[#16a34a]/50 bg-[#16a34a]/10')
-                      : (theme === 'light' ? 'border-gray-200 hover:bg-white' : 'border-[#333333] hover:bg-[#2a2a2a]')
-                  }`}>
+                formData.hasIndustrialStorage
+                  ? (theme === 'light' ? 'border-[#16a34a] bg-[#16a34a]/5' : 'border-[#16a34a]/50 bg-[#16a34a]/10')
+                  : (theme === 'light' ? 'border-gray-200 hover:bg-white' : 'border-[#333333] hover:bg-[#2a2a2a]')
+              }`}>
                 <input
                   type="checkbox"
                   checked={formData.hasIndustrialStorage}

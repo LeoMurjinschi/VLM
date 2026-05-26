@@ -27,6 +27,7 @@ public class ReviewActions
                     ReceiverId = entity.ReceiverId,
                     Rating = entity.Rating,
                     Text = entity.Text,
+                    Status = entity.Status,
                     CreatedDate = entity.CreatedDate
                 })
                 .ToList();
@@ -67,6 +68,7 @@ public class ReviewActions
                 ReceiverId = entity.ReceiverId,
                 Rating = entity.Rating,
                 Text = entity.Text,
+                Status = entity.Status,
                 CreatedDate = entity.CreatedDate
             };
 
@@ -96,6 +98,7 @@ public class ReviewActions
                 ReceiverId = reviewCreateDto.ReceiverId,
                 Rating = reviewCreateDto.Rating,
                 Text = reviewCreateDto.Text,
+                Status = "approved",
                 CreatedDate = DateTime.UtcNow
             };
 

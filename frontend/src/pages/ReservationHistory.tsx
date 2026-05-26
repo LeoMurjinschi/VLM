@@ -1,12 +1,12 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useTheme } from '../hooks/useTheme';
 import PageLayout from '../components/PageLayout';
 import HistoryHeader from '../components/HistoryHeader';
 import HistoryFilters from '../components/HistoryFilters';
 import HistoryItem from '../components/HistoryItem';
 import { ArchiveBoxXMarkIcon } from '@heroicons/react/24/outline';
+import { reservationService, donationService } from '../api';
 
-// Tipul de date
 export interface HistoryRecord {
   id: string;
   title: string;
@@ -17,57 +17,45 @@ export interface HistoryRecord {
   image: string;
 }
 
-// Date Mock
-const mockHistoryData: HistoryRecord[] = [
-  {
-    id: 'h1',
-    title: 'Kvelb SRL',
-    donor: 'Leonea murjunski',
-    quantity: '15 kg',
-    pickupDate: 'Oct 24, 2023 - 14:30',
-    status: 'Completed',
-    image: 'https://images.unsplash.com/photo-1610832958506-aa56368176cf?auto=format&fit=crop&q=80&w=300&h=300',
-  },
-  {
-    id: 'h2',
-    title: 'Jewish bakery',
-    donor: 'Mishanea',
-    quantity: '5 kg',
-    pickupDate: 'Oct 20, 2023 - 19:00',
-    status: 'Cancelled',
-    image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&q=80&w=300&h=300',
-  },
-  {
-    id: 'h3',
-    title: 'Dairy & Milk Cartons',
-    donor: 'Mega Image',
-    quantity: '12 Liters',
-    pickupDate: 'Oct 15, 2023 - 10:00',
-    status: 'Completed',
-    image: 'https://images.unsplash.com/photo-1628088062854-d1870b4553da?auto=format&fit=crop&q=80&w=300&h=300',
-  },
-  {
-    id: 'h4',
-    title: 'Cooked Meals (Catering)',
-    donor: 'La Mama Restaurant',
-    quantity: '10 portions',
-    pickupDate: 'Sep 28, 2023 - 21:00',
-    status: 'Expired',
-    image: 'https://images.unsplash.com/photo-1590779033100-9f60a05a013d?auto=format&fit=crop&q=80&w=300&h=300',
-  }
-];
+const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1488459716781-6f3ee109e5e4?auto=format&fit=crop&q=80&w=300&h=300';
+
+const mapStatus = (s: string): 'Completed' | 'Cancelled' | 'Expired' => {
+  if (s === 'completed') return 'Completed';
+  if (s === 'cancelled') return 'Cancelled';
+  return 'Expired';
+};
 
 const ReservationHistory: React.FC = () => {
   const { theme } = useTheme();
+  const [historyData, setHistoryData] = useState<HistoryRecord[]>([]);
 
-  // State pentru Filtre
+  useEffect(() => {
+    Promise.all([reservationService.getAll(), donationService.getAll()])
+      .then(([reservations, donations]) => {
+        const donationMap = new Map(donations.map(d => [d.id, d]));
+        const mapped: HistoryRecord[] = reservations.map(r => {
+          const donation = donationMap.get(r.donationId);
+          return {
+            id: String(r.id),
+            title: donation?.title ?? `Donation #${r.donationId}`,
+            donor: `Donor #${r.userId}`,
+            quantity: `${r.quantityReserved} ${donation?.unit ?? 'units'}`,
+            pickupDate: new Date(r.createdDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+            status: mapStatus(r.status),
+            image: donation?.image ?? DEFAULT_IMAGE,
+          };
+        });
+        setHistoryData(mapped);
+      })
+      .catch(() => {});
+  }, []);
+
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [dateFilter, setDateFilter] = useState('All Time');
 
-  // Logica de filtrare a datelor
   const filteredData = useMemo(() => {
-    return mockHistoryData.filter((item) => {
+    return historyData.filter((item) => {
       // Filtru Search
       const matchesSearch = 
         item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -82,10 +70,9 @@ const ReservationHistory: React.FC = () => {
     });
   }, [searchQuery, statusFilter, dateFilter]);
 
-  // Calculăm statisticile pentru Header (din datele reale/mock)
-  const totalPickups = mockHistoryData.filter(i => i.status === 'Completed').length;
-  const foodSavedKg = 27; // Valoare demonstrativă
-  const favoriteDonor = 'Auchan Supermarket';
+  const totalPickups = historyData.filter(i => i.status === 'Completed').length;
+  const foodSavedKg = historyData.filter(i => i.status === 'Completed').length * 5;
+  const favoriteDonor = historyData[0]?.donor ?? '—';
 
   return (
     <PageLayout>

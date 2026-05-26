@@ -14,6 +14,46 @@ public class DonationActions
         _dbContext = new VlmDbContext();
     }
 
+    public ServiceResponse GetDonationsByDonorIdAction(int donorId)
+    {
+        try
+        {
+            var donations = _dbContext.Donations
+                .Where(d => d.DonorId == donorId)
+                .Select(entity => new DonationInfoDto
+                {
+                    Id = entity.Id,
+                    Title = entity.Title,
+                    Description = entity.Description,
+                    Quantity = entity.Quantity,
+                    Unit = entity.Unit,
+                    DonorId = entity.DonorId,
+                    Category = entity.Category,
+                    PickupLocation = entity.PickupLocation,
+                    ExpirationDate = entity.ExpirationDate,
+                    Image = entity.Image,
+                    Status = entity.Status,
+                    CreatedDate = entity.CreatedDate,
+                    UpdatedDate = entity.UpdatedDate
+                })
+                .ToList();
+
+            return new ServiceResponse
+            {
+                IsSuccess = true,
+                Data = donations
+            };
+        }
+        catch (Exception e)
+        {
+            return new ServiceResponse
+            {
+                IsSuccess = false,
+                Message = $"Error retrieving donations: {e.Message}"
+            };
+        }
+    }
+
     public ServiceResponse CreateDonationAction(DonationCreateDto donationCreateDto)
     {
         try
@@ -25,6 +65,10 @@ public class DonationActions
                 Quantity = donationCreateDto.Quantity,
                 Unit = donationCreateDto.Unit,
                 DonorId = donationCreateDto.DonorId,
+                Category = donationCreateDto.Category,
+                PickupLocation = donationCreateDto.PickupLocation,
+                ExpirationDate = donationCreateDto.ExpirationDate,
+                Image = donationCreateDto.Image,
                 Status = "Available",
                 CreatedDate = DateTime.UtcNow
             };
@@ -69,6 +113,10 @@ public class DonationActions
                 Quantity = entity.Quantity,
                 Unit = entity.Unit,
                 DonorId = entity.DonorId,
+                Category = entity.Category,
+                PickupLocation = entity.PickupLocation,
+                ExpirationDate = entity.ExpirationDate,
+                Image = entity.Image,
                 Status = entity.Status,
                 CreatedDate = entity.CreatedDate,
                 UpdatedDate = entity.UpdatedDate
@@ -103,6 +151,10 @@ public class DonationActions
                     Quantity = entity.Quantity,
                     Unit = entity.Unit,
                     DonorId = entity.DonorId,
+                    Category = entity.Category,
+                    PickupLocation = entity.PickupLocation,
+                    ExpirationDate = entity.ExpirationDate,
+                    Image = entity.Image,
                     Status = entity.Status,
                     CreatedDate = entity.CreatedDate,
                     UpdatedDate = entity.UpdatedDate
@@ -143,6 +195,10 @@ public class DonationActions
             entity.Quantity = donationCreateDto.Quantity;
             entity.Unit = donationCreateDto.Unit;
             entity.DonorId = donationCreateDto.DonorId;
+            entity.Category = donationCreateDto.Category;
+            entity.PickupLocation = donationCreateDto.PickupLocation;
+            entity.ExpirationDate = donationCreateDto.ExpirationDate;
+            entity.Image = donationCreateDto.Image;
             entity.UpdatedDate = DateTime.UtcNow;
 
             _dbContext.SaveChanges();

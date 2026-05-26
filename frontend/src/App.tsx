@@ -16,6 +16,7 @@ import PrivacyPage from './pages/public/PrivacyPage';
 import CookiePage from './pages/public/CookiePage';
 import HelpCenterPage from './pages/public/HelpCenterPage';
 import { useState } from 'react';
+import ForbiddenPage from './pages/public/ForbiddenPage';
 
 import ReceiverLayout from './layouts/ReceiverLayout';
 
@@ -110,6 +111,7 @@ function App() {
                 <Route path="/cookies" element={<CookiePage />} />
                 <Route path="/contact" element={<HelpCenterPage />} />
                 <Route path="/" element={<LandingPage />} />
+                <Route path="/403" element={<ForbiddenPage />} />
 
                 <Route
                   path="/donor/*"

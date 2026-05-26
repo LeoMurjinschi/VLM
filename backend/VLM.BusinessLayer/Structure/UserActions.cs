@@ -26,6 +26,8 @@ public class UserActions
                     Email = entity.Email,
                     Role = entity.Role,
                     Bio = entity.Bio,
+                    Avatar = entity.Avatar,
+                    IsActive = entity.IsActive,
                     CreatedDate = entity.CreatedDate
                 })
                 .ToList();
@@ -66,6 +68,8 @@ public class UserActions
                 Email = entity.Email,
                 Role = entity.Role,
                 Bio = entity.Bio,
+                Avatar = entity.Avatar,
+                IsActive = entity.IsActive,
                 CreatedDate = entity.CreatedDate
             };
 
@@ -93,9 +97,11 @@ public class UserActions
             {
                 Name = userCreateDto.Name,
                 Email = userCreateDto.Email,
-                PasswordHash = userCreateDto.Password,
+                PasswordHash = PasswordHasher.Hash(userCreateDto.Password),
                 Role = userCreateDto.Role,
                 Bio = userCreateDto.Bio,
+                Avatar = userCreateDto.Avatar,
+                IsActive = true,
                 CreatedDate = DateTime.UtcNow
             };
 
@@ -135,6 +141,7 @@ public class UserActions
             entity.Email = userCreateDto.Email;
             entity.Role = userCreateDto.Role;
             entity.Bio = userCreateDto.Bio;
+            entity.Avatar = userCreateDto.Avatar;
 
             _dbContext.SaveChanges();
 
@@ -151,6 +158,49 @@ public class UserActions
                 IsSuccess = false,
                 Message = $"Error updating user: {e.Message}"
             };
+        }
+    }
+
+    public ServiceResponse ChangePasswordAction(int id, ChangePasswordDto dto)
+    {
+        try
+        {
+            var entity = _dbContext.Users.Find(id);
+            if (entity == null)
+                return new ServiceResponse { IsSuccess = false, Message = "User not found" };
+
+            if (entity.PasswordHash != PasswordHasher.Hash(dto.OldPassword))
+                return new ServiceResponse { IsSuccess = false, Message = "Current password is incorrect" };
+
+            entity.PasswordHash = PasswordHasher.Hash(dto.NewPassword);
+            _dbContext.SaveChanges();
+
+            return new ServiceResponse { IsSuccess = true, Message = "Password changed successfully" };
+        }
+        catch (Exception e)
+        {
+            return new ServiceResponse { IsSuccess = false, Message = $"Error changing password: {e.Message}" };
+        }
+    }
+
+    public ServiceResponse UpdateUserInfoAction(int id, UserInfoUpdateDto dto)
+    {
+        try
+        {
+            var entity = _dbContext.Users.Find(id);
+            if (entity == null)
+                return new ServiceResponse { IsSuccess = false, Message = "User not found" };
+
+            entity.Name = dto.Name;
+            entity.Email = dto.Email;
+            entity.Avatar = dto.Avatar;
+            _dbContext.SaveChanges();
+
+            return new ServiceResponse { IsSuccess = true, Message = "User info updated successfully" };
+        }
+        catch (Exception e)
+        {
+            return new ServiceResponse { IsSuccess = false, Message = $"Error updating user info: {e.Message}" };
         }
     }
 
@@ -182,6 +232,48 @@ public class UserActions
             {
                 IsSuccess = false,
                 Message = $"Error deleting user: {e.Message}"
+            };
+        }
+    }
+
+    public ServiceResponse LoginAction(UserLoginDto loginDto)
+    {
+        try
+        {
+            // Corectat: am adăugat "== loginDto.Email"
+            var passwordHash = PasswordHasher.Hash(loginDto.Password);
+            var user = _dbContext.Users.FirstOrDefault(x => x.Email == loginDto.Email && x.PasswordHash == passwordHash);
+            
+            if (!user.IsActive)
+            {
+                return new ServiceResponse { IsSuccess = false, Message = "Inactive account." };
+            }
+
+            var tokenService = new TokenService();
+
+            // Corectat: Am șters punctul din fața parantezei
+            var token = tokenService.GenerateToken(user.Id, user.Name, user.Role.ToString());
+
+            return new ServiceResponse
+            {
+                IsSuccess = true,
+                Data = new
+                {
+                    id = user.Id,
+                    name = user.Name,
+                    email = user.Email,
+                    role = user.Role,
+                    avatar = user.Avatar,
+                    token = token
+                }
+            };
+        } // Corectat: Paranteza care închidea blocul 'try' lipsea
+        catch (Exception e)
+        {
+            return new ServiceResponse
+            {
+                IsSuccess = false,
+                Message = $"Error logging in: {e.Message}"
             };
         }
     }

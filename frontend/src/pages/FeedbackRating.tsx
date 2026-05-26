@@ -1,25 +1,34 @@
 import React, { useState } from 'react';
 import { useTheme } from '../hooks/useTheme';
+import { useAuth } from '../context/AuthContext';
 import PageLayout from '../components/PageLayout';
 import PendingReviewCard from '../components/PendingReviewCard';
 import CompletedReviewCard from '../components/CompletedReviewCard';
 import { MOCK_FEEDBACK, type FeedbackRecord } from './../_mock/feedback';
 import { CheckBadgeIcon } from '@heroicons/react/24/solid';
-import { toast } from 'react-toastify'; // 1. Am importat toast-ul
+import { toast } from 'react-toastify';
+import { reviewService } from '../api';
 
 const FeedbackRating: React.FC = () => {
   const { theme } = useTheme();
-  
+  const { user } = useAuth();
+
   const [feedbackData, setFeedbackData] = useState<FeedbackRecord[]>(MOCK_FEEDBACK);
   const [activeTab, setActiveTab] = useState<'Pending' | 'Completed'>('Pending');
 
- // Funcția care "trimite" feedback-ul
-  const handleSubmitReview = (id: string, rating: number, comment: string, tags: string[]) => {
-    setFeedbackData((prev) => 
-      prev.map((item) => 
-        item.id === id ? { ...item, status: 'completed', rating, comment, tags } : item
-      )
+  const handleSubmitReview = async (id: string, rating: number, comment: string, tags: string[]) => {
+    setFeedbackData(prev =>
+      prev.map(item => item.id === id ? { ...item, status: 'completed', rating, comment, tags } : item)
     );
+    const receiverId = parseInt((user as any)?.id || '0');
+    if (receiverId) {
+      await reviewService.create({
+        donorId: 1,
+        receiverId,
+        rating,
+        text: comment,
+      }).catch(() => {});
+    }
     toast.success('Thank you! Your feedback has been submitted. ⭐');
   };
 

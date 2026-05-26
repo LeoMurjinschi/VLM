@@ -8,6 +8,7 @@ import { AuthLayout } from '../../components/auth/AuthLayout';
 import { InputField } from '../../components/UI/InputField';
 import { AuthButton } from '../../components/UI/AuthButton';
 import { useTheme } from '../../hooks/useTheme';
+import { userService } from '../../api';
 
 const SignupPage = () => {
   const [searchParams] = useSearchParams();
@@ -27,6 +28,7 @@ const SignupPage = () => {
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [serverError, setServerError] = useState('');
   const [document, setDocument] = useState<File | null>(null);
   const [documentError, setDocumentError] = useState('');
   const [passwordFocused, setPasswordFocused] = useState(false);
@@ -137,11 +139,22 @@ const SignupPage = () => {
       return;
     }
     setIsLoading(true);
+    setServerError('');
 
-    await new Promise(resolve => setTimeout(resolve, 1500));
-
-    setIsLoading(false);
-    setIsSubmitted(true);
+    try {
+      await userService.create({
+        name: formData.repName,
+        email: formData.email,
+        password: formData.password,
+        role,
+        bio: `${formData.orgName} | ${formData.address} | IDNO: ${formData.fiscalCode}`,
+      });
+      setIsSubmitted(true);
+    } catch {
+      setServerError('Registration failed. The email may already be in use.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (isSubmitted) {
@@ -376,6 +389,14 @@ const SignupPage = () => {
             <p className="mt-2 text-xs text-red-500 font-medium">{documentError}</p>
           )}
         </div>
+
+        {serverError && (
+          <div className={`text-sm p-3 rounded-lg border font-medium ${
+            theme === 'light' ? 'bg-red-50 text-red-600 border-red-100' : 'bg-red-900/20 text-red-400 border-red-900/30'
+          }`}>
+            {serverError}
+          </div>
+        )}
 
         <AuthButton
           type="submit"
