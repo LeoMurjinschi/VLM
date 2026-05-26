@@ -97,7 +97,7 @@ public class UserActions
             {
                 Name = userCreateDto.Name,
                 Email = userCreateDto.Email,
-                PasswordHash = userCreateDto.Password,
+                PasswordHash = PasswordHasher.Hash(userCreateDto.Password),
                 Role = userCreateDto.Role,
                 Bio = userCreateDto.Bio,
                 Avatar = userCreateDto.Avatar,
@@ -198,20 +198,9 @@ public class UserActions
         try
         {
             // Corectat: am adăugat "== loginDto.Email"
-            var user = _dbContext.Users.FirstOrDefault(x => 
-                x.Email == loginDto.Email && x.PasswordHash == loginDto.Password);
+            var passwordHash = PasswordHasher.Hash(loginDto.Password);
+            var user = _dbContext.Users.FirstOrDefault(x => x.Email == loginDto.Email && x.PasswordHash == passwordHash);
             
-            // Corectat: Verificăm MAI ÎNTÂI dacă user-ul a fost găsit
-            if (user == null)
-            {
-                return new ServiceResponse
-                {
-                    IsSuccess = false,
-                    Message = "Email or password not matching."
-                };
-            }
-
-            // Acum putem verifica în siguranță dacă este activ
             if (!user.IsActive)
             {
                 return new ServiceResponse { IsSuccess = false, Message = "Inactive account." };
