@@ -1,5 +1,8 @@
 using VLM.DataAccessLayer.Context;
+using VLM.Domain.Entities.AccountApproval;
+using VLM.Domain.Entities.AdminAction;
 using VLM.Domain.Entities.User;
+using VLM.Domain.Models.Admin;
 using VLM.Domain.Models.Service;
 using VLM.Domain.Models.User;
 
@@ -28,7 +31,11 @@ public class UserActions
                     Bio = entity.Bio,
                     Avatar = entity.Avatar,
                     IsActive = entity.IsActive,
-                    CreatedDate = entity.CreatedDate
+                    CreatedDate = entity.CreatedDate,
+                    ApprovalStatus = entity.ApprovalStatus,
+                    ApprovedById = entity.ApprovedById,
+                    ApprovedAt = entity.ApprovedAt,
+                    RejectionReason = entity.RejectionReason
                 })
                 .ToList();
 
@@ -70,7 +77,11 @@ public class UserActions
                 Bio = entity.Bio,
                 Avatar = entity.Avatar,
                 IsActive = entity.IsActive,
-                CreatedDate = entity.CreatedDate
+                CreatedDate = entity.CreatedDate,
+                ApprovalStatus = entity.ApprovalStatus,
+                ApprovedById = entity.ApprovedById,
+                ApprovedAt = entity.ApprovedAt,
+                RejectionReason = entity.RejectionReason
             };
 
             return new ServiceResponse
@@ -97,12 +108,13 @@ public class UserActions
             {
                 Name = userCreateDto.Name,
                 Email = userCreateDto.Email,
-                PasswordHash = PasswordHasher.Hash(userCreateDto.Password),
+                PasswordHash = userCreateDto.Password,
                 Role = userCreateDto.Role,
                 Bio = userCreateDto.Bio,
                 Avatar = userCreateDto.Avatar,
-                IsActive = true,
-                CreatedDate = DateTime.UtcNow
+                IsActive = false,
+                CreatedDate = DateTime.UtcNow,
+                ApprovalStatus = "pending"
             };
 
             _dbContext.Users.Add(entity);
@@ -161,46 +173,170 @@ public class UserActions
         }
     }
 
-    public ServiceResponse ChangePasswordAction(int id, ChangePasswordDto dto)
+    public ServiceResponse GetPendingUsersAction()
     {
         try
         {
-            var entity = _dbContext.Users.Find(id);
-            if (entity == null)
-                return new ServiceResponse { IsSuccess = false, Message = "User not found" };
+            var users = _dbContext.Users
+                .Where(u => u.ApprovalStatus == "pending")
+                .Select(entity => new UserInfoDto
+                {
+                    Id = entity.Id,
+                    Name = entity.Name,
+                    Email = entity.Email,
+                    Role = entity.Role,
+                    Bio = entity.Bio,
+                    Avatar = entity.Avatar,
+                    IsActive = entity.IsActive,
+                    CreatedDate = entity.CreatedDate,
+                    ApprovalStatus = entity.ApprovalStatus,
+                    ApprovedById = entity.ApprovedById,
+                    ApprovedAt = entity.ApprovedAt,
+                    RejectionReason = entity.RejectionReason
+                })
+                .ToList();
 
-            if (entity.PasswordHash != PasswordHasher.Hash(dto.OldPassword))
-                return new ServiceResponse { IsSuccess = false, Message = "Current password is incorrect" };
-
-            entity.PasswordHash = PasswordHasher.Hash(dto.NewPassword);
-            _dbContext.SaveChanges();
-
-            return new ServiceResponse { IsSuccess = true, Message = "Password changed successfully" };
+            return new ServiceResponse
+            {
+                IsSuccess = true,
+                Data = users
+            };
         }
         catch (Exception e)
         {
-            return new ServiceResponse { IsSuccess = false, Message = $"Error changing password: {e.Message}" };
+            return new ServiceResponse
+            {
+                IsSuccess = false,
+                Message = $"Error retrieving pending users: {e.Message}"
+            };
         }
     }
 
-    public ServiceResponse UpdateUserInfoAction(int id, UserInfoUpdateDto dto)
+    public ServiceResponse ApproveUserAction(int userId, AccountApprovalDecisionDto decisionDto)
     {
         try
         {
-            var entity = _dbContext.Users.Find(id);
-            if (entity == null)
-                return new ServiceResponse { IsSuccess = false, Message = "User not found" };
+            var entity = _dbContext.Users.Find(userId);
 
-            entity.Name = dto.Name;
-            entity.Email = dto.Email;
-            entity.Avatar = dto.Avatar;
+            if (entity == null)
+                return new ServiceResponse
+                {
+                    IsSuccess = false,
+                    Message = "User not found"
+                };
+
+            if (entity.ApprovalStatus == "approved")
+                return new ServiceResponse
+                {
+                    IsSuccess = false,
+                    Message = "User already approved"
+                };
+
+            var now = DateTime.UtcNow;
+            entity.ApprovalStatus = "approved";
+            entity.IsActive = true;
+            entity.ApprovedById = decisionDto.AdminId;
+            entity.ApprovedAt = now;
+            entity.RejectionReason = null;
+
+            _dbContext.AccountApprovals.Add(new AccountApprovalEntity
+            {
+                UserId = userId,
+                AdminId = decisionDto.AdminId,
+                Decision = "approved",
+                Reason = decisionDto.Reason ?? string.Empty,
+                DecidedAt = now
+            });
+
+            _dbContext.AdminActions.Add(new AdminActionEntity
+            {
+                AdminId = decisionDto.AdminId,
+                ActionType = "approve_user",
+                TargetType = "user",
+                TargetId = userId,
+                Details = $"User '{entity.Email}' approved.",
+                CreatedDate = now
+            });
+
             _dbContext.SaveChanges();
 
-            return new ServiceResponse { IsSuccess = true, Message = "User info updated successfully" };
+            return new ServiceResponse
+            {
+                IsSuccess = true,
+                Message = "User approved successfully"
+            };
         }
         catch (Exception e)
         {
-            return new ServiceResponse { IsSuccess = false, Message = $"Error updating user info: {e.Message}" };
+            return new ServiceResponse
+            {
+                IsSuccess = false,
+                Message = $"Error approving user: {e.Message}"
+            };
+        }
+    }
+
+    public ServiceResponse RejectUserAction(int userId, AccountApprovalDecisionDto decisionDto)
+    {
+        try
+        {
+            var entity = _dbContext.Users.Find(userId);
+
+            if (entity == null)
+                return new ServiceResponse
+                {
+                    IsSuccess = false,
+                    Message = "User not found"
+                };
+
+            if (entity.ApprovalStatus == "rejected")
+                return new ServiceResponse
+                {
+                    IsSuccess = false,
+                    Message = "User already rejected"
+                };
+
+            var now = DateTime.UtcNow;
+            entity.ApprovalStatus = "rejected";
+            entity.IsActive = false;
+            entity.ApprovedById = decisionDto.AdminId;
+            entity.ApprovedAt = now;
+            entity.RejectionReason = decisionDto.Reason ?? "No reason provided";
+
+            _dbContext.AccountApprovals.Add(new AccountApprovalEntity
+            {
+                UserId = userId,
+                AdminId = decisionDto.AdminId,
+                Decision = "rejected",
+                Reason = decisionDto.Reason ?? string.Empty,
+                DecidedAt = now
+            });
+
+            _dbContext.AdminActions.Add(new AdminActionEntity
+            {
+                AdminId = decisionDto.AdminId,
+                ActionType = "reject_user",
+                TargetType = "user",
+                TargetId = userId,
+                Details = $"User '{entity.Email}' rejected. Reason: {decisionDto.Reason}",
+                CreatedDate = now
+            });
+
+            _dbContext.SaveChanges();
+
+            return new ServiceResponse
+            {
+                IsSuccess = true,
+                Message = "User rejected successfully"
+            };
+        }
+        catch (Exception e)
+        {
+            return new ServiceResponse
+            {
+                IsSuccess = false,
+                Message = $"Error rejecting user: {e.Message}"
+            };
         }
     }
 
@@ -232,48 +368,6 @@ public class UserActions
             {
                 IsSuccess = false,
                 Message = $"Error deleting user: {e.Message}"
-            };
-        }
-    }
-
-    public ServiceResponse LoginAction(UserLoginDto loginDto)
-    {
-        try
-        {
-            // Corectat: am adăugat "== loginDto.Email"
-            var passwordHash = PasswordHasher.Hash(loginDto.Password);
-            var user = _dbContext.Users.FirstOrDefault(x => x.Email == loginDto.Email && x.PasswordHash == passwordHash);
-            
-            if (!user.IsActive)
-            {
-                return new ServiceResponse { IsSuccess = false, Message = "Inactive account." };
-            }
-
-            var tokenService = new TokenService();
-
-            // Corectat: Am șters punctul din fața parantezei
-            var token = tokenService.GenerateToken(user.Id, user.Name, user.Role.ToString());
-
-            return new ServiceResponse
-            {
-                IsSuccess = true,
-                Data = new
-                {
-                    id = user.Id,
-                    name = user.Name,
-                    email = user.Email,
-                    role = user.Role,
-                    avatar = user.Avatar,
-                    token = token
-                }
-            };
-        } // Corectat: Paranteza care închidea blocul 'try' lipsea
-        catch (Exception e)
-        {
-            return new ServiceResponse
-            {
-                IsSuccess = false,
-                Message = $"Error logging in: {e.Message}"
             };
         }
     }

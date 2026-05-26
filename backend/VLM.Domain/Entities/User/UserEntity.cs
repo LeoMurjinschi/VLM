@@ -20,6 +20,11 @@ public class UserEntity
     public string? Avatar { get; set; }
     public bool IsActive { get; set; } = true;
     public DateTime CreatedDate { get; set; }
+    
+    public string ApprovalStatus { get; set; } = "pending";
+    public int? ApprovedById { get; set; }
+    public DateTime? ApprovedAt { get; set; }
+    public string? RejectionReason { get; set; }
 
     // Navigation properties
     public ICollection<DonationEntity> Donations { get; set; } = new List<DonationEntity>();
@@ -34,4 +39,11 @@ public class UserEntity
     public UserSettingsEntity? Settings { get; set; }
     public ICollection<FavoriteEntity> Favorites { get; set; } = new List<FavoriteEntity>();
     public ICollection<ReportEntity> Reports { get; set; } = new List<ReportEntity>();
+    
+    public UserEntity? ApprovedBy { get; set; }
+    public ICollection<AccountApprovalEntity> ApprovalsReceived { get; set; } = new List<AccountApprovalEntity>();
+    public ICollection<AccountApprovalEntity> ApprovalsDecided { get; set; } = new List<AccountApprovalEntity>();
+    public ICollection<AdminActionEntity> AdminActions { get; set; } = new List<AdminActionEntity>();
+    public ICollection<AdminAnnouncementEntity> Announcements { get; set; } = new List<AdminAnnouncementEntity>();
+    public ICollection<SystemSettingEntity> SettingsUpdated { get; set; } = new List<SystemSettingEntity>();
 }
