@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useTheme } from '../../hooks/useTheme';
-import { MOCK_SIGNUP_REQUESTS, type SignupRequest } from '../../_mock/adminMockData';
+import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
-import { 
-  CheckIcon, 
+import {
+  CheckIcon,
   XMarkIcon,
   DocumentTextIcon,
   PhoneIcon,
@@ -11,61 +11,113 @@ import {
   BuildingOfficeIcon
 } from '@heroicons/react/24/outline';
 import Modal from '../../components/UI/Modal';
+import { userService, type UserInfoDto } from '../../api/userService';
+import { profileService, type UserProfileDto } from '../../api/profileService';
+import { adminService } from '../../api/adminService';
 
 const AdminSignups: React.FC = () => {
   const { theme } = useTheme();
-  
-  // Show pending first, then others
-  const sortedRequests = [...MOCK_SIGNUP_REQUESTS].sort((a, b) => {
-    if (a.status === 'pending' && b.status !== 'pending') return -1;
-    if (a.status !== 'pending' && b.status === 'pending') return 1;
-    return new Date(b.submittedDate).getTime() - new Date(a.submittedDate).getTime();
-  });
+  const { user: authUser } = useAuth();
 
+  const [allUsers, setAllUsers] = useState<UserInfoDto[]>([]);
+  const [profileCache, setProfileCache] = useState<Record<number, UserProfileDto>>({});
+  const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'pending' | 'history'>('pending');
-  const [requests, setRequests] = useState<SignupRequest[]>(sortedRequests);
-  
-  const [modalOpen, setModalOpen] = useState(false);
-  const [selectedRequest, setSelectedRequest] = useState<SignupRequest | null>(null);
 
-  // Decline logic
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<UserInfoDto | null>(null);
+  const [selectedProfile, setSelectedProfile] = useState<UserProfileDto | null>(null);
+  const [profileLoading, setProfileLoading] = useState(false);
+
   const [declineModalOpen, setDeclineModalOpen] = useState(false);
   const [declineReason, setDeclineReason] = useState('');
+  const [actionLoading, setActionLoading] = useState(false);
 
-  const displayRequests = requests.filter(req => 
-    viewMode === 'pending' ? req.status === 'pending' : req.status !== 'pending'
+  const fetchUsers = useCallback(async () => {
+    try {
+      const users = await userService.getAll();
+      const nonAdmins = users.filter(u => u.role !== 'admin');
+      nonAdmins.sort((a, b) => {
+        if (a.approvalStatus === 'pending' && b.approvalStatus !== 'pending') return -1;
+        if (a.approvalStatus !== 'pending' && b.approvalStatus === 'pending') return 1;
+        return new Date(b.createdDate).getTime() - new Date(a.createdDate).getTime();
+      });
+      setAllUsers(nonAdmins);
+    } catch {
+      toast.error('Failed to load signup requests.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
+
+  const displayUsers = allUsers.filter(u =>
+    viewMode === 'pending' ? u.approvalStatus === 'pending' : u.approvalStatus !== 'pending'
   );
 
-  const viewDetails = (req: SignupRequest) => {
-    setSelectedRequest(req);
+  const pendingCount = allUsers.filter(u => u.approvalStatus === 'pending').length;
+
+  const viewDetails = async (user: UserInfoDto) => {
+    setSelectedUser(user);
+    setSelectedProfile(profileCache[user.id] ?? null);
     setModalOpen(true);
-  };
 
-  const handleStatusChange = (id: string, newStatus: 'approved' | 'rejected', name: string) => {
-    setRequests(prev => prev.map(req => 
-      req.id === id ? { ...req, status: newStatus } : req
-    ));
-    toast.success(`${name} is approved! They can start donating food to your community.`);
-    setModalOpen(false);
-  };
-
-  const confirmDecline = () => {
-    if (selectedRequest) {
-      if (!declineReason.trim()) {
-        toast.error('Add a reason for declining this application so the organization understands your decision.');
-        return;
+    if (!profileCache[user.id]) {
+      setProfileLoading(true);
+      try {
+        const profile = await profileService.getByUser(user.id);
+        setProfileCache(prev => ({ ...prev, [user.id]: profile }));
+        setSelectedProfile(profile);
+      } catch {
+        // Profile might not exist for every user
+      } finally {
+        setProfileLoading(false);
       }
-      setRequests(prev => prev.map(req => 
-        req.id === selectedRequest.id ? { ...req, status: 'rejected' } : req
-      ));
-      toast.success(`Application declined. Notification sent to ${selectedRequest.email}.`);
-      setDeclineModalOpen(false);
-      setModalOpen(false);
     }
   };
 
-  const openPdf = () => {
-    window.open('https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', '_blank');
+  const adminId = authUser ? parseInt(authUser.id) : 0;
+
+  const handleApprove = async () => {
+    if (!selectedUser) return;
+    setActionLoading(true);
+    try {
+      await adminService.approveUser(selectedUser.id, { adminId });
+      toast.success(`${selectedUser.name} has been approved! They can now log in.`);
+      setModalOpen(false);
+      setAllUsers(prev => prev.map(u =>
+        u.id === selectedUser.id ? { ...u, approvalStatus: 'approved' } : u
+      ));
+    } catch {
+      toast.error('Failed to approve user.');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const confirmDecline = async () => {
+    if (!selectedUser) return;
+    if (!declineReason.trim()) {
+      toast.error('Add a reason for declining this application so the organization understands your decision.');
+      return;
+    }
+    setActionLoading(true);
+    try {
+      await adminService.rejectUser(selectedUser.id, { adminId, reason: declineReason });
+      toast.success(`Application declined. Notification sent to ${selectedUser.email}.`);
+      setDeclineModalOpen(false);
+      setModalOpen(false);
+      setAllUsers(prev => prev.map(u =>
+        u.id === selectedUser.id ? { ...u, approvalStatus: 'rejected' } : u
+      ));
+    } catch {
+      toast.error('Failed to reject user.');
+    } finally {
+      setActionLoading(false);
+    }
   };
 
   return (
@@ -91,9 +143,9 @@ const AdminSignups: React.FC = () => {
           }`}
         >
           Pending Requests
-          {requests.filter(r => r.status === 'pending').length > 0 && (
+          {pendingCount > 0 && (
             <span className="ml-2 bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 py-0.5 px-2 rounded-full text-[10px]">
-              {requests.filter(r => r.status === 'pending').length}
+              {pendingCount}
             </span>
           )}
         </button>
@@ -119,18 +171,23 @@ const AdminSignups: React.FC = () => {
               theme === 'light' ? 'bg-gray-50 text-gray-500 border-gray-200' : 'bg-[#222222] text-gray-400 border-[#2e2e2e]'
             }`}>
               <tr>
-                <th className="py-4 px-5">Organization</th>
-                <th className="py-4 px-5">Type</th>
-                <th className="py-4 px-5">Contact Person</th>
+                <th className="py-4 px-5">Name / Email</th>
+                <th className="py-4 px-5">Role</th>
                 <th className="py-4 px-5">Submitted On</th>
                 <th className="py-4 px-5">Status</th>
                 <th className="py-4 px-5 text-right flex-shrink-0">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 dark:divide-[#2e2e2e]">
-              {displayRequests.map((req) => (
-                <tr key={req.id} className={`transition-colors ${
-                  req.status === 'pending'
+              {loading ? (
+                <tr>
+                  <td colSpan={5} className={`p-8 text-center text-sm ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>
+                    Loading...
+                  </td>
+                </tr>
+              ) : displayUsers.map((u) => (
+                <tr key={u.id} className={`transition-colors ${
+                  u.approvalStatus === 'pending'
                     ? theme === 'light' ? 'bg-violet-50/30' : 'bg-violet-900/10'
                     : ''
                 } ${
@@ -138,40 +195,37 @@ const AdminSignups: React.FC = () => {
                 }`}>
                   <td className="py-4 px-5">
                     <p className={`font-semibold ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>
-                      {req.organizationName}
+                      {u.name}
                     </p>
                     <p className={`text-xs mt-0.5 ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>
-                      {req.email}
+                      {u.email}
                     </p>
                   </td>
                   <td className="py-4 px-5">
                     <span className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold uppercase tracking-wider ${
-                        req.role === 'donor' 
-                          ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400' 
+                        u.role === 'donor'
+                          ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400'
                           : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400'
                       }`}>
-                        {req.role}
+                        {u.role}
                     </span>
                   </td>
-                  <td className="py-4 px-5">
-                    <p className={theme === 'light' ? 'text-gray-700' : 'text-gray-300'}>{req.contactPerson}</p>
-                  </td>
                   <td className="py-4 px-5 text-gray-500 dark:text-gray-400">
-                    {req.submittedDate}
+                    {new Date(u.createdDate).toLocaleDateString()}
                   </td>
                   <td className="py-4 px-5">
-                    {req.status === 'pending' && (
+                    {u.approvalStatus === 'pending' && (
                       <span className="inline-flex items-center gap-1.5 text-violet-600 dark:text-violet-400 font-semibold bg-violet-100 dark:bg-violet-900/20 px-2.5 py-1 rounded-md text-xs">
                         <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse"></span>
                         Review Needed
                       </span>
                     )}
-                    {req.status === 'approved' && (
+                    {u.approvalStatus === 'approved' && (
                       <span className="inline-flex items-center gap-1.5 text-green-600 dark:text-green-500 font-semibold text-xs">
                         <CheckIcon className="w-4 h-4" /> Approved
                       </span>
                     )}
-                    {req.status === 'rejected' && (
+                    {u.approvalStatus === 'rejected' && (
                       <span className="inline-flex items-center gap-1.5 text-red-600 dark:text-red-500 font-semibold text-xs">
                         <XMarkIcon className="w-4 h-4" /> Rejected
                       </span>
@@ -179,23 +233,23 @@ const AdminSignups: React.FC = () => {
                   </td>
                   <td className="py-4 px-5 text-right">
                     <button
-                      onClick={() => viewDetails(req)}
+                      onClick={() => viewDetails(u)}
                       className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
-                        req.status === 'pending'
+                        u.approvalStatus === 'pending'
                           ? 'bg-[#8b5cf6] text-white border-transparent hover:bg-violet-600 shadow-sm'
-                          : theme === 'light' 
-                            ? 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50' 
+                          : theme === 'light'
+                            ? 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
                             : 'bg-[#1a1a1a] text-gray-300 border-[#2e2e2e] hover:bg-gray-800'
                       }`}
                     >
-                      {req.status === 'pending' ? 'Review Application' : 'View Details'}
+                      {u.approvalStatus === 'pending' ? 'Review Application' : 'View Details'}
                     </button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-          {displayRequests.length === 0 && (
+          {!loading && displayUsers.length === 0 && (
             <div className={`p-8 text-center ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>
               <p className="text-sm font-medium mb-1">
                 {viewMode === 'pending' ? 'All caught up! No pending reviews.' : 'No history records found.'}
@@ -210,10 +264,10 @@ const AdminSignups: React.FC = () => {
 
       {/* Details Modal */}
       <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title="Application Details">
-        {selectedRequest && (
+        {selectedUser && (
           <div className="space-y-6">
-            
-            {/* Business Info */}
+
+            {/* User Info */}
             <div>
               <div className="flex items-center gap-3 mb-2">
                 <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${
@@ -223,96 +277,114 @@ const AdminSignups: React.FC = () => {
                 </div>
                 <div>
                   <h3 className={`text-lg font-bold ${theme === 'light' ? 'text-gray-900' : 'text-white'}`}>
-                    {selectedRequest.organizationName}
+                    {selectedProfile?.orgName ?? selectedUser.name}
                   </h3>
                   <p className={`text-sm ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>
-                    {selectedRequest.email}
+                    {selectedUser.email}
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* General Information blocks */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className={`p-3 rounded-lg border ${theme === 'light' ? 'bg-gray-50 border-gray-100' : 'bg-gray-800/50 border-gray-700'}`}>
-                <p className="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Contact Person</p>
-                <div className="flex items-center gap-1.5 text-sm font-medium text-gray-900 dark:text-gray-100">
-                  <span className="truncate">{selectedRequest.contactPerson}</span>
+            {profileLoading ? (
+              <p className={`text-sm text-center py-4 ${theme === 'light' ? 'text-gray-400' : 'text-gray-500'}`}>
+                Loading profile details...
+              </p>
+            ) : (
+              <>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className={`p-3 rounded-lg border ${theme === 'light' ? 'bg-gray-50 border-gray-100' : 'bg-gray-800/50 border-gray-700'}`}>
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Contact Person</p>
+                    <div className="flex items-center gap-1.5 text-sm font-medium text-gray-900 dark:text-gray-100">
+                      <span className="truncate">{selectedUser.name}</span>
+                    </div>
+                  </div>
+                  {selectedProfile?.phone && (
+                    <div className={`p-3 rounded-lg border ${theme === 'light' ? 'bg-gray-50 border-gray-100' : 'bg-gray-800/50 border-gray-700'}`}>
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Phone Number</p>
+                      <div className="flex items-center gap-1.5 text-sm font-medium text-gray-900 dark:text-gray-100">
+                        <PhoneIcon className="w-4 h-4 text-gray-400" />
+                        <span className="truncate">{selectedProfile.phone}</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              </div>
-              <div className={`p-3 rounded-lg border ${theme === 'light' ? 'bg-gray-50 border-gray-100' : 'bg-gray-800/50 border-gray-700'}`}>
-                <p className="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Phone Number</p>
-                <div className="flex items-center gap-1.5 text-sm font-medium text-gray-900 dark:text-gray-100">
-                  <PhoneIcon className="w-4 h-4 text-gray-400" />
-                  <span className="truncate">{selectedRequest.phone}</span>
-                </div>
-              </div>
-            </div>
 
-            <div className={`p-3 rounded-lg border ${theme === 'light' ? 'bg-gray-50 border-gray-100' : 'bg-gray-800/50 border-gray-700'}`}>
-               <p className="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Address</p>
-               <div className="flex items-start gap-1.5 text-sm font-medium text-gray-900 dark:text-gray-100">
-                  <MapPinIcon className="w-4 h-4 text-gray-400 shrink-0 mt-0.5" />
-                  <span>{selectedRequest.address}</span>
-               </div>
-            </div>
+                {selectedProfile?.address && (
+                  <div className={`p-3 rounded-lg border ${theme === 'light' ? 'bg-gray-50 border-gray-100' : 'bg-gray-800/50 border-gray-700'}`}>
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Address</p>
+                    <div className="flex items-start gap-1.5 text-sm font-medium text-gray-900 dark:text-gray-100">
+                      <MapPinIcon className="w-4 h-4 text-gray-400 shrink-0 mt-0.5" />
+                      <span>{selectedProfile.address}</span>
+                    </div>
+                  </div>
+                )}
 
-            <div>
-              <p className={`text-xs font-bold uppercase tracking-wider mt-4 mb-2 ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>
-                Organization Description
-              </p>
-              <p className={`text-sm leading-relaxed ${theme === 'light' ? 'text-gray-700' : 'text-gray-300'}`}>
-                {selectedRequest.description}
-              </p>
-            </div>
+                {(selectedProfile?.description || selectedUser.bio) && (
+                  <div>
+                    <p className={`text-xs font-bold uppercase tracking-wider mt-4 mb-2 ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>
+                      Organization Description
+                    </p>
+                    <p className={`text-sm leading-relaxed ${theme === 'light' ? 'text-gray-700' : 'text-gray-300'}`}>
+                      {selectedProfile?.description ?? selectedUser.bio}
+                    </p>
+                  </div>
+                )}
 
-            {/* Documents */}
-             <div>
-              <p className={`text-xs font-bold uppercase tracking-wider mt-2 mb-2 ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>
-                Attached Documents
-              </p>
-              <div className="space-y-2">
-                {selectedRequest.documents.map((doc, idx) => (
-                  <div key={idx} className={`flex items-center justify-between p-3 rounded-lg border ${
+                {selectedUser.rejectionReason && selectedUser.approvalStatus === 'rejected' && (
+                  <div className={`p-3 rounded-lg border ${theme === 'light' ? 'bg-red-50 border-red-100' : 'bg-red-900/10 border-red-900/30'}`}>
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-red-500 mb-1">Rejection Reason</p>
+                    <p className={`text-sm ${theme === 'light' ? 'text-red-700' : 'text-red-400'}`}>
+                      {selectedUser.rejectionReason}
+                    </p>
+                  </div>
+                )}
+
+                <div>
+                  <p className={`text-xs font-bold uppercase tracking-wider mt-2 mb-2 ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>
+                    Attached Documents
+                  </p>
+                  <div className={`flex items-center gap-2.5 p-3 rounded-lg border ${
                     theme === 'light' ? 'bg-white border-gray-200' : 'bg-[#1a1a1a] border-gray-700'
                   }`}>
-                    <div className="flex items-center gap-2.5">
-                      <DocumentTextIcon className={`w-5 h-5 ${theme === 'light' ? 'text-violet-500' : 'text-violet-400'}`} />
-                      <span className={`text-sm font-medium ${theme === 'light' ? 'text-gray-700' : 'text-gray-300'}`}>{doc}</span>
-                    </div>
-                    <button onClick={openPdf} className="text-xs font-semibold text-violet-500 cursor-pointer hover:underline focus:outline-none">View PDF</button>
+                    <DocumentTextIcon className={`w-5 h-5 ${theme === 'light' ? 'text-gray-400' : 'text-gray-500'}`} />
+                    <span className={`text-sm ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>
+                      No documents uploaded via platform.
+                    </span>
                   </div>
-                ))}
-              </div>
-            </div>
+                </div>
+              </>
+            )}
 
-             {/* Action Buttons for Pending */}
-            {selectedRequest.status === 'pending' ? (
+            {/* Action Buttons */}
+            {selectedUser.approvalStatus === 'pending' ? (
               <div className="flex gap-3 pt-4 border-t border-gray-100 dark:border-gray-800">
                 <button
+                  disabled={actionLoading}
                   onClick={() => { setDeclineReason(''); setDeclineModalOpen(true); }}
-                  className={`flex-1 py-2.5 rounded-lg font-semibold text-sm transition-colors ${
-                    theme === 'light' 
-                      ? 'bg-red-50 text-red-600 hover:bg-red-100' 
+                  className={`flex-1 py-2.5 rounded-lg font-semibold text-sm transition-colors disabled:opacity-50 ${
+                    theme === 'light'
+                      ? 'bg-red-50 text-red-600 hover:bg-red-100'
                       : 'bg-red-900/20 text-red-400 hover:bg-red-900/40'
                   }`}
                 >
                   Decline
                 </button>
                 <button
-                  onClick={() => handleStatusChange(selectedRequest.id, 'approved', selectedRequest.organizationName)}
-                  className="flex-1 py-2.5 rounded-lg font-semibold text-sm transition-colors bg-[#16a34a] hover:bg-[#15803d] text-white shadow-md shadow-green-500/20"
+                  disabled={actionLoading}
+                  onClick={handleApprove}
+                  className="flex-1 py-2.5 rounded-lg font-semibold text-sm transition-colors bg-[#16a34a] hover:bg-[#15803d] text-white shadow-md shadow-green-500/20 disabled:opacity-50"
                 >
-                  Approve Application
+                  {actionLoading ? 'Processing...' : 'Approve Application'}
                 </button>
               </div>
             ) : (
                <div className={`p-4 rounded-lg flex items-center justify-center gap-2 font-bold ${
-                 selectedRequest.status === 'approved' 
+                 selectedUser.approvalStatus === 'approved'
                   ? 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400'
                   : 'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400'
                }`}>
-                 {selectedRequest.status === 'approved' ? (
+                 {selectedUser.approvalStatus === 'approved' ? (
                    <> <CheckIcon className="w-5 h-5" /> This application was approved. </>
                  ) : (
                    <> <XMarkIcon className="w-5 h-5" /> This application was rejected. </>
@@ -331,8 +403,12 @@ const AdminSignups: React.FC = () => {
               <XMarkIcon className="h-6 w-6 text-red-600 dark:text-red-500" aria-hidden="true" />
             </div>
             <div>
-              <h4 className={`text-lg font-bold ${theme === 'light' ? 'text-gray-900' : 'text-white'}`}>Reject {selectedRequest?.organizationName}</h4>
-              <p className={`text-sm ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>Provide a reason for rejection.</p>
+              <h4 className={`text-lg font-bold ${theme === 'light' ? 'text-gray-900' : 'text-white'}`}>
+                Reject {selectedUser?.name}
+              </h4>
+              <p className={`text-sm ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>
+                Provide a reason for rejection.
+              </p>
             </div>
           </div>
 
@@ -341,7 +417,7 @@ const AdminSignups: React.FC = () => {
               <label className={`block text-xs font-bold uppercase tracking-wider mb-1.5 ${theme === 'light' ? 'text-gray-700' : 'text-gray-300'}`}>
                 Reason for Rejection <span className="text-red-500">*</span>
               </label>
-              <textarea 
+              <textarea
                 value={declineReason}
                 onChange={(e) => setDeclineReason(e.target.value)}
                 placeholder="Explain why this application was rejected (e.g. missing food safety certificates)..."
@@ -350,7 +426,9 @@ const AdminSignups: React.FC = () => {
                 }`}
                 rows={4}
               />
-              <p className={`text-[10px] mt-1 ${theme === 'light' ? 'text-gray-500' : 'text-gray-500'}`}>This reason will be sent directly via email to <strong>{selectedRequest?.email}</strong>.</p>
+              <p className={`text-[10px] mt-1 ${theme === 'light' ? 'text-gray-500' : 'text-gray-500'}`}>
+                This reason will be sent directly via email to <strong>{selectedUser?.email}</strong>.
+              </p>
             </div>
           </div>
 
@@ -358,18 +436,19 @@ const AdminSignups: React.FC = () => {
             <button
               onClick={() => setDeclineModalOpen(false)}
               className={`px-4 py-2 rounded-lg font-semibold text-sm transition-colors ${
-                theme === 'light' 
-                  ? 'bg-gray-100 text-gray-700 hover:bg-gray-200' 
+                theme === 'light'
+                  ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
               }`}
             >
               Cancel
             </button>
             <button
+              disabled={actionLoading}
               onClick={confirmDecline}
-              className="px-4 py-2 rounded-lg font-semibold text-sm transition-colors bg-red-500 hover:bg-red-600 text-white shadow-md shadow-red-500/20"
+              className="px-4 py-2 rounded-lg font-semibold text-sm transition-colors bg-red-500 hover:bg-red-600 text-white shadow-md shadow-red-500/20 disabled:opacity-50"
             >
-              Reject & Send Email
+              {actionLoading ? 'Processing...' : 'Reject & Send Email'}
             </button>
           </div>
         </div>
