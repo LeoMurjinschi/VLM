@@ -16,7 +16,7 @@ export { settingsService } from './settingsService';
 export type { DonationCreateDto, DonationInfoDto } from './donationService';
 export type { UserCreateDto, UserInfoDto } from './userService';
 export type { CommentCreateDto, CommentInfoDto } from './commentService';
-export type { ReservationCreateDto, ReservationInfoDto } from './reservationService';
+export type { ReservationCreateDto, ReservationInfoDto, ReservationStatusUpdateDto } from './reservationService';
 export type { ReviewCreateDto, ReviewInfoDto } from './reviewService';
 export type { NotificationCreateDto, NotificationInfoDto } from './notificationService';
 export type { MessageCreateDto, MessageInfoDto } from './messageService';

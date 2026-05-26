@@ -92,13 +92,13 @@ const DonationFeed: React.FC = () => {
   }, [donations, searchQuery, selectedCategories, statusFilter, urgencyFilter, sortBy]);
 
   const handleReserveItem = useCallback(
-    (id: string, amountReserved: number) => {
+    async (id: string, amountReserved: number) => {
       if (isDonor) {
         toast.info('Only receiver organizations can reserve donations.');
         return;
       }
       try {
-        createReservation(id, amountReserved);
+        await createReservation(id, amountReserved);
         toast.success("Reserved! The donor will confirm when it's ready for pickup.");
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Failed to reserve item';
