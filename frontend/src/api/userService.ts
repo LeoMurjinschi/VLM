@@ -55,6 +55,11 @@ export const userService = {
     return response.data;
   },
 
+  changePassword: async (id: number, oldPassword: string, newPassword: string): Promise<string> => {
+    const response = await axiosInstance.put<string>(`/users/change-password/${id}`, { oldPassword, newPassword });
+    return response.data;
+  },
+
   delete: async (id: number): Promise<string> => {
     const response = await axiosInstance.delete<string>(`/users/delete/${id}`);
     return response.data;

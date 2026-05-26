@@ -162,9 +162,9 @@ const Settings: React.FC = () => {
     }
   }, [settingsData, toggleTheme]);
 
-  const handlePasswordChange = async (_oldPw: string, _newPw: string) => {
-    // Password change not yet wired to backend
-    return Promise.resolve();
+  const handlePasswordChange = async (oldPw: string, newPw: string) => {
+    if (!user) throw new Error('Not authenticated');
+    await userService.changePassword(parseInt(user.id), oldPw, newPw);
   };
 
   if (loading) return <div className="pt-20"><SpinnerLoader /></div>;
