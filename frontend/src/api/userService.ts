@@ -10,6 +10,12 @@ export interface UserCreateDto {
   avatar?: string;
 }
 
+export interface UserInfoUpdateDto {
+  name: string;
+  email: string;
+  avatar?: string;
+}
+
 export interface UserInfoDto {
   id: number;
   name: string;
@@ -41,6 +47,11 @@ export const userService = {
 
   update: async (id: number, user: UserCreateDto): Promise<string> => {
     const response = await axiosInstance.put<string>(`/users/update/${id}`, user);
+    return response.data;
+  },
+
+  updateInfo: async (id: number, info: UserInfoUpdateDto): Promise<string> => {
+    const response = await axiosInstance.put<string>(`/users/info/${id}`, info);
     return response.data;
   },
 

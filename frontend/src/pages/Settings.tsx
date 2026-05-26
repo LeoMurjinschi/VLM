@@ -4,15 +4,16 @@ import { useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import { SpinnerLoader, ErrorState } from '../components/UI/StateIndicators';
-import { 
-  UserIcon, 
-  BriefcaseIcon, 
-  Cog6ToothIcon, 
+import {
+  UserIcon,
+  BriefcaseIcon,
+  Cog6ToothIcon,
   ShieldCheckIcon,
-  ExclamationCircleIcon
+  ExclamationCircleIcon,
 } from '@heroicons/react/24/outline';
-import { updateUserProfile, fetchUserPreferences, updateUserPreferences } from '../services/userService';
-
+import { profileService, settingsService, userService } from '../api';
+import type { UserProfileDto } from '../api/profileService';
+import type { UserSettingsDto } from '../api/settingsService';
 
 import ProfileSummary from '../components/ProfileSummary';
 import PersonalInfoForm from '../components/PersonalInfoForm';
@@ -25,21 +26,32 @@ import NgoProfileForm from '../components/NgoProfileForm';
 import NgoDocumentManager from '../components/NgoDocumentManager';
 import ReportProblemForm from '../components/ReportProblemForm';
 
-interface UserPreferences {
-  theme: 'light' | 'dark';
-  notifications: boolean;
-  emailUpdates: boolean;
-}
+type SettingsKey = 'theme' | 'notifyPush' | 'notifySms' | 'notifyEmail' | 'emailUpdates';
+
+const defaultSettings: UserSettingsDto = {
+  userId: 0,
+  theme: 'light',
+  notifyPush: true,
+  notifySms: false,
+  notifyEmail: true,
+  emailUpdates: true,
+};
 
 const Settings: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
-  const { user, updateUser } = useAuth(); 
+  const { user, updateUser } = useAuth();
   const location = useLocation();
-  
-  const [formData, setFormData] = useState(user);
-  const [preferences, setPreferences] = useState<UserPreferences>({ theme: 'light', notifications: true, emailUpdates: true });
-  
-  const [loading, setLoading] = useState(false);
+
+  const [formData, setFormData] = useState({
+    name: user?.name || '',
+    email: user?.email || '',
+    avatar: user?.avatar || '',
+    phone: '',
+  });
+  const [profileData, setProfileData] = useState<UserProfileDto | null>(null);
+  const [settingsData, setSettingsData] = useState<UserSettingsDto>(defaultSettings);
+
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [isSavingPrefs, setIsSavingPrefs] = useState(false);
@@ -49,115 +61,120 @@ const Settings: React.FC = () => {
 
   const tabs = [
     { id: 'profile' as TabId, label: 'Profile Settings', icon: UserIcon },
-    ...(user?.role?.toLowerCase() === 'donor' || user?.role?.toLowerCase() === 'donator' ? [{ id: 'business' as TabId, label: 'Business Details', icon: BriefcaseIcon }] : []),
-    ...(user?.role?.toLowerCase() === 'receiver' || user?.role?.toLowerCase() === 'ngo' ? [{ id: 'ngo' as TabId, label: 'Organization Details', icon: BriefcaseIcon }] : []),
+    ...(user?.role === 'donor' ? [{ id: 'business' as TabId, label: 'Business Details', icon: BriefcaseIcon }] : []),
+    ...(user?.role === 'receiver' ? [{ id: 'ngo' as TabId, label: 'Organization Details', icon: BriefcaseIcon }] : []),
     { id: 'preferences' as TabId, label: 'Preferences', icon: Cog6ToothIcon },
     { id: 'security' as TabId, label: 'Security', icon: ShieldCheckIcon },
     { id: 'support' as TabId, label: 'Report a Problem', icon: ExclamationCircleIcon },
   ];
 
   useEffect(() => {
-    if (location.state && (location.state as any).activeTab) {
-      setActiveTab((location.state as any).activeTab);
+    if (location.state && (location.state as Record<string, unknown>).activeTab) {
+      setActiveTab((location.state as Record<string, string>).activeTab as TabId);
     }
   }, [location.state]);
 
   useEffect(() => {
-    const loadPrefs = async () => {
-      setLoading(true);
-      try {
-        const prefsData = await fetchUserPreferences();
-        setPreferences(prefsData as UserPreferences);
-      } catch (err) {
-        setError('Failed to load preferences.');
-      } finally {
-        setLoading(false);
+    if (!user) { setLoading(false); return; }
+    const userId = parseInt(user.id);
+    Promise.all([
+      profileService.getByUser(userId).catch(() => null),
+      settingsService.getByUser(userId).catch(() => null),
+    ]).then(([profile, settings]) => {
+      if (profile) {
+        setProfileData(profile);
+        setFormData(prev => ({ ...prev, phone: profile.phone || '' }));
       }
-    };
-    loadPrefs();
-  }, []);
-
-
-  useEffect(() => {
-    if (user) setFormData(user);
+      if (settings) {
+        setSettingsData(settings);
+      }
+    }).catch(() => {
+      setError('Failed to load account settings.');
+    }).finally(() => setLoading(false));
   }, [user]);
 
+  useEffect(() => {
+    if (user) {
+      setFormData(prev => ({
+        ...prev,
+        name: user.name,
+        email: user.email,
+        avatar: user.avatar || '',
+      }));
+    }
+  }, [user]);
 
   const handleProfileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!formData) return;
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  }, [formData]);
+    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  }, []);
 
   const handleAvatarChange = useCallback((newAvatarBase64: string) => {
-    if (!formData) return;
-    setFormData({ ...formData, avatar: newAvatarBase64 });
-  }, [formData]);
+    setFormData(prev => ({ ...prev, avatar: newAvatarBase64 }));
+  }, []);
 
   const handleSaveProfile = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData || !user) return;
-
+    if (!user) return;
     setIsSavingProfile(true);
+    const userId = parseInt(user.id);
     try {
-      await updateUserProfile(user.id, formData as any);
-      updateUser(formData as any);
-      toast.success('Profile updated successfully! ✅');
-    } catch (err) {
-      toast.error('Failed to update profile. Server error.');
+      await Promise.all([
+        userService.updateInfo(userId, {
+          name: formData.name,
+          email: formData.email,
+          avatar: formData.avatar || undefined,
+        }),
+        profileService.save({
+          ...(profileData ?? { operatingRadius: 10, hasIndustrialStorage: false, verified: false }),
+          userId,
+          phone: formData.phone,
+        }),
+      ]);
+      updateUser({ name: formData.name, email: formData.email, avatar: formData.avatar || undefined });
+      toast.success('Profile updated successfully!');
+    } catch {
+      toast.error('Failed to update profile.');
     } finally {
       setIsSavingProfile(false);
     }
   }, [formData, user, updateUser]);
 
-
-  const handleTogglePreference = useCallback(async (key: keyof UserPreferences) => {
-    const newPrefs = { ...preferences };
-    
+  const handleTogglePreference = useCallback(async (key: SettingsKey) => {
+    const prev = settingsData;
+    const next: UserSettingsDto = { ...prev };
     if (key === 'theme') {
-      newPrefs.theme = preferences.theme === 'light' ? 'dark' : 'light';
-      toggleTheme(); 
+      next.theme = prev.theme === 'light' ? 'dark' : 'light';
+      toggleTheme();
     } else {
-      newPrefs[key] = !preferences[key];
+      (next as Record<string, unknown>)[key] = !prev[key as keyof UserSettingsDto];
     }
-    
-    setPreferences(newPrefs);
+    setSettingsData(next);
     setIsSavingPrefs(true);
-
     try {
-      await updateUserPreferences(user?.id || '1', newPrefs);
+      await settingsService.save(next);
       toast.success('Preferences saved!');
-    } catch (err) {
-      setPreferences(preferences); 
-      if (key === 'theme') toggleTheme(); 
+    } catch {
+      setSettingsData(prev);
+      if (key === 'theme') toggleTheme();
       toast.error('Failed to save preferences.');
     } finally {
       setIsSavingPrefs(false);
     }
-  }, [preferences, toggleTheme, user?.id]);
+  }, [settingsData, toggleTheme]);
 
-
-  const handlePasswordChange = async (oldPw: string, _newPw: string) => {
-    return new Promise<void>((resolve, reject) => {
-      setTimeout(() => {
-
-        if (oldPw === 'parolagresita') {
-          reject(new Error('Wrong password'));
-        } else {
-          resolve();
-        }
-      }, 1000);
-    });
+  const handlePasswordChange = async (_oldPw: string, _newPw: string) => {
+    // Password change not yet wired to backend
+    return Promise.resolve();
   };
-
 
   if (loading) return <div className="pt-20"><SpinnerLoader /></div>;
   if (error) return <div className="pt-20"><ErrorState message={error} onRetry={() => window.location.reload()} /></div>;
-  if (!formData || !user) return null;
+  if (!user) return null;
+
+  const profileUser = { ...user, phone: formData.phone, name: formData.name, email: formData.email, avatar: formData.avatar };
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto min-h-screen relative pb-10 bg-transparent">
-      
-
       <div className={`pb-6 border-b ${theme === 'light' ? 'border-gray-100' : 'border-gray-700'}`}>
         <h1 className={`text-3xl md:text-4xl font-bold tracking-tight mb-2 ${theme === 'light' ? 'text-[#1a1a1a]' : 'text-gray-100'}`} style={{ fontFamily: 'var(--font-display)' }}>
           Account Settings
@@ -168,7 +185,6 @@ const Settings: React.FC = () => {
       </div>
 
       <div className="flex flex-col gap-8">
-        
         <div className="flex flex-col md:flex-row gap-8">
           {/* Sidebar */}
           <div className="w-full md:w-64 shrink-0 space-y-2">
@@ -199,19 +215,19 @@ const Settings: React.FC = () => {
             {activeTab === 'profile' && (
               <div className="animate-fade-in-up space-y-8">
                 <div className="w-full max-w-md">
-                  <ProfileSummary user={formData as any} />
+                  <ProfileSummary user={profileUser as any} />
                 </div>
-                <PersonalInfoForm 
-                  user={formData as any} 
-                  onChange={handleProfileChange} 
-                  onAvatarChange={handleAvatarChange} 
-                  onSave={handleSaveProfile} 
-                  isSaving={isSavingProfile} 
+                <PersonalInfoForm
+                  user={profileUser as any}
+                  onChange={handleProfileChange}
+                  onAvatarChange={handleAvatarChange}
+                  onSave={handleSaveProfile}
+                  isSaving={isSavingProfile}
                 />
               </div>
             )}
-            
-            {activeTab === 'business' && ['donor', 'donator'].includes((user.role ?? '').toLowerCase()) && (
+
+            {activeTab === 'business' && user.role === 'donor' && (
               <div className="space-y-6 animate-fade-in-up">
                 <BusinessProfileForm />
                 <PickupLocations />
@@ -219,7 +235,7 @@ const Settings: React.FC = () => {
               </div>
             )}
 
-            {activeTab === 'ngo' && ((user.role ?? '').toLowerCase() === 'receiver' || (user.role ?? '').toLowerCase() === 'ngo') && (
+            {activeTab === 'ngo' && user.role === 'receiver' && (
               <div className="space-y-6 animate-fade-in-up">
                 <NgoProfileForm />
                 <NgoDocumentManager />
@@ -228,19 +244,17 @@ const Settings: React.FC = () => {
 
             {activeTab === 'preferences' && (
               <div className="animate-fade-in-up">
-                <PreferencesForm 
-                  preferences={preferences} 
-                  onToggle={handleTogglePreference} 
-                  isSaving={isSavingPrefs} 
+                <PreferencesForm
+                  settings={settingsData}
+                  onToggle={handleTogglePreference}
+                  isSaving={isSavingPrefs}
                 />
               </div>
             )}
-            
+
             {activeTab === 'security' && (
               <div className="animate-fade-in-up">
-                <SecuritySettings 
-                  onUpdatePassword={handlePasswordChange} 
-                />
+                <SecuritySettings onUpdatePassword={handlePasswordChange} />
               </div>
             )}
 
@@ -251,8 +265,6 @@ const Settings: React.FC = () => {
             )}
           </div>
         </div>
-
-
       </div>
     </div>
   );
