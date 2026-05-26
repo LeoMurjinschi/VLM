@@ -25,6 +25,6 @@ export type { NotificationCreateDto, NotificationInfoDto } from './notificationS
 export type { MessageCreateDto, MessageInfoDto } from './messageService';
 export type { UserProfileDto } from './profileService';
 export type { UserSettingsDto } from './settingsService';
-export type { DonorProfileDto } from './donorProfileService';
+export type { DonorProfileDto, PickupLocation } from './donorProfileService';
 export type { ReceiverProfileDto } from './receiverProfileService';
 export type { UserDocumentInfoDto, UserDocumentCreateDto } from './documentService';
