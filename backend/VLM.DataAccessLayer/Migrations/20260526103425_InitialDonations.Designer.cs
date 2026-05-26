@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using VLM.DataAccessLayer.Context;
@@ -11,9 +12,11 @@ using VLM.DataAccessLayer.Context;
 namespace VLM.DataAccessLayer.Migrations
 {
     [DbContext(typeof(VlmDbContext))]
-    partial class VlmDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260526103425_InitialDonations")]
+    partial class InitialDonations
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -513,12 +516,6 @@ namespace VLM.DataAccessLayer.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("QuantityConfirmed")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("QuantityPickedUpByReceiver")
-                        .HasColumnType("integer");
-
                     b.Property<int>("QuantityReserved")
                         .HasColumnType("integer");
 
@@ -656,7 +653,7 @@ namespace VLM.DataAccessLayer.Migrations
                             Email = "alex@vlm.com",
                             IsActive = true,
                             Name = "Alex Donor",
-                            PasswordHash = "3820be471b75236bf93e1790ea484432",
+                            PasswordHash = "hashed_password_1",
                             Role = "donor"
                         },
                         new
@@ -667,7 +664,7 @@ namespace VLM.DataAccessLayer.Migrations
                             Email = "maria@vlm.com",
                             IsActive = true,
                             Name = "Maria Receiver",
-                            PasswordHash = "d003257014b8a10582419f1f84478281",
+                            PasswordHash = "hashed_password_2",
                             Role = "receiver"
                         },
                         new
@@ -678,7 +675,7 @@ namespace VLM.DataAccessLayer.Migrations
                             Email = "john@vlm.com",
                             IsActive = true,
                             Name = "John Donor",
-                            PasswordHash = "f9a28b5d9ee09b2a5281a579d4f4090a",
+                            PasswordHash = "hashed_password_3",
                             Role = "donor"
                         });
                 });

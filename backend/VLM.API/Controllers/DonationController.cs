@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VLM.BusinessLayer;
 using VLM.BusinessLayer.Interface;
@@ -7,6 +8,7 @@ namespace VLM.API.Controllers;
 
 [ApiController]
 [Route("api/donations")]
+[Authorize]
 public class DonationController : ControllerBase
 {
     private readonly IDonationLogic _donationLogic;
@@ -45,6 +47,7 @@ public class DonationController : ControllerBase
     }
 
     [HttpPost("create")]
+    [Authorize(Roles = "donor,admin")]
     public IActionResult CreateDonation([FromBody] DonationCreateDto donationCreateDto)
     {
         var result = _donationLogic.CreateDonation(donationCreateDto);
@@ -54,6 +57,7 @@ public class DonationController : ControllerBase
     }
 
     [HttpPut("update/{id}")]
+    [Authorize(Roles = "donor,admin")]
     public IActionResult UpdateDonation([FromRoute] int id, [FromBody] DonationCreateDto donationCreateDto)
     {
         var result = _donationLogic.UpdateDonation(id, donationCreateDto);
@@ -63,6 +67,7 @@ public class DonationController : ControllerBase
     }
 
     [HttpDelete("delete/{id}")]
+    [Authorize(Roles = "donor,admin")]
     public IActionResult DeleteDonation([FromRoute] int id)
     {
         var result = _donationLogic.DeleteDonation(id);

@@ -1,6 +1,5 @@
 import axiosInstance from './axiosProvider';
 
-// ── Types ─────────────────────────────────────────────────────────────────────
 export interface ReservationCreateDto {
   userId: number;
   donationId: number;
@@ -8,11 +7,20 @@ export interface ReservationCreateDto {
   notes: string;
 }
 
+export interface ReservationStatusUpdateDto {
+  status: string;
+  quantityPickedUpByReceiver?: number;
+  quantityConfirmed?: number;
+  cancelledBy?: string;
+}
+
 export interface ReservationInfoDto {
   id: number;
   userId: number;
   donationId: number;
   quantityReserved: number;
+  quantityPickedUpByReceiver?: number;
+  quantityConfirmed?: number;
   status: string;
   notes: string;
   createdDate: string;
@@ -22,13 +30,27 @@ export interface ReservationInfoDto {
   completedAt?: string;
   cancelledAt?: string;
   cancelledBy?: string;
+  // Joined fields
+  donationTitle: string;
+  donationImage?: string;
+  donationCategory: string;
+  donationUnit: string;
+  pickupLocation: string;
+  expirationDate?: string;
+  donorId: number;
+  donorName: string;
+  receiverName: string;
 }
 
-// ── Service ───────────────────────────────────────────────────────────────────
 export const reservationService = {
 
-  getAll: async (): Promise<ReservationInfoDto[]> => {
-    const response = await axiosInstance.get<ReservationInfoDto[]>('/reservations/list');
+  getByReceiver: async (userId: number): Promise<ReservationInfoDto[]> => {
+    const response = await axiosInstance.get<ReservationInfoDto[]>(`/reservations/by-receiver/${userId}`);
+    return response.data;
+  },
+
+  getByDonor: async (donorId: number): Promise<ReservationInfoDto[]> => {
+    const response = await axiosInstance.get<ReservationInfoDto[]>(`/reservations/by-donor/${donorId}`);
     return response.data;
   },
 
@@ -37,13 +59,13 @@ export const reservationService = {
     return response.data;
   },
 
-  create: async (reservation: ReservationCreateDto): Promise<string> => {
-    const response = await axiosInstance.post<string>('/reservations/create', reservation);
+  create: async (reservation: ReservationCreateDto): Promise<ReservationInfoDto> => {
+    const response = await axiosInstance.post<ReservationInfoDto>('/reservations/create', reservation);
     return response.data;
   },
 
-  update: async (id: number, reservation: ReservationCreateDto): Promise<string> => {
-    const response = await axiosInstance.put<string>(`/reservations/update/${id}`, reservation);
+  updateStatus: async (id: number, dto: ReservationStatusUpdateDto): Promise<ReservationInfoDto> => {
+    const response = await axiosInstance.put<ReservationInfoDto>(`/reservations/status/${id}`, dto);
     return response.data;
   },
 

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VLM.BusinessLayer;
 using VLM.BusinessLayer.Interface;
@@ -7,6 +8,7 @@ namespace VLM.API.Controllers;
 
 [ApiController]
 [Route("api/categories")]
+[Authorize(Roles = "admin")]
 public class CategoryController : ControllerBase
 {
     private readonly ICategoryLogic _categoryLogic;
@@ -18,6 +20,7 @@ public class CategoryController : ControllerBase
     }
 
     [HttpGet]
+    [AllowAnonymous]
     public IActionResult GetAllCategories()
     {
         var result = _categoryLogic.GetAllCategories();
@@ -27,6 +30,7 @@ public class CategoryController : ControllerBase
     }
 
     [HttpGet("{id}")]
+    [AllowAnonymous]
     public IActionResult GetCategoryById([FromRoute] int id)
     {
         var result = _categoryLogic.GetCategoryById(id);
