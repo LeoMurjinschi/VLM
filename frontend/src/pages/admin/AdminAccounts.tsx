@@ -31,7 +31,7 @@ const AdminAccounts: React.FC = () => {
 
   useEffect(() => {
     userService.getAll()
-      .then(users => setAccounts(users.filter(u => u.role !== 'admin')))
+      .then(users => setAccounts(users.filter(u => u.role !== 'admin' && u.approvalStatus !== 'rejected')))
       .catch(() => toast.error('Failed to load accounts.'))
       .finally(() => setLoading(false));
   }, []);
@@ -75,7 +75,7 @@ const AdminAccounts: React.FC = () => {
 
   const openMessages = (acc: UserInfoDto | null) => {
     if (acc) {
-      navigate('/admin/messages', { state: { openChatWith: { name: acc.name, role: acc.role } } });
+      navigate('/admin/messages', { state: { openChatWith: { id: acc.id, name: acc.name, role: acc.role } } });
     }
   };
 

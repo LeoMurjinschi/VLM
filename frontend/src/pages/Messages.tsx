@@ -31,16 +31,38 @@ const Messages: React.FC = () => {
   const currentUserId = parseInt((user as any)?.id || '0');
 
   useEffect(() => {
-    if (currentUserId) {
-      messageService.getContacts(currentUserId)
-        .then(data => {
+    if (!currentUserId) return;
+    const target = location.state?.openChatWith;
+
+    messageService.getContacts(currentUserId)
+      .then(data => {
+        if (target) {
+          const existing = data.find(c => c.id === target.id || c.name === target.name);
+          if (existing) {
             setContacts(data);
-            if (data.length > 0 && !activeChatId) {
-                setActiveChatId(data[0].id);
-            }
-        })
-        .catch(err => console.error("Failed to load contacts", err));
-    }
+            setActiveChatId(existing.id);
+          } else {
+            const newContact: Contact = {
+              id: target.id,
+              name: target.name,
+              role: target.role || 'User',
+              initials: target.name.substring(0, 2).toUpperCase(),
+              lastMessage: '',
+              time: 'Just now',
+              unread: 0,
+            };
+            setContacts([newContact, ...data]);
+            setActiveChatId(target.id);
+          }
+          setIsMobileListVisible(false);
+        } else {
+          setContacts(data);
+          if (data.length > 0) {
+            setActiveChatId(data[0].id);
+          }
+        }
+      })
+      .catch(err => console.error("Failed to load contacts", err));
   }, [currentUserId]);
 
   // Load real messages when active contact changes
@@ -60,33 +82,6 @@ const Messages: React.FC = () => {
       })
       .catch(() => {});
   }, [activeChatId, currentUserId]);
-  
-  // Handlers for dynamic deep linking
-  useEffect(() => {
-    if (!location.state?.openChatWith) return;
-    const targetUser = location.state.openChatWith;
-
-    setContacts(prev => {
-      const existing = prev.find(c => c.name === targetUser.name);
-      if (existing) {
-        setActiveChatId(existing.id);
-        return prev;
-      }
-      const newId = targetUser.id || Date.now();
-      const newContact: Contact = {
-        id: newId,
-        name: targetUser.name,
-        role: targetUser.role || 'User',
-        initials: targetUser.name.substring(0, 2).toUpperCase(),
-        lastMessage: '',
-        time: 'Just now',
-        unread: 0,
-      };
-      setActiveChatId(newId);
-      return [newContact, ...prev];
-    });
-    setIsMobileListVisible(false);
-  }, [location.state]);
   
   const isMuted = activeChatId ? mutedContacts.includes(activeChatId) : false;
 

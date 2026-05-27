@@ -1,25 +1,28 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useTheme } from '../hooks/useTheme';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { 
-  BellIcon, 
-  ExclamationTriangleIcon, 
+import { adminService } from '../api/adminService';
+import {
+  BellIcon,
+  ExclamationTriangleIcon,
   InformationCircleIcon,
   CheckCircleIcon,
   CheckIcon
 } from '@heroicons/react/24/outline';
 
-// --- Mock Data pentru Notificări ---
-const getMockNotifications = (role?: string | null) => {
-  if (role === 'admin') {
-    return [
-      { id: 1, title: 'New Sign-Up Request', desc: 'Mishanea SRL submitted an NGO application.', time: '5 min ago', unread: true, type: 'warning', link: '/admin/signups' },
-      { id: 2, title: 'Donation Flagged', desc: 'A donation from Andrei M. was flagged.', time: '1 hour ago', unread: true, type: 'urgent', link: '/admin/donations' },
-      { id: 3, title: 'Review Reported', desc: 'A recent review violates community standards.', time: '2 hours ago', unread: false, type: 'warning', link: '/admin/reviews' },
-    ];
-  }
+interface AppNotification {
+  id: number;
+  title: string;
+  desc: string;
+  time: string;
+  unread: boolean;
+  type: string;
+  link: string;
+}
+
+const getMockNotifications = (role?: string | null): AppNotification[] => {
   const basePath = role === 'donor' ? '/donor' : '/receiver';
   return [
     { id: 1, title: 'Urgent: Hot Meals Available', desc: 'Restaurant Casa has 20 hot meals ready.', time: '5 min ago', unread: true, type: 'urgent', link: `${basePath}/dashboard` },
@@ -32,9 +35,34 @@ const NotificationBell: React.FC = () => {
   const { theme } = useTheme();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
-  const [notifications, setNotifications] = useState(getMockNotifications(user?.role));
+  const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (user?.role === 'admin') {
+      adminService.getPendingUsers()
+        .then(pending => {
+          const notifs: AppNotification[] = [];
+          if (pending.length > 0) {
+            notifs.push({
+              id: 1,
+              title: `${pending.length} Pending Sign-Up${pending.length !== 1 ? 's' : ''}`,
+              desc: `${pending.length} organization application${pending.length !== 1 ? 's' : ''} awaiting your review.`,
+              time: 'Pending',
+              unread: true,
+              type: 'warning',
+              link: '/admin/signups',
+            });
+          }
+          setNotifications(notifs);
+        })
+        .catch(() => setNotifications([]));
+    } else {
+      setNotifications(getMockNotifications(user?.role));
+    }
+  }, [user?.role, location.pathname]);
 
   const isAdmin = user?.role === 'admin';
   const basePath = isAdmin ? '/admin' : (user?.role === 'donor' ? '/donor' : '/receiver');
@@ -54,11 +82,11 @@ const NotificationBell: React.FC = () => {
   }, []);
 
   const markAllAsRead = () => {
-    setNotifications(notifications.map(n => ({ ...n, unread: false })));
+    setNotifications([]);
   };
 
   const handleNotificationClick = (link: string, id: number) => {
-    setNotifications(notifications.map(n => n.id === id ? { ...n, unread: false } : n));
+    setNotifications(prev => prev.filter(n => n.id !== id));
     setIsOpen(false);
     navigate(link);
   };

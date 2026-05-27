@@ -344,14 +344,37 @@ const AdminSignups: React.FC = () => {
                   <p className={`text-xs font-bold uppercase tracking-wider mt-2 mb-2 ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>
                     Attached Documents
                   </p>
-                  <div className={`flex items-center gap-2.5 p-3 rounded-lg border ${
-                    theme === 'light' ? 'bg-white border-gray-200' : 'bg-[#1a1a1a] border-gray-700'
-                  }`}>
-                    <DocumentTextIcon className={`w-5 h-5 ${theme === 'light' ? 'text-gray-400' : 'text-gray-500'}`} />
-                    <span className={`text-sm ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>
-                      No documents uploaded via platform.
-                    </span>
-                  </div>
+                  {selectedProfile?.verificationDocument ? (
+                    selectedProfile.verificationDocument.startsWith('data:image/') ? (
+                      <img
+                        src={selectedProfile.verificationDocument}
+                        alt="Verification document"
+                        className="w-full rounded-lg border object-contain max-h-72"
+                        style={{ borderColor: theme === 'light' ? '#e5e7eb' : '#374151' }}
+                      />
+                    ) : (
+                      <a
+                        href={selectedProfile.verificationDocument}
+                        download="verification_document"
+                        className="flex items-center gap-2.5 p-3 rounded-lg border transition-colors hover:bg-violet-50 dark:hover:bg-violet-900/10"
+                        style={{ borderColor: theme === 'light' ? '#e5e7eb' : '#374151' }}
+                      >
+                        <DocumentTextIcon className="w-5 h-5 text-violet-500" />
+                        <span className="text-sm font-medium text-violet-600 dark:text-violet-400">
+                          Download uploaded document
+                        </span>
+                      </a>
+                    )
+                  ) : (
+                    <div className={`flex items-center gap-2.5 p-3 rounded-lg border ${
+                      theme === 'light' ? 'bg-white border-gray-200' : 'bg-[#1a1a1a] border-gray-700'
+                    }`}>
+                      <DocumentTextIcon className={`w-5 h-5 ${theme === 'light' ? 'text-gray-400' : 'text-gray-500'}`} />
+                      <span className={`text-sm ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>
+                        No documents uploaded via platform.
+                      </span>
+                    </div>
+                  )}
                 </div>
               </>
             )}

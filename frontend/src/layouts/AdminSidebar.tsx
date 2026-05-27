@@ -33,7 +33,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ onClose }) => {
     adminService.getPendingUsers()
       .then(users => setPendingCount(users.length))
       .catch(() => {});
-  }, []);
+  }, [location.pathname]);
 
   return (
     <div className={`flex h-full flex-col justify-between border-r transition-all duration-300 w-56 ${
