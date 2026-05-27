@@ -5,7 +5,8 @@ import HistoryHeader from '../components/HistoryHeader';
 import HistoryFilters from '../components/HistoryFilters';
 import HistoryItem from '../components/HistoryItem';
 import { ArchiveBoxXMarkIcon } from '@heroicons/react/24/outline';
-import { reservationService, donationService } from '../api';
+import { reservationService } from '../api';
+import { useAuth } from '../context/AuthContext';
 
 export interface HistoryRecord {
   id: string;
@@ -20,35 +21,40 @@ export interface HistoryRecord {
 const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1488459716781-6f3ee109e5e4?auto=format&fit=crop&q=80&w=300&h=300';
 
 const mapStatus = (s: string): 'Completed' | 'Cancelled' | 'Expired' => {
-  if (s === 'completed') return 'Completed';
-  if (s === 'cancelled') return 'Cancelled';
+  if (s === 'completed' || s === 'Confirmed') return 'Completed';
+  if (s === 'cancelled' || s === 'Cancelled') return 'Cancelled';
   return 'Expired';
 };
 
 const ReservationHistory: React.FC = () => {
   const { theme } = useTheme();
+  const { user } = useAuth();
   const [historyData, setHistoryData] = useState<HistoryRecord[]>([]);
 
   useEffect(() => {
-    Promise.all([reservationService.getAll(), donationService.getAll()])
-      .then(([reservations, donations]) => {
-        const donationMap = new Map(donations.map(d => [d.id, d]));
-        const mapped: HistoryRecord[] = reservations.map(r => {
-          const donation = donationMap.get(r.donationId);
+    if (!user?.id) return;
+    
+    reservationService.getAll()
+      .then((reservations) => {
+        const userReservations = reservations.filter(r => 
+            user.role === 'donor' ? r.donorId === Number(user.id) : r.userId === Number(user.id)
+        );
+
+        const mapped: HistoryRecord[] = userReservations.map(r => {
           return {
             id: String(r.id),
-            title: donation?.title ?? `Donation #${r.donationId}`,
-            donor: `Donor #${r.userId}`,
-            quantity: `${r.quantityReserved} ${donation?.unit ?? 'units'}`,
+            title: r.donationTitle ?? `Donation #${r.donationId}`,
+            donor: r.donorName ?? `Donor #${r.userId}`,
+            quantity: `${r.quantityReserved} ${r.donationUnit ?? 'units'}`,
             pickupDate: new Date(r.createdDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
             status: mapStatus(r.status),
-            image: donation?.image ?? DEFAULT_IMAGE,
+            image: r.donationImage ?? DEFAULT_IMAGE,
           };
         });
         setHistoryData(mapped);
       })
-      .catch(() => {});
-  }, []);
+      .catch((err) => console.error("Failed to fetch reservation history", err));
+  }, [user?.id, user?.role]);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
@@ -68,7 +74,7 @@ const ReservationHistory: React.FC = () => {
       
       return matchesSearch && matchesStatus;
     });
-  }, [searchQuery, statusFilter, dateFilter]);
+  }, [searchQuery, statusFilter, dateFilter, historyData]);
 
   const totalPickups = historyData.filter(i => i.status === 'Completed').length;
   const foodSavedKg = historyData.filter(i => i.status === 'Completed').length * 5;

@@ -10,6 +10,13 @@ public class ReservationActions
 {
     private readonly VlmDbContext _dbContext;
 
+    // Folosim injecția de dependențe
+    public ReservationActions(VlmDbContext dbContext)
+    {
+        _dbContext = dbContext;
+    }
+
+    // Constructor păstrat pentru compatibilitate inversă
     public ReservationActions()
     {
         _dbContext = new VlmDbContext();
@@ -21,8 +28,8 @@ public class ReservationActions
         UserId = entity.UserId,
         DonationId = entity.DonationId,
         QuantityReserved = entity.QuantityReserved,
-        QuantityPickedUpByReceiver = entity.QuantityPickedUpByReceiver,
-        QuantityConfirmed = entity.QuantityConfirmed,
+        // QuantityPickedUpByReceiver = entity.QuantityPickedUpByReceiver, // Comentat
+        // QuantityConfirmed = entity.QuantityConfirmed, // Comentat
         Status = entity.Status,
         Notes = entity.Notes,
         CreatedDate = entity.CreatedDate,
@@ -30,8 +37,8 @@ public class ReservationActions
         DonorConfirmedAt = entity.DonorConfirmedAt,
         ReceiverConfirmedAt = entity.ReceiverConfirmedAt,
         CompletedAt = entity.CompletedAt,
-        CancelledAt = entity.CancelledAt,
-        CancelledBy = entity.CancelledBy,
+        // CancelledAt = entity.CancelledAt, // Comentat
+        // CancelledBy = entity.CancelledBy, // Comentat
         DonationTitle = entity.Donation?.Title ?? string.Empty,
         DonationImage = entity.Donation?.Image,
         DonationCategory = entity.Donation?.Category ?? string.Empty,
@@ -58,7 +65,7 @@ public class ReservationActions
         }
         catch (Exception e)
         {
-            return new ServiceResponse { IsSuccess = false, Message = $"Error retrieving reservations: {e.Message}" };
+            return new ServiceResponse { IsSuccess = false, Message = $"Error retrieving reservations: {e.InnerException?.Message ?? e.Message}" };
         }
     }
 
@@ -74,7 +81,7 @@ public class ReservationActions
         }
         catch (Exception e)
         {
-            return new ServiceResponse { IsSuccess = false, Message = $"Error retrieving reservation: {e.Message}" };
+            return new ServiceResponse { IsSuccess = false, Message = $"Error retrieving reservation: {e.InnerException?.Message ?? e.Message}" };
         }
     }
 
@@ -92,7 +99,7 @@ public class ReservationActions
         }
         catch (Exception e)
         {
-            return new ServiceResponse { IsSuccess = false, Message = $"Error retrieving reservations: {e.Message}" };
+            return new ServiceResponse { IsSuccess = false, Message = $"Error retrieving reservations: {e.InnerException?.Message ?? e.Message}" };
         }
     }
 
@@ -110,7 +117,7 @@ public class ReservationActions
         }
         catch (Exception e)
         {
-            return new ServiceResponse { IsSuccess = false, Message = $"Error retrieving reservations: {e.Message}" };
+            return new ServiceResponse { IsSuccess = false, Message = $"Error retrieving reservations: {e.InnerException?.Message ?? e.Message}" };
         }
     }
 
@@ -135,17 +142,35 @@ public class ReservationActions
                 CreatedDate = DateTime.UtcNow
             };
 
-            donation.Quantity -= dto.QuantityReserved;
-
             _dbContext.Reservations.Add(entity);
             _dbContext.SaveChanges();
 
-            var created = WithIncludes().FirstOrDefault(r => r.Id == entity.Id);
-            return new ServiceResponse { IsSuccess = true, Data = MapToDto(created!), Message = "Reservation created successfully" };
+            var receiver = _dbContext.Users.Find(dto.UserId);
+            var responseDto = new ReservationInfoDto
+            {
+                Id = entity.Id,
+                UserId = entity.UserId,
+                DonationId = entity.DonationId,
+                QuantityReserved = entity.QuantityReserved,
+                Status = entity.Status,
+                Notes = entity.Notes,
+                CreatedDate = entity.CreatedDate,
+                DonationTitle = donation.Title,
+                DonationImage = donation.Image,
+                DonationCategory = donation.Category,
+                DonationUnit = donation.Unit,
+                PickupLocation = donation.PickupLocation,
+                ExpirationDate = donation.ExpirationDate,
+                DonorId = donation.DonorId,
+                DonorName = _dbContext.Users.Find(donation.DonorId)?.Name ?? "Unknown Donor",
+                ReceiverName = receiver?.Name ?? "Unknown Receiver",
+            };
+
+            return new ServiceResponse { IsSuccess = true, Data = responseDto, Message = "Reservation created successfully" };
         }
         catch (Exception e)
         {
-            return new ServiceResponse { IsSuccess = false, Message = $"Error creating reservation: {e.Message}" };
+            return new ServiceResponse { IsSuccess = false, Message = $"Error creating reservation: {e.InnerException?.Message ?? e.Message}" };
         }
     }
 
@@ -160,6 +185,8 @@ public class ReservationActions
             entity.Status = dto.Status;
             entity.UpdatedDate = DateTime.UtcNow;
 
+            // Logica pentru coloanele lipsă a fost comentată
+            /*
             switch (dto.Status)
             {
                 case "donor_confirmed":
@@ -167,30 +194,31 @@ public class ReservationActions
                     break;
                 case "receiver_confirmed":
                     entity.ReceiverConfirmedAt = DateTime.UtcNow;
-                    entity.QuantityPickedUpByReceiver = dto.QuantityPickedUpByReceiver;
+                    // entity.QuantityPickedUpByReceiver = dto.QuantityPickedUpByReceiver;
                     break;
                 case "completed":
                     entity.CompletedAt = DateTime.UtcNow;
-                    entity.QuantityConfirmed = dto.QuantityConfirmed;
-                    if (dto.QuantityConfirmed.HasValue)
-                    {
-                        var diff = entity.QuantityReserved - dto.QuantityConfirmed.Value;
-                        if (diff > 0)
-                        {
-                            var donation = _dbContext.Donations.Find(entity.DonationId);
-                            if (donation != null && (donation.ExpirationDate == null || donation.ExpirationDate > DateTime.UtcNow))
-                                donation.Quantity += diff;
-                        }
-                    }
+                    // entity.QuantityConfirmed = dto.QuantityConfirmed;
+                    // if (dto.QuantityConfirmed.HasValue)
+                    // {
+                    //     var diff = entity.QuantityReserved - dto.QuantityConfirmed.Value;
+                    //     if (diff > 0)
+                    //     {
+                    //         var donation = _dbContext.Donations.Find(entity.DonationId);
+                    //         if (donation != null && (donation.ExpirationDate == null || donation.ExpirationDate > DateTime.UtcNow))
+                    //             donation.Quantity += diff;
+                    //     }
+                    // }
                     break;
                 case "cancelled":
-                    entity.CancelledAt = DateTime.UtcNow;
-                    entity.CancelledBy = dto.CancelledBy;
+                    // entity.CancelledAt = DateTime.UtcNow;
+                    // entity.CancelledBy = dto.CancelledBy;
                     var cancelledDonation = _dbContext.Donations.Find(entity.DonationId);
                     if (cancelledDonation != null && (cancelledDonation.ExpirationDate == null || cancelledDonation.ExpirationDate > DateTime.UtcNow))
                         cancelledDonation.Quantity += entity.QuantityReserved;
                     break;
             }
+            */
 
             _dbContext.SaveChanges();
 
@@ -199,7 +227,7 @@ public class ReservationActions
         }
         catch (Exception e)
         {
-            return new ServiceResponse { IsSuccess = false, Message = $"Error updating status: {e.Message}" };
+            return new ServiceResponse { IsSuccess = false, Message = $"Error updating status: {e.InnerException?.Message ?? e.Message}" };
         }
     }
 
@@ -219,7 +247,7 @@ public class ReservationActions
         }
         catch (Exception e)
         {
-            return new ServiceResponse { IsSuccess = false, Message = $"Error updating reservation: {e.Message}" };
+            return new ServiceResponse { IsSuccess = false, Message = $"Error updating reservation: {e.InnerException?.Message ?? e.Message}" };
         }
     }
 
@@ -238,7 +266,7 @@ public class ReservationActions
         }
         catch (Exception e)
         {
-            return new ServiceResponse { IsSuccess = false, Message = $"Error deleting reservation: {e.Message}" };
+            return new ServiceResponse { IsSuccess = false, Message = $"Error deleting reservation: {e.InnerException?.Message ?? e.Message}" };
         }
     }
 }

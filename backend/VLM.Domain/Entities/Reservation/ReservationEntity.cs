@@ -16,10 +16,10 @@ public class ReservationEntity
     public DateTime? DonorConfirmedAt { get; set; }
     public DateTime? ReceiverConfirmedAt { get; set; }
     public DateTime? CompletedAt { get; set; }
-    public DateTime? CancelledAt { get; set; }
-    public string? CancelledBy { get; set; }
-    public int? QuantityPickedUpByReceiver { get; set; }
-    public int? QuantityConfirmed { get; set; }
+    // public DateTime? CancelledAt { get; set; } // Comentat
+    // public string? CancelledBy { get; set; } // Comentat
+    // public int? QuantityPickedUpByReceiver { get; set; } // Comentat
+    // public int? QuantityConfirmed { get; set; } // Comentat
 
     // Navigation properties
     public UserEntity Receiver { get; set; } = null!;
