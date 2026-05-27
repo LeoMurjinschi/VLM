@@ -156,6 +156,47 @@ namespace VLM.DataAccessLayer.Migrations
                         });
                 });
 
+            modelBuilder.Entity("VLM.Domain.Entities.Document.UserDocumentEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("DocumentType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("FileData")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("UploadedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserDocuments");
+                });
+
             modelBuilder.Entity("VLM.Domain.Entities.Donation.DonationEntity", b =>
                 {
                     b.Property<int>("Id")
@@ -513,6 +554,12 @@ namespace VLM.DataAccessLayer.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int?>("QuantityConfirmed")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("QuantityPickedUpByReceiver")
+                        .HasColumnType("integer");
+
                     b.Property<int>("QuantityReserved")
                         .HasColumnType("integer");
 
@@ -754,7 +801,7 @@ namespace VLM.DataAccessLayer.Migrations
                             Email = "alex@vlm.com",
                             IsActive = true,
                             Name = "Alex Donor",
-                            PasswordHash = "hashed_password_1",
+                            PasswordHash = "3820be471b75236bf93e1790ea484432",
                             Role = "donor"
                         },
                         new
@@ -765,7 +812,7 @@ namespace VLM.DataAccessLayer.Migrations
                             Email = "maria@vlm.com",
                             IsActive = true,
                             Name = "Maria Receiver",
-                            PasswordHash = "hashed_password_2",
+                            PasswordHash = "d003257014b8a10582419f1f84478281",
                             Role = "receiver"
                         },
                         new
@@ -776,7 +823,7 @@ namespace VLM.DataAccessLayer.Migrations
                             Email = "john@vlm.com",
                             IsActive = true,
                             Name = "John Donor",
-                            PasswordHash = "hashed_password_3",
+                            PasswordHash = "f9a28b5d9ee09b2a5281a579d4f4090a",
                             Role = "donor"
                         });
                 });
@@ -1118,6 +1165,28 @@ namespace VLM.DataAccessLayer.Migrations
                     b.Navigation("Receiver");
                 });
 
+            modelBuilder.Entity("VLM.Domain.Entities.User.DonorProfileEntity", b =>
+                {
+                    b.HasOne("VLM.Domain.Entities.User.UserEntity", "User")
+                        .WithOne("DonorProfile")
+                        .HasForeignKey("VLM.Domain.Entities.User.DonorProfileEntity", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("VLM.Domain.Entities.User.ReceiverProfileEntity", b =>
+                {
+                    b.HasOne("VLM.Domain.Entities.User.UserEntity", "User")
+                        .WithOne("ReceiverProfile")
+                        .HasForeignKey("VLM.Domain.Entities.User.ReceiverProfileEntity", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("VLM.Domain.Entities.User.UserProfileEntity", b =>
                 {
                     b.HasOne("VLM.Domain.Entities.User.UserEntity", "User")
@@ -1160,7 +1229,11 @@ namespace VLM.DataAccessLayer.Migrations
                 {
                     b.Navigation("Comments");
 
+                    b.Navigation("Documents");
+
                     b.Navigation("Donations");
+
+                    b.Navigation("DonorProfile");
 
                     b.Navigation("DonorReviews");
 
@@ -1171,6 +1244,8 @@ namespace VLM.DataAccessLayer.Migrations
                     b.Navigation("Profile");
 
                     b.Navigation("ReceivedMessages");
+
+                    b.Navigation("ReceiverProfile");
 
                     b.Navigation("ReceiverReviews");
 

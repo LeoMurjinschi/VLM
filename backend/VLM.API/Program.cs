@@ -12,6 +12,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<VlmDbContext>();
 builder.Services.AddScoped<UserActions>();
 builder.Services.AddScoped<NotificationActions>();
+builder.Services.AddScoped<ReservationActions>(); // Adăugat
+builder.Services.AddScoped<DonationActions>();   // Adăugat
 // ------------------------------------
 
 builder.Services.AddCors(options =>
