@@ -764,7 +764,6 @@ namespace VLM.DataAccessLayer.Migrations
                 });
 
             modelBuilder.Entity("VLM.Domain.Entities.User.DonorProfileEntity", b =>
-            modelBuilder.Entity("VLM.Domain.Entities.SystemSetting.SystemSettingEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -866,6 +865,20 @@ namespace VLM.DataAccessLayer.Migrations
                         .IsUnique();
 
                     b.ToTable("ReceiverProfiles");
+                });
+
+            modelBuilder.Entity("VLM.Domain.Entities.SystemSetting.SystemSettingEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("Key")
                         .IsRequired()
                         .HasColumnType("text");
@@ -1360,6 +1373,8 @@ namespace VLM.DataAccessLayer.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
             modelBuilder.Entity("VLM.Domain.Entities.SystemSetting.SystemSettingEntity", b =>
                 {
                     b.HasOne("VLM.Domain.Entities.User.UserEntity", "UpdatedBy")
