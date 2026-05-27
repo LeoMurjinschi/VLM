@@ -67,6 +67,11 @@ export const userService = {
     return response.data;
   },
 
+  toggleActive: async (id: number): Promise<boolean> => {
+    const response = await axiosInstance.put<boolean>(`/users/toggle-active/${id}`);
+    return response.data;
+  },
+
   delete: async (id: number): Promise<string> => {
     const response = await axiosInstance.delete<string>(`/users/delete/${id}`);
     return response.data;
