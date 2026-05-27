@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useTheme } from '../hooks/useTheme';
+import { useAuth } from '../context/AuthContext';
 import Select from '../components/UI/Select';
 import { 
   ArrowDownTrayIcon, 
@@ -27,6 +28,8 @@ const DATE_RANGE_OPTIONS = [
 
 const ImpactReports: React.FC = () => {
   const { theme } = useTheme();
+  const { user } = useAuth();
+  const donorId = user?.id ? parseInt(user.id, 10) : null;
   const [dateRange, setDateRange] = useState('This Month');
   const [isExporting, setIsExporting] = useState(false);
 
@@ -51,12 +54,13 @@ const ImpactReports: React.FC = () => {
 
 
   useEffect(() => {
+    if (!donorId) return;
     const loadDonationHistory = async () => {
       setDonationLoading(true);
       setDonationError(null);
-      
+
       try {
-        const data = await fetchDonationHistory(currentFilters, 1, 10);
+        const data = await fetchDonationHistory(donorId, currentFilters, 1, 10);
         setDonationHistory(data);
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Failed to load donation history';
@@ -68,16 +72,17 @@ const ImpactReports: React.FC = () => {
     };
 
     loadDonationHistory();
-  }, [currentFilters]);
+  }, [donorId, currentFilters]);
 
 
   useEffect(() => {
+    if (!donorId) return;
     const loadTopPartners = async () => {
       setPartnersLoading(true);
       setPartnersError(null);
-      
+
       try {
-        const data = await fetchTopPartners(currentFilters);
+        const data = await fetchTopPartners(donorId, currentFilters);
         setTopPartners(data);
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Failed to load top partners';
@@ -89,7 +94,7 @@ const ImpactReports: React.FC = () => {
     };
 
     loadTopPartners();
-  }, [currentFilters]);
+  }, [donorId, currentFilters]);
 
 
   useEffect(() => {
@@ -118,8 +123,12 @@ const ImpactReports: React.FC = () => {
         await exportDonationHistoryAsCSV(currentFilters, donationHistory);
         toast.success(`Report exported as ${format} successfully! 📄`);
       } else if (format === 'PDF') {
-        await exportDonationHistoryAsPDF(currentFilters);
-        toast.success(`Report exported as ${format} successfully! 📄`);
+        const result = await exportDonationHistoryAsPDF(currentFilters, donationHistory);
+        if (result.success) {
+          toast.success(`Report exported as ${format} successfully!`);
+        } else {
+          toast.error(result.message);
+        }
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : `Failed to export ${format} report.`;
@@ -144,12 +153,10 @@ const ImpactReports: React.FC = () => {
   }, []);
 
   return (
-    <div className={`space-y-6 max-w-7xl mx-auto min-h-screen relative pb-10 ${
-      theme === 'light' ? 'bg-gray-50' : 'bg-gray-900'
-    }`}>
+    <div className="space-y-6 max-w-7xl mx-auto min-h-screen relative pb-10">
       
 
-      <div className={`pb-6 border-b relative z-40 ${theme === 'light' ? 'border-gray-100' : 'border-gray-700'}`}>
+      <div className={`pb-6 border-b ${theme === 'light' ? 'border-gray-200/60' : 'border-[#2e2e2e]'}`}>
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
             <h1 className={`text-3xl md:text-4xl font-extrabold tracking-tight mb-2 ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>
@@ -161,7 +168,7 @@ const ImpactReports: React.FC = () => {
           </div>
           
           <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
-            <div className="relative z-50 w-full sm:w-56">
+            <div className="relative w-full sm:w-56">
               <Select 
                 options={DATE_RANGE_OPTIONS}
                 value={dateRange}
@@ -202,7 +209,7 @@ const ImpactReports: React.FC = () => {
       ) : null}
 
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-in-up relative z-0" style={{ animationDelay: '100ms' }}>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-in-up" style={{ animationDelay: '100ms' }}>
 
         {donationLoading ? (
           <div className="lg:col-span-2">
@@ -227,7 +234,7 @@ const ImpactReports: React.FC = () => {
             />
           </div>
         ) : (
-          <div className={`lg:col-span-2 p-6 rounded-3xl border shadow-sm ${theme === 'light' ? 'bg-white border-gray-100' : 'bg-gray-900 border-gray-700'}`}>
+          <div className={`lg:col-span-2 p-6 rounded-3xl border shadow-sm ${theme === 'light' ? 'bg-white border-gray-200/60' : 'bg-[#1a1a1a] border-[#2e2e2e]'}`}>
             <div className="flex justify-between items-center mb-6">
               <h3 className={`text-xl font-extrabold ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>
                 Donation History
@@ -243,23 +250,27 @@ const ImpactReports: React.FC = () => {
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className={`border-b text-xs uppercase tracking-wider ${theme === 'light' ? 'border-gray-100 text-gray-400' : 'border-gray-700 text-gray-500'}`}>
+                  <tr className={`border-b text-xs uppercase tracking-wider ${theme === 'light' ? 'border-gray-100 text-gray-400' : 'border-[#2e2e2e] text-gray-500'}`}>
                     <th className="pb-3 font-bold whitespace-nowrap">Date</th>
                     <th className="pb-3 font-bold min-w-[150px]">Item Donated</th>
                     <th className="pb-3 font-bold">Qty</th>
-                    <th className="pb-3 font-bold min-w-[150px]">Beneficiary</th>
                     <th className="pb-3 font-bold">Status</th>
                   </tr>
                 </thead>
                 <tbody className={`text-sm ${theme === 'light' ? 'text-gray-700' : 'text-gray-300'}`}>
                   {donationHistory.map((row) => (
-                    <tr key={row.id} className={`border-b last:border-0 transition-colors ${theme === 'light' ? 'border-gray-50 hover:bg-gray-50/50' : 'border-gray-700/50 hover:bg-gray-800/50'}`}>
+                    <tr key={row.id} className={`border-b last:border-0 transition-colors ${theme === 'light' ? 'border-gray-50 hover:bg-gray-50/50' : 'border-[#2e2e2e]/50 hover:bg-[#222222]/50'}`}>
                       <td className="py-4 font-medium whitespace-nowrap">{row.date}</td>
                       <td className="py-4 font-bold">{row.item}</td>
                       <td className="py-4 font-extrabold text-[#16a34a]">{row.qty}</td>
-                      <td className="py-4">{row.partner}</td>
                       <td className="py-4">
-                        <span className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wide whitespace-nowrap ${theme === 'light' ? 'bg-emerald-50 text-emerald-600' : 'bg-emerald-900/30 text-emerald-400'}`}>
+                        <span className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wide whitespace-nowrap ${
+                          row.status === 'Completed'
+                            ? (theme === 'light' ? 'bg-emerald-50 text-emerald-600' : 'bg-emerald-900/30 text-emerald-400')
+                            : row.status === 'Failed'
+                            ? (theme === 'light' ? 'bg-red-50 text-red-600' : 'bg-red-900/30 text-red-400')
+                            : (theme === 'light' ? 'bg-amber-50 text-amber-600' : 'bg-amber-900/30 text-amber-400')
+                        }`}>
                           {row.status}
                         </span>
                       </td>
@@ -290,7 +301,7 @@ const ImpactReports: React.FC = () => {
             />
           </div>
         ) : (
-          <div className={`p-6 rounded-3xl border shadow-sm ${theme === 'light' ? 'bg-white border-gray-100' : 'bg-gray-900 border-gray-700'}`}>
+          <div className={`p-6 rounded-3xl border shadow-sm ${theme === 'light' ? 'bg-white border-gray-200/60' : 'bg-[#1a1a1a] border-[#2e2e2e]'}`}>
             <h3 className={`text-xl font-extrabold mb-2 ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>
               Top Partners
             </h3>
@@ -312,7 +323,7 @@ const ImpactReports: React.FC = () => {
                       {partner.kg} kg
                     </span>
                   </div>
-                  <div className={`h-2 w-full rounded-full overflow-hidden ${theme === 'light' ? 'bg-gray-100' : 'bg-gray-700'}`}>
+                  <div className={`h-2 w-full rounded-full overflow-hidden ${theme === 'light' ? 'bg-gray-100' : 'bg-[#2e2e2e]'}`}>
                     <div
                       className="h-full bg-gradient-to-r from-[#16a34a] to-[#f59e0b] rounded-full"
                       style={{ width: `${partner.percentage}%` }}
@@ -322,7 +333,7 @@ const ImpactReports: React.FC = () => {
               ))}
             </div>
 
-            <div className={`mt-6 pt-5 border-t text-xs font-medium text-center ${theme === 'light' ? 'border-gray-100 text-gray-500' : 'border-gray-700 text-gray-400'}`}>
+            <div className={`mt-6 pt-5 border-t text-xs font-medium text-center ${theme === 'light' ? 'border-gray-100 text-gray-500' : 'border-[#2e2e2e] text-gray-400'}`}>
               Based on <span className="font-bold text-[#16a34a]">{dateRange}</span> data.
             </div>
           </div>

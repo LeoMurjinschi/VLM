@@ -37,11 +37,11 @@ const Messages: React.FC = () => {
 
     messageService.getContacts(currentUserId)
       .then(data => {
-        let contacts = data;
+        let contactList = data;
         let activeId: number | null = null;
 
         if (targetId && !isNaN(targetId)) {
-          const existing = contacts.find(c => c.id === targetId);
+          const existing = contactList.find(c => c.id === targetId);
           if (existing) {
             activeId = existing.id;
           } else {
@@ -54,7 +54,7 @@ const Messages: React.FC = () => {
               time: 'Just now',
               unread: 0,
             };
-            contacts = [newContact, ...data];
+            contactList = [newContact, ...data];
             activeId = targetId;
           }
           setIsMobileListVisible(false);
@@ -62,7 +62,7 @@ const Messages: React.FC = () => {
           activeId = data[0].id;
         }
 
-        setContacts(contacts);
+        setContacts(contactList);
         if (activeId) setActiveChatId(activeId);
       })
       .catch(err => console.error('Failed to load contacts', err));

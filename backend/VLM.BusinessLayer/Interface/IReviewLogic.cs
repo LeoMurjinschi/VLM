@@ -5,6 +5,7 @@ namespace VLM.BusinessLayer.Interface;
 
 public interface IReviewLogic
 {
+    ServiceResponse GetAllReviews();
     ServiceResponse GetReviewsByDonor(int donorId);
     ServiceResponse GetReviewById(int id);
     ServiceResponse CreateReview(ReviewCreateDto reviewCreateDto);
