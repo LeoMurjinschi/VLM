@@ -14,29 +14,64 @@ public class DonationActions
         _dbContext = new VlmDbContext();
     }
 
-    public ServiceResponse GetDonationsByDonorIdAction(int donorId)
+    private const decimal LowStockThreshold = 5;
+
+    public ServiceResponse GetDonationsByDonorIdAction(
+        int donorId,
+        string? sortBy = null,
+        string? categories = null,
+        string? status = null)
     {
         try
         {
-            var donations = _dbContext.Donations
-                .Where(d => d.DonorId == donorId)
-                .Select(entity => new DonationInfoDto
-                {
-                    Id = entity.Id,
-                    Title = entity.Title,
-                    Description = entity.Description,
-                    Quantity = entity.Quantity,
-                    Unit = entity.Unit,
-                    DonorId = entity.DonorId,
-                    Category = entity.Category,
-                    PickupLocation = entity.PickupLocation,
-                    ExpirationDate = entity.ExpirationDate,
-                    Image = entity.Image,
-                    Status = entity.Status,
-                    CreatedDate = entity.CreatedDate,
-                    UpdatedDate = entity.UpdatedDate
-                })
-                .ToList();
+            var now = DateTime.UtcNow;
+            var categoryList = categories?
+                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            var baseQuery = _dbContext.Donations.Where(d => d.DonorId == donorId);
+
+            // Category filter
+            if (categoryList is { Count: > 0 })
+                baseQuery = baseQuery.Where(d => categoryList.Contains(d.Category));
+
+            // Status filter (derived from DB fields)
+            baseQuery = status switch
+            {
+                "In Stock"  => baseQuery.Where(d => d.Status == "Available" && d.ExpirationDate > now && d.Quantity >= LowStockThreshold),
+                "Low Stock" => baseQuery.Where(d => d.Status == "Available" && d.ExpirationDate > now && d.Quantity > 0 && d.Quantity < LowStockThreshold),
+                "Expired"   => baseQuery.Where(d => d.ExpirationDate <= now || d.Quantity <= 0),
+                _           => baseQuery
+            };
+
+            var query = baseQuery.Select(entity => new DonationInfoDto
+            {
+                Id = entity.Id,
+                Title = entity.Title,
+                Description = entity.Description,
+                Quantity = entity.Quantity,
+                Unit = entity.Unit,
+                DonorId = entity.DonorId,
+                Category = entity.Category,
+                PickupLocation = entity.PickupLocation,
+                ExpirationDate = entity.ExpirationDate,
+                Image = entity.Image,
+                Status = entity.Status,
+                CreatedDate = entity.CreatedDate,
+                UpdatedDate = entity.UpdatedDate,
+                DonorName = entity.Donor.Name,
+                DonorAvatar = entity.Donor.Avatar
+            });
+
+            var donations = sortBy switch
+            {
+                "oldest"        => query.OrderBy(d => d.CreatedDate).ToList(),
+                "expiring_soon" => query.OrderBy(d => d.ExpirationDate).ToList(),
+                "name_asc"      => query.OrderBy(d => d.Title).ToList(),
+                "quantity_high" => query.OrderByDescending(d => d.Quantity).ToList(),
+                "quantity_low"  => query.OrderBy(d => d.Quantity).ToList(),
+                _               => query.OrderByDescending(d => d.CreatedDate).ToList(),
+            };
 
             return new ServiceResponse
             {
@@ -96,7 +131,27 @@ public class DonationActions
     {
         try
         {
-            var entity = _dbContext.Donations.Find(id);
+            var entity = _dbContext.Donations
+                .Where(d => d.Id == id)
+                .Select(d => new DonationInfoDto
+                {
+                    Id = d.Id,
+                    Title = d.Title,
+                    Description = d.Description,
+                    Quantity = d.Quantity,
+                    Unit = d.Unit,
+                    DonorId = d.DonorId,
+                    Category = d.Category,
+                    PickupLocation = d.PickupLocation,
+                    ExpirationDate = d.ExpirationDate,
+                    Image = d.Image,
+                    Status = d.Status,
+                    CreatedDate = d.CreatedDate,
+                    UpdatedDate = d.UpdatedDate,
+                    DonorName = d.Donor.Name,
+                    DonorAvatar = d.Donor.Avatar
+                })
+                .FirstOrDefault();
 
             if (entity == null)
                 return new ServiceResponse
@@ -105,22 +160,7 @@ public class DonationActions
                     Message = "Donation not found"
                 };
 
-            var dto = new DonationInfoDto
-            {
-                Id = entity.Id,
-                Title = entity.Title,
-                Description = entity.Description,
-                Quantity = entity.Quantity,
-                Unit = entity.Unit,
-                DonorId = entity.DonorId,
-                Category = entity.Category,
-                PickupLocation = entity.PickupLocation,
-                ExpirationDate = entity.ExpirationDate,
-                Image = entity.Image,
-                Status = entity.Status,
-                CreatedDate = entity.CreatedDate,
-                UpdatedDate = entity.UpdatedDate
-            };
+            var dto = entity;
 
             return new ServiceResponse
             {
@@ -157,7 +197,9 @@ public class DonationActions
                     Image = entity.Image,
                     Status = entity.Status,
                     CreatedDate = entity.CreatedDate,
-                    UpdatedDate = entity.UpdatedDate
+                    UpdatedDate = entity.UpdatedDate,
+                    DonorName = entity.Donor.Name,
+                    DonorAvatar = entity.Donor.Avatar
                 })
                 .ToList();
 

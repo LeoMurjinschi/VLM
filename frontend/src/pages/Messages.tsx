@@ -32,6 +32,24 @@ const Messages: React.FC = () => {
 
   useEffect(() => {
     if (!currentUserId) return;
+    const openWith = (location.state as any)?.openChatWith;
+    const targetId = openWith?.id ? parseInt(String(openWith.id), 10) : null;
+
+    messageService.getContacts(currentUserId)
+      .then(data => {
+        let contacts = data;
+        let activeId: number | null = null;
+
+        if (targetId && !isNaN(targetId)) {
+          const existing = contacts.find(c => c.id === targetId);
+          if (existing) {
+            activeId = existing.id;
+          } else {
+            const newContact: Contact = {
+              id: targetId,
+              name: openWith.name,
+              role: openWith.role || 'User',
+              initials: openWith.name.substring(0, 2).toUpperCase(),
     const target = location.state?.openChatWith;
 
     messageService.getContacts(currentUserId)
@@ -51,6 +69,18 @@ const Messages: React.FC = () => {
               time: 'Just now',
               unread: 0,
             };
+            contacts = [newContact, ...data];
+            activeId = targetId;
+          }
+          setIsMobileListVisible(false);
+        } else if (data.length > 0) {
+          activeId = data[0].id;
+        }
+
+        setContacts(contacts);
+        if (activeId) setActiveChatId(activeId);
+      })
+      .catch(err => console.error('Failed to load contacts', err));
             setContacts([newContact, ...data]);
             setActiveChatId(target.id);
           }

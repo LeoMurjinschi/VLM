@@ -1,39 +1,46 @@
 import React, { useEffect, useState } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { useTheme } from '../hooks/useTheme';
-import { DONATION_CATEGORIES, type Donation } from '../_mock';
+import { DONATION_CATEGORIES, type InventoryItem } from '../_mock';
+import ImageDragDrop from './UI/ImageDragDrop';
 
 export interface StockEditPayload {
   title: string;
   description: string;
   category: string;
   expirationDate: string;
+  image: string;
+  pickupLocation: string;
 }
 
 interface StockEditModalProps {
   isOpen: boolean;
-  donation: Donation | null;
+  item: InventoryItem | null;
   onClose: () => void;
   onSave: (payload: StockEditPayload) => void;
 }
 
-const StockEditModal: React.FC<StockEditModalProps> = ({ isOpen, donation, onClose, onSave }) => {
+const StockEditModal: React.FC<StockEditModalProps> = ({ isOpen, item, onClose, onSave }) => {
   const { theme } = useTheme();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState(DONATION_CATEGORIES[0]);
   const [expirationDate, setExpirationDate] = useState('');
+  const [image, setImage] = useState('');
+  const [pickupLocation, setPickupLocation] = useState('');
 
   useEffect(() => {
-    if (donation && isOpen) {
-      setTitle(donation.title);
-      setDescription(donation.description);
-      setCategory(donation.category);
-      setExpirationDate(donation.expirationDate.slice(0, 10));
+    if (item && isOpen) {
+      setTitle(item.title);
+      setDescription(item.description);
+      setCategory(item.category);
+      setExpirationDate(item.expirationDate.slice(0, 10));
+      setImage(item.image || '');
+      setPickupLocation(item.pickupLocation || '');
     }
-  }, [donation, isOpen]);
+  }, [item, isOpen]);
 
-  if (!isOpen || !donation) return null;
+  if (!isOpen || !item) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,6 +50,8 @@ const StockEditModal: React.FC<StockEditModalProps> = ({ isOpen, donation, onClo
       description: description.trim(),
       category,
       expirationDate: new Date(expirationDate).toISOString(),
+      image: image.trim(),
+      pickupLocation: pickupLocation.trim(),
     });
   };
 
@@ -64,12 +73,12 @@ const StockEditModal: React.FC<StockEditModalProps> = ({ isOpen, donation, onClo
       <form
         onSubmit={handleSubmit}
         onClick={(e) => e.stopPropagation()}
-        className={`w-full max-w-lg rounded-2xl border shadow-2xl ${
+        className={`w-full max-w-lg rounded-2xl border shadow-2xl max-h-[90vh] flex flex-col ${
           theme === 'light' ? 'bg-white border-gray-200' : 'bg-[#1a1a1a] border-[#2e2e2e]'
         }`}
       >
         <div
-          className={`flex items-center justify-between px-6 py-4 border-b ${
+          className={`flex items-center justify-between px-6 py-4 border-b flex-shrink-0 ${
             theme === 'light' ? 'border-gray-100' : 'border-[#2e2e2e]'
           }`}
         >
@@ -89,7 +98,7 @@ const StockEditModal: React.FC<StockEditModalProps> = ({ isOpen, donation, onClo
           </button>
         </div>
 
-        <div className="px-6 py-5 space-y-4">
+        <div className="px-6 py-5 space-y-4 overflow-y-auto">
           <div>
             <label className={labelClass}>Title</label>
             <input
@@ -134,10 +143,27 @@ const StockEditModal: React.FC<StockEditModalProps> = ({ isOpen, donation, onClo
               />
             </div>
           </div>
+          <div>
+            <label className={labelClass}>Pickup Location</label>
+            <input
+              value={pickupLocation}
+              onChange={(e) => setPickupLocation(e.target.value)}
+              placeholder="e.g. 123 Main St"
+              className={inputClass}
+            />
+          </div>
+          <div>
+            <ImageDragDrop
+              value={image || null}
+              onChange={(base64) => setImage(base64 ?? '')}
+              label="Image"
+              helperText="JPG or PNG, max 5MB"
+            />
+          </div>
         </div>
 
         <div
-          className={`flex justify-end gap-2 px-6 py-4 border-t ${
+          className={`flex justify-end gap-2 px-6 py-4 border-t flex-shrink-0 ${
             theme === 'light' ? 'border-gray-100' : 'border-[#2e2e2e]'
           }`}
         >

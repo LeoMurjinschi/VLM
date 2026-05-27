@@ -25,11 +25,21 @@ public class BusinessLogic
 
     public IUserSettingsLogic GetUserSettingsLogic() => new UserSettingsLogic();
 
+    public IDonorProfileLogic GetDonorProfileLogic() => new DonorProfileLogic();
+
+    public IReceiverProfileLogic GetReceiverProfileLogic() => new ReceiverProfileLogic();
+
+    public IUserDocumentLogic GetUserDocumentLogic() => new UserDocumentLogic();
+
     public ICategoryLogic GetCategoryLogic() => new CategoryLogic();
 
     public IFavoriteLogic GetFavoriteLogic() => new FavoriteLogic();
 
     public IReportLogic GetReportLogic() => new ReportLogic();
+
+    public IMilestoneLogic GetMilestoneLogic() => new MilestoneLogic();
+
+    public IDashboardLogic GetDashboardLogic() => new DashboardLogic();
     public IAdminActionLogic GetAdminActionLogic() => new AdminActionLogic();
 
     public IAccountApprovalLogic GetAccountApprovalLogic() => new AccountApprovalLogic();

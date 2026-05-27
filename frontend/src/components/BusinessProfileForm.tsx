@@ -3,8 +3,7 @@ import { useTheme } from './../hooks/useTheme';
 import { BuildingStorefrontIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
-import { profileService } from '../api';
-import type { UserProfileDto } from '../api';
+import { donorProfileService } from '../api';
 
 const BusinessProfileForm: React.FC = () => {
   const { theme } = useTheme();
@@ -13,7 +12,7 @@ const BusinessProfileForm: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   const [formData, setFormData] = useState({
-    orgName: '',
+    companyName: '',
     description: '',
     operatingHours: '',
     phone: '',
@@ -24,10 +23,10 @@ const BusinessProfileForm: React.FC = () => {
 
   useEffect(() => {
     if (!user) return;
-    profileService.getByUser(parseInt(user.id))
+    donorProfileService.getByUser(parseInt(user.id))
       .then((profile) => {
         setFormData({
-          orgName: profile.orgName || '',
+          companyName: profile.companyName || '',
           description: profile.description || '',
           operatingHours: profile.operatingHours || '',
           phone: profile.phone || '',
@@ -36,9 +35,7 @@ const BusinessProfileForm: React.FC = () => {
           transportType: profile.transportType || '',
         });
       })
-      .catch(() => {
-        // No profile yet — keep defaults
-      })
+      .catch(() => {/* no profile yet — use defaults */})
       .finally(() => setIsLoading(false));
   }, [user]);
 
@@ -51,22 +48,16 @@ const BusinessProfileForm: React.FC = () => {
     if (!user) return;
     setIsSaving(true);
     try {
-      const dto: UserProfileDto = {
+      await donorProfileService.save({
         userId: parseInt(user.id),
-        phone: formData.phone,
-        address: formData.address,
-        orgName: formData.orgName,
+        companyName: formData.companyName,
         description: formData.description,
         operatingHours: formData.operatingHours,
+        phone: formData.phone,
+        address: formData.address,
         location: formData.location,
         transportType: formData.transportType,
-        operatingRadius: 10,
-        acceptedCategories: '',
-        hasIndustrialStorage: false,
-        missionStatement: '',
-        verified: false,
-      };
-      await profileService.save(dto);
+      });
       toast.success('Business profile saved!');
     } catch {
       toast.error('Failed to save business profile.');
@@ -96,7 +87,7 @@ const BusinessProfileForm: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
           <div>
             <label className={`block text-sm font-semibold mb-2 ${theme === 'light' ? 'text-gray-700' : 'text-gray-300'}`}>Company / Organization Name</label>
-            <input type="text" value={formData.orgName} onChange={e => setFormData({ ...formData, orgName: e.target.value })} className={inputClass} placeholder="e.g., Fresh Harvest Co." />
+            <input type="text" value={formData.companyName} onChange={e => setFormData({ ...formData, companyName: e.target.value })} className={inputClass} placeholder="e.g., Fresh Harvest Co." />
           </div>
           <div>
             <label className={`block text-sm font-semibold mb-2 ${theme === 'light' ? 'text-gray-700' : 'text-gray-300'}`}>Phone Number</label>
@@ -132,7 +123,7 @@ const BusinessProfileForm: React.FC = () => {
         </div>
 
         <div className="pt-2 flex justify-end">
-          <button type="submit" disabled={isSaving} className={`flex items-center gap-2 px-6 py-3 bg-[#16a34a] hover:bg-green-700 text-white font-bold rounded-xl transition-all active:scale-[0.98] disabled:opacity-70 shadow-md`}>
+          <button type="submit" disabled={isSaving} className="flex items-center gap-2 px-6 py-3 bg-[#16a34a] hover:bg-green-700 text-white font-bold rounded-xl transition-all active:scale-[0.98] disabled:opacity-70 shadow-md">
             {isSaving ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <CheckCircleIcon className="w-5 h-5" />}
             Save Business Info
           </button>

@@ -5,7 +5,7 @@ namespace VLM.BusinessLayer.Interface;
 
 public interface IDonationLogic
 {
-    ServiceResponse GetDonationsByDonorId(int donorId);
+    ServiceResponse GetDonationsByDonorId(int donorId, string? sortBy = null, string? categories = null, string? status = null);
     ServiceResponse GetDonationList();
     ServiceResponse GetDonationById(int id);
     ServiceResponse CreateDonation(DonationCreateDto donationCreateDto);
