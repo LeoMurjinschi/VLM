@@ -37,11 +37,11 @@ const Messages: React.FC = () => {
 
     messageService.getContacts(currentUserId)
       .then(data => {
-        let contacts = data;
+        let contactList = data;
         let activeId: number | null = null;
 
         if (targetId && !isNaN(targetId)) {
-          const existing = contacts.find(c => c.id === targetId);
+          const existing = contactList.find(c => c.id === targetId);
           if (existing) {
             activeId = existing.id;
           } else {
@@ -50,26 +50,11 @@ const Messages: React.FC = () => {
               name: openWith.name,
               role: openWith.role || 'User',
               initials: openWith.name.substring(0, 2).toUpperCase(),
-    const target = location.state?.openChatWith;
-
-    messageService.getContacts(currentUserId)
-      .then(data => {
-        if (target) {
-          const existing = data.find(c => c.id === target.id || c.name === target.name);
-          if (existing) {
-            setContacts(data);
-            setActiveChatId(existing.id);
-          } else {
-            const newContact: Contact = {
-              id: target.id,
-              name: target.name,
-              role: target.role || 'User',
-              initials: target.name.substring(0, 2).toUpperCase(),
               lastMessage: '',
               time: 'Just now',
               unread: 0,
             };
-            contacts = [newContact, ...data];
+            contactList = [newContact, ...data];
             activeId = targetId;
           }
           setIsMobileListVisible(false);
@@ -77,22 +62,10 @@ const Messages: React.FC = () => {
           activeId = data[0].id;
         }
 
-        setContacts(contacts);
+        setContacts(contactList);
         if (activeId) setActiveChatId(activeId);
       })
       .catch(err => console.error('Failed to load contacts', err));
-            setContacts([newContact, ...data]);
-            setActiveChatId(target.id);
-          }
-          setIsMobileListVisible(false);
-        } else {
-          setContacts(data);
-          if (data.length > 0) {
-            setActiveChatId(data[0].id);
-          }
-        }
-      })
-      .catch(err => console.error("Failed to load contacts", err));
   }, [currentUserId]);
 
   // Load real messages when active contact changes
