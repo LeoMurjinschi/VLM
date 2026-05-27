@@ -3,6 +3,7 @@ using VLM.Domain.Entities.Document;
 using VLM.Domain.Entities.Donation;
 using VLM.Domain.Entities.Favorite;
 using VLM.Domain.Entities.Message;
+using VLM.Domain.Entities.Milestone;
 using VLM.Domain.Entities.Notification;
 using VLM.Domain.Entities.Report;
 using VLM.Domain.Entities.Reservation;
@@ -38,4 +39,5 @@ public class UserEntity
     public ICollection<UserDocumentEntity> Documents { get; set; } = new List<UserDocumentEntity>();
     public ICollection<FavoriteEntity> Favorites { get; set; } = new List<FavoriteEntity>();
     public ICollection<ReportEntity> Reports { get; set; } = new List<ReportEntity>();
+    public ICollection<MilestoneEntity> Milestones { get; set; } = new List<MilestoneEntity>();
 }
