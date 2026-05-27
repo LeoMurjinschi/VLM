@@ -144,7 +144,7 @@ public class UserActions
             {
                 Name = userCreateDto.Name,
                 Email = userCreateDto.Email,
-                PasswordHash = userCreateDto.Password,
+                PasswordHash = PasswordHasher.Hash(userCreateDto.Password),
                 Role = userCreateDto.Role,
                 Bio = userCreateDto.Bio,
                 Avatar = userCreateDto.Avatar,
@@ -165,7 +165,8 @@ public class UserActions
                     ? string.Empty
                     : $"IDNO: {userCreateDto.FiscalCode}",
                 OperatingRadius = 10,
-                Verified = false
+                Verified = false,
+                VerificationDocument = userCreateDto.VerificationDocument
             });
             _dbContext.SaveChanges();
 

@@ -15,4 +15,5 @@ public class UserProfileDto
     public bool HasIndustrialStorage { get; set; }
     public string Location { get; set; } = string.Empty;
     public bool Verified { get; set; }
+    public string? VerificationDocument { get; set; }
 }

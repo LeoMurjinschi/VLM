@@ -11,4 +11,5 @@ public class UserCreateDto
     public string OrgName { get; set; } = string.Empty;
     public string Address { get; set; } = string.Empty;
     public string FiscalCode { get; set; } = string.Empty;
+    public string? VerificationDocument { get; set; }
 }
