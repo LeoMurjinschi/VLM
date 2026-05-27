@@ -5,7 +5,8 @@ import HistoryHeader from '../components/HistoryHeader';
 import HistoryFilters from '../components/HistoryFilters';
 import HistoryItem from '../components/HistoryItem';
 import { ArchiveBoxXMarkIcon } from '@heroicons/react/24/outline';
-import { reservationService, donationService } from '../api';
+import { reservationService } from '../api';
+import { useAuth } from '../context/AuthContext';
 
 export interface HistoryRecord {
   id: string;
@@ -27,28 +28,27 @@ const mapStatus = (s: string): 'Completed' | 'Cancelled' | 'Expired' => {
 
 const ReservationHistory: React.FC = () => {
   const { theme } = useTheme();
+  const { user } = useAuth();
   const [historyData, setHistoryData] = useState<HistoryRecord[]>([]);
 
   useEffect(() => {
-    Promise.all([reservationService.getAll(), donationService.getAll()])
-      .then(([reservations, donations]) => {
-        const donationMap = new Map(donations.map(d => [d.id, d]));
-        const mapped: HistoryRecord[] = reservations.map(r => {
-          const donation = donationMap.get(r.donationId);
-          return {
-            id: String(r.id),
-            title: donation?.title ?? `Donation #${r.donationId}`,
-            donor: `Donor #${r.userId}`,
-            quantity: `${r.quantityReserved} ${donation?.unit ?? 'units'}`,
-            pickupDate: new Date(r.createdDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-            status: mapStatus(r.status),
-            image: donation?.image ?? DEFAULT_IMAGE,
-          };
-        });
+    if (!user) return;
+    const userId = parseInt(user.id);
+    reservationService.getByReceiver(userId)
+      .then(reservations => {
+        const mapped: HistoryRecord[] = reservations.map(r => ({
+          id: String(r.id),
+          title: r.donationTitle ?? `Donation #${r.donationId}`,
+          donor: r.donorName ?? `Donor #${r.donorId}`,
+          quantity: `${r.quantityReserved} ${r.donationUnit ?? 'units'}`,
+          pickupDate: new Date(r.createdDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+          status: mapStatus(r.status),
+          image: r.donationImage ?? DEFAULT_IMAGE,
+        }));
         setHistoryData(mapped);
       })
       .catch(() => {});
-  }, []);
+  }, [user]);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
