@@ -132,6 +132,14 @@ const SignupPage = () => {
     return Object.keys(newErrors).length === 0 && !!document;
   };
 
+  const toBase64 = (file: File): Promise<string> =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -142,6 +150,7 @@ const SignupPage = () => {
     setServerError('');
 
     try {
+      const verificationDocument = document ? await toBase64(document) : undefined;
       await userService.create({
         name: formData.repName,
         email: formData.email,
@@ -151,6 +160,7 @@ const SignupPage = () => {
         orgName: formData.orgName,
         address: formData.address,
         fiscalCode: formData.fiscalCode,
+        verificationDocument,
       });
       setIsSubmitted(true);
     } catch {

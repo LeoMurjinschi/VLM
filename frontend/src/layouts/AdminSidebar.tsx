@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
+import { adminService } from '../api/adminService';
 import {
   HomeIcon, ClipboardDocumentListIcon,
   UserGroupIcon, ShieldCheckIcon, StarIcon,
@@ -26,6 +27,13 @@ const ACCENT_DARK_BG = 'rgba(139, 92, 246, 0.10)';
 const AdminSidebar: React.FC<AdminSidebarProps> = ({ onClose }) => {
   const location = useLocation();
   const { theme, toggleTheme } = useTheme();
+  const [pendingCount, setPendingCount] = useState<number>(0);
+
+  useEffect(() => {
+    adminService.getPendingUsers()
+      .then(users => setPendingCount(users.length))
+      .catch(() => {});
+  }, []);
 
   return (
     <div className={`flex h-full flex-col justify-between border-r transition-all duration-300 w-56 ${
@@ -144,17 +152,19 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ onClose }) => {
         </div>
         <div className="flex items-center gap-2">
           <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-bold text-white" style={{ backgroundColor: ACCENT }}>
-            3
+            {pendingCount}
           </span>
           <span className={`text-sm font-semibold ${
             theme === 'light' ? 'text-[#1a1a1a]' : 'text-white'
           }`}>pending signups</span>
         </div>
-        <p className={`text-[11px] mt-2 font-medium leading-relaxed ${
-          theme === 'light' ? 'text-gray-500' : 'text-gray-400'
-        }`}>
-          2 flagged items need attention ⚠️
-        </p>
+        {pendingCount === 0 && (
+          <p className={`text-[11px] mt-2 font-medium leading-relaxed ${
+            theme === 'light' ? 'text-gray-500' : 'text-gray-400'
+          }`}>
+            All sign-up requests reviewed ✓
+          </p>
+        )}
       </div>
 
     </div>

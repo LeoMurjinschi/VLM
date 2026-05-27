@@ -29,10 +29,12 @@ const AdminDonationCard = ({
   donation,
   donorName,
   onDeleteClick,
+  onCardClick,
 }: {
   donation: DonationInfoDto;
   donorName: string;
   onDeleteClick: (d: DonationInfoDto) => void;
+  onCardClick: (d: DonationInfoDto) => void;
 }) => {
   const { theme } = useTheme();
   const isAvailable = donation.status === 'Available';
@@ -42,7 +44,9 @@ const AdminDonationCard = ({
   const catColors = getCategoryColor(donation.category);
 
   return (
-    <div className={`group relative rounded-lg overflow-hidden flex flex-col transition-colors ${
+    <div
+      onClick={() => onCardClick(donation)}
+      className={`group relative rounded-lg overflow-hidden flex flex-col transition-colors cursor-pointer ${
       theme === 'light' ? 'bg-white border border-gray-200' : 'bg-[#1a1a1a] border border-[#2e2e2e]'
     }`}>
       <div className="relative h-[200px] overflow-hidden bg-gray-100 dark:bg-gray-800 flex-shrink-0">
@@ -101,7 +105,7 @@ const AdminDonationCard = ({
         theme === 'light' ? 'bg-white border-gray-200' : 'bg-[#1a1a1a] border-[#2e2e2e]'
       }`}>
         <button
-          onClick={() => onDeleteClick(donation)}
+          onClick={(e) => { e.stopPropagation(); onDeleteClick(donation); }}
           className="w-full py-2.5 rounded-full font-semibold text-sm transition-all active:scale-[0.98] bg-red-500 text-white hover:bg-red-600 shadow-md flex items-center justify-center gap-2"
         >
           <TrashIcon className="w-4 h-4" />
@@ -132,6 +136,9 @@ const AdminDonationFeed: React.FC = () => {
 
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [donationToDelete, setDonationToDelete] = useState<DonationInfoDto | null>(null);
+
+  const [detailModalOpen, setDetailModalOpen] = useState(false);
+  const [selectedDonation, setSelectedDonation] = useState<DonationInfoDto | null>(null);
 
   useEffect(() => {
     Promise.all([
@@ -172,6 +179,11 @@ const AdminDonationFeed: React.FC = () => {
       return matchSearch && matchCat && matchStatus;
     });
   }, [donations, userMap, searchQuery, selectedCategories, statusFilter]);
+
+  const openDetail = (item: DonationInfoDto) => {
+    setSelectedDonation(item);
+    setDetailModalOpen(true);
+  };
 
   const initiateDelete = (item: DonationInfoDto) => {
     setDonationToDelete(item);
@@ -290,10 +302,98 @@ const AdminDonationFeed: React.FC = () => {
               donation={donation}
               donorName={userMap[donation.donorId] || `User #${donation.donorId}`}
               onDeleteClick={initiateDelete}
+              onCardClick={openDetail}
             />
           ))}
         </div>
       )}
+
+      {/* Donation Detail Modal */}
+      <Modal isOpen={detailModalOpen} onClose={() => setDetailModalOpen(false)} title="Donation Details">
+        {selectedDonation && (
+          <div className="space-y-4">
+            <div className="rounded-xl overflow-hidden h-52 bg-gray-100 dark:bg-gray-800">
+              <img
+                src={selectedDonation.image || PLACEHOLDER_IMAGE}
+                alt={selectedDonation.title}
+                className="w-full h-full object-cover"
+              />
+            </div>
+
+            <div className="flex items-start justify-between gap-3">
+              <h3 className={`text-xl font-bold leading-snug ${theme === 'light' ? 'text-[#1a1a1a]' : 'text-white'}`}>
+                {selectedDonation.title}
+              </h3>
+              <span className={`shrink-0 px-2.5 py-1 rounded-lg text-[11px] font-bold uppercase tracking-wide ${
+                selectedDonation.status === 'Available' ? 'bg-green-500/80 text-white' : 'bg-amber-500/80 text-white'
+              }`}>
+                {selectedDonation.status}
+              </span>
+            </div>
+
+            {selectedDonation.description && (
+              <p className={`text-sm leading-relaxed ${theme === 'light' ? 'text-gray-600' : 'text-gray-300'}`}>
+                {selectedDonation.description}
+              </p>
+            )}
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className={`p-3 rounded-lg border ${theme === 'light' ? 'bg-gray-50 border-gray-100' : 'bg-gray-800/50 border-gray-700'}`}>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Category</p>
+                <p className={`text-sm font-semibold ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>{selectedDonation.category}</p>
+              </div>
+              <div className={`p-3 rounded-lg border ${theme === 'light' ? 'bg-gray-50 border-gray-100' : 'bg-gray-800/50 border-gray-700'}`}>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Quantity</p>
+                <p className={`text-sm font-semibold ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>{selectedDonation.quantity} {selectedDonation.unit}</p>
+              </div>
+              <div className={`p-3 rounded-lg border ${theme === 'light' ? 'bg-gray-50 border-gray-100' : 'bg-gray-800/50 border-gray-700'}`}>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Donor</p>
+                <p className={`text-sm font-semibold ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>{userMap[selectedDonation.donorId] || `User #${selectedDonation.donorId}`}</p>
+              </div>
+              <div className={`p-3 rounded-lg border ${theme === 'light' ? 'bg-gray-50 border-gray-100' : 'bg-gray-800/50 border-gray-700'}`}>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Posted On</p>
+                <p className={`text-sm font-semibold ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>{new Date(selectedDonation.createdDate).toLocaleDateString()}</p>
+              </div>
+            </div>
+
+            <div className={`p-3 rounded-lg border ${theme === 'light' ? 'bg-gray-50 border-gray-100' : 'bg-gray-800/50 border-gray-700'}`}>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Pickup Location</p>
+              <div className="flex items-center gap-1.5">
+                <MapPinIcon className="w-4 h-4 text-[#8b5cf6] shrink-0" />
+                <p className={`text-sm font-semibold ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>{selectedDonation.pickupLocation}</p>
+              </div>
+            </div>
+
+            {selectedDonation.expirationDate && (
+              <div className={`p-3 rounded-lg border ${theme === 'light' ? 'bg-gray-50 border-gray-100' : 'bg-gray-800/50 border-gray-700'}`}>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Expiration Date</p>
+                <div className="flex items-center gap-1.5">
+                  <ClockIcon className="w-4 h-4 text-amber-500 shrink-0" />
+                  <p className={`text-sm font-semibold ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>{new Date(selectedDonation.expirationDate).toLocaleDateString()}</p>
+                </div>
+              </div>
+            )}
+
+            <div className="flex gap-3 pt-2 border-t border-gray-100 dark:border-gray-800">
+              <button
+                onClick={() => setDetailModalOpen(false)}
+                className={`flex-1 py-2.5 rounded-lg font-semibold text-sm transition-colors ${
+                  theme === 'light' ? 'bg-gray-100 text-gray-700 hover:bg-gray-200' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                }`}
+              >
+                Close
+              </button>
+              <button
+                onClick={() => { setDetailModalOpen(false); initiateDelete(selectedDonation); }}
+                className="flex-1 py-2.5 rounded-lg font-semibold text-sm transition-colors bg-red-500 hover:bg-red-600 text-white flex items-center justify-center gap-2"
+              >
+                <TrashIcon className="w-4 h-4" />
+                Delete
+              </button>
+            </div>
+          </div>
+        )}
+      </Modal>
 
       {/* Delete Confirmation Modal */}
       <Modal isOpen={deleteModalOpen} onClose={() => setDeleteModalOpen(false)} title="Confirm Deletion">

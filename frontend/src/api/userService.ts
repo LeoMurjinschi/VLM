@@ -11,6 +11,7 @@ export interface UserCreateDto {
   orgName?: string;
   address?: string;
   fiscalCode?: string;
+  verificationDocument?: string;
 }
 
 export interface UserInfoUpdateDto {
