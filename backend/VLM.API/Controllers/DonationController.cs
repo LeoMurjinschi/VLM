@@ -20,9 +20,13 @@ public class DonationController : ControllerBase
     }
 
     [HttpGet("donor/{donorId}")]
-    public IActionResult GetDonationsByDonorId([FromRoute] int donorId)
+    public IActionResult GetDonationsByDonorId(
+        [FromRoute] int donorId,
+        [FromQuery] string? sortBy = null,
+        [FromQuery] string? categories = null,
+        [FromQuery] string? status = null)
     {
-        var result = _donationLogic.GetDonationsByDonorId(donorId);
+        var result = _donationLogic.GetDonationsByDonorId(donorId, sortBy, categories, status);
         if (!result.IsSuccess)
             return BadRequest(result.Message);
         return Ok(result.Data);

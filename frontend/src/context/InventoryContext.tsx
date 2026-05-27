@@ -8,7 +8,7 @@ import { useAuth } from './AuthContext';
 interface InventoryContextType {
   inventory: InventoryItem[];
   donations: Donation[];
-  fetchDonations: (filters: any) => Promise<void>;
+  fetchDonations: (filters: { sortBy?: string; categories?: string[]; status?: string }) => Promise<void>;
   addStock: (item: InventoryItem) => void;
   reserveStock: (id: string, amount: number) => void;
   updateQuantity: (id: string, quantity: number) => Promise<void>;
@@ -56,11 +56,11 @@ export const InventoryProvider: React.FC<{ children: ReactNode }> = ({ children 
   const [donations, setDonations] = useState<Donation[]>([]);
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
 
-  const fetchDonations = useCallback(async (filters: any) => {
+  const fetchDonations = useCallback(async (filters: { sortBy?: string; categories?: string[]; status?: string }) => {
     try {
       let apiDonations: DonationInfoDto[] = [];
       if (user?.role === 'donor' && user.id) {
-        apiDonations = await donationService.getDonationsByDonorId(parseInt(user.id, 10));
+        apiDonations = await donationService.getDonationsByDonorId(parseInt(user.id, 10), filters.sortBy, filters.categories, filters.status);
       } else {
         // For non-donors, we might not need to fetch anything for their specific inventory
         // Or we fetch all donations if they have a generic view
@@ -84,10 +84,11 @@ export const InventoryProvider: React.FC<{ children: ReactNode }> = ({ children 
   }, [user]);
 
   useEffect(() => {
-    if (user) { // Only fetch if user is loaded
-        fetchDonations({});
+    if (user) {
+      fetchDonations({});
     }
-  }, [fetchDonations, user]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]); // intentionally omit fetchDonations — it recreates when user changes, this would double-fetch
 
 
   useEffect(() => {
