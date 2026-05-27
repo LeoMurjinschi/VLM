@@ -12,6 +12,8 @@ export interface CommentInfoDto {
   id: number;
   text: string;
   userId: number;
+  userName: string;
+  userAvatar?: string;
   donationId: number;
   parentCommentId?: number;
   createdDate: string;
