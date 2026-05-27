@@ -90,7 +90,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
 
         <nav className="space-y-1">
           {currentNavigation.map((item) => {
-            const isActive = location.pathname.includes(item.href);
+            const isActive = location.pathname === item.href || location.pathname.startsWith(item.href + '/');
 
             return (
               <Link

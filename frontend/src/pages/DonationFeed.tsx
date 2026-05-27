@@ -24,6 +24,8 @@ const mapDonationDtoToDonation = (dto: DonationInfoDto): Donation => ({
     image: dto.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&q=80',
     status: dto.status as 'Available' | 'Reserved',
     donorId: String(dto.donorId),
+    donorName: dto.donorName,
+    donorAvatar: dto.donorAvatar,
     postedAt: dto.createdDate,
   });
 
@@ -92,13 +94,13 @@ const DonationFeed: React.FC = () => {
   }, [donations, searchQuery, selectedCategories, statusFilter, urgencyFilter, sortBy]);
 
   const handleReserveItem = useCallback(
-    (id: string, amountReserved: number) => {
+    async (id: string, amountReserved: number) => {
       if (isDonor) {
         toast.info('Only receiver organizations can reserve donations.');
         return;
       }
       try {
-        createReservation(id, amountReserved);
+        await createReservation(id, amountReserved);
         toast.success("Reserved! The donor will confirm when it's ready for pickup.");
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Failed to reserve item';

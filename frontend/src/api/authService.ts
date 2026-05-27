@@ -11,6 +11,7 @@ export interface LoginResponseDto {
   email: string;
   role: string;
   avatar?: string;
+  token: string;
 }
 
 export const authService = {

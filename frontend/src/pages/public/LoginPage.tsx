@@ -29,17 +29,21 @@ const LoginPage = () => {
     try {
       const user = await authService.login({ email: formData.email, password: formData.password });
 
+      localStorage.setItem('token', user.token);
+
+      const role = user.role.toLowerCase() as Role;
+
       login({
         id: String(user.id),
         name: user.name,
         email: user.email,
-        role: user.role as Role,
+        role,
         avatar: user.avatar,
       });
 
-      if (user.role === 'admin') {
+      if (role === 'admin') {
         navigate('/admin/dashboard');
-      } else if (user.role === 'donor') {
+      } else if (role === 'donor') {
         navigate('/donor/dashboard');
       } else {
         navigate('/receiver/feed');

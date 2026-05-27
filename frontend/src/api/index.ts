@@ -11,14 +11,20 @@ export { notificationService } from './notificationService';
 export { messageService } from './messageService';
 export { profileService } from './profileService';
 export { settingsService } from './settingsService';
+export { donorProfileService } from './donorProfileService';
+export { receiverProfileService } from './receiverProfileService';
+export { documentService } from './documentService';
 
 // Re-export types
 export type { DonationCreateDto, DonationInfoDto } from './donationService';
-export type { UserCreateDto, UserInfoDto } from './userService';
+export type { UserCreateDto, UserInfoDto, UserInfoUpdateDto } from './userService';
 export type { CommentCreateDto, CommentInfoDto } from './commentService';
-export type { ReservationCreateDto, ReservationInfoDto } from './reservationService';
+export type { ReservationCreateDto, ReservationInfoDto, ReservationStatusUpdateDto } from './reservationService';
 export type { ReviewCreateDto, ReviewInfoDto } from './reviewService';
 export type { NotificationCreateDto, NotificationInfoDto } from './notificationService';
 export type { MessageCreateDto, MessageInfoDto } from './messageService';
 export type { UserProfileDto } from './profileService';
 export type { UserSettingsDto } from './settingsService';
+export type { DonorProfileDto, PickupLocation } from './donorProfileService';
+export type { ReceiverProfileDto } from './receiverProfileService';
+export type { UserDocumentInfoDto, UserDocumentCreateDto } from './documentService';

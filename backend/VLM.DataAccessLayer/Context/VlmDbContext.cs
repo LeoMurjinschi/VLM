@@ -1,6 +1,8 @@
+using DotNetEnv;
 using Microsoft.EntityFrameworkCore;
 using VLM.Domain.Entities.Category;
 using VLM.Domain.Entities.Comment;
+using VLM.Domain.Entities.Document;
 using VLM.Domain.Entities.Donation;
 using VLM.Domain.Entities.Favorite;
 using VLM.Domain.Entities.Message;
@@ -9,6 +11,7 @@ using VLM.Domain.Entities.Report;
 using VLM.Domain.Entities.Reservation;
 using VLM.Domain.Entities.Review;
 using VLM.Domain.Entities.User;
+
 
 namespace VLM.DataAccessLayer.Context;
 
@@ -23,17 +26,33 @@ public sealed class VlmDbContext : DbContext
     public DbSet<MessageEntity> Messages { get; set; }
     public DbSet<UserProfileEntity> UserProfiles { get; set; }
     public DbSet<UserSettingsEntity> UserSettings { get; set; }
+    public DbSet<DonorProfileEntity> DonorProfiles { get; set; }
+    public DbSet<ReceiverProfileEntity> ReceiverProfiles { get; set; }
+    public DbSet<UserDocumentEntity> UserDocuments { get; set; }
     public DbSet<CategoryEntity> Categories { get; set; }
     public DbSet<FavoriteEntity> Favorites { get; set; }
     public DbSet<ReportEntity> Reports { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+{
+    if (!optionsBuilder.IsConfigured)
     {
-        if (!optionsBuilder.IsConfigured)
-        {
-            optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=onlinevlm;Username=postgres;Password=postgres;");
-        }
+         var envPath = @"C:\Users\user\Documents\Universitate\tweb\VLM\.env";
+        Env.Load(envPath);
+        
+       
+        
+        var host = Environment.GetEnvironmentVariable("DATABASE_HOST") ?? "localhost";
+        var port = Environment.GetEnvironmentVariable("DATABASE_PORT") ?? "5432";
+        var user = Environment.GetEnvironmentVariable("DATABASE_USER") ?? "postgres";
+        var password = Environment.GetEnvironmentVariable("DATABASE_PASSWORD") ?? "postgres";
+        var database = Environment.GetEnvironmentVariable("DATABASE_NAME") ?? "onlinevlm";
+
+        var connectionString = $"Host={host};Port={port};Database={database};Username={user};Password={password};";
+        
+        optionsBuilder.UseNpgsql(connectionString);
     }
+}
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -119,6 +138,24 @@ public sealed class VlmDbContext : DbContext
             .HasForeignKey<UserSettingsEntity>(s => s.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        modelBuilder.Entity<DonorProfileEntity>()
+            .HasOne(d => d.User)
+            .WithOne(u => u.DonorProfile)
+            .HasForeignKey<DonorProfileEntity>(d => d.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<ReceiverProfileEntity>()
+            .HasOne(r => r.User)
+            .WithOne(u => u.ReceiverProfile)
+            .HasForeignKey<ReceiverProfileEntity>(r => r.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<UserDocumentEntity>()
+            .HasOne(d => d.User)
+            .WithMany(u => u.Documents)
+            .HasForeignKey(d => d.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         modelBuilder.Entity<FavoriteEntity>()
             .HasOne(f => f.User)
             .WithMany(u => u.Favorites)
@@ -150,7 +187,7 @@ public sealed class VlmDbContext : DbContext
                 Id = 1,
                 Name = "Alex Donor",
                 Email = "alex@vlm.com",
-                PasswordHash = "hashed_password_1",
+                PasswordHash = "3820be471b75236bf93e1790ea484432",
                 Role = "donor",
                 Bio = "I love helping my community by donating food.",
                 Avatar = null,
@@ -162,7 +199,7 @@ public sealed class VlmDbContext : DbContext
                 Id = 2,
                 Name = "Maria Receiver",
                 Email = "maria@vlm.com",
-                PasswordHash = "hashed_password_2",
+                PasswordHash = "d003257014b8a10582419f1f84478281",
                 Role = "receiver",
                 Bio = "Grateful for every donation I receive.",
                 Avatar = null,
@@ -174,7 +211,7 @@ public sealed class VlmDbContext : DbContext
                 Id = 3,
                 Name = "John Donor",
                 Email = "john@vlm.com",
-                PasswordHash = "hashed_password_3",
+                PasswordHash = "f9a28b5d9ee09b2a5281a579d4f4090a",
                 Role = "donor",
                 Bio = "Regular donor since 2025.",
                 Avatar = null,

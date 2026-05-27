@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VLM.BusinessLayer;
 using VLM.BusinessLayer.Interface;
@@ -7,6 +8,7 @@ namespace VLM.API.Controllers;
 
 [ApiController]
 [Route("api/comments")]
+[Authorize]
 public class CommentController : ControllerBase
 {
     private readonly ICommentLogic _commentLogic;

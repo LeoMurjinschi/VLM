@@ -18,6 +18,8 @@ public class ReservationEntity
     public DateTime? CompletedAt { get; set; }
     public DateTime? CancelledAt { get; set; }
     public string? CancelledBy { get; set; }
+    public int? QuantityPickedUpByReceiver { get; set; }
+    public int? QuantityConfirmed { get; set; }
 
     // Navigation properties
     public UserEntity Receiver { get; set; } = null!;

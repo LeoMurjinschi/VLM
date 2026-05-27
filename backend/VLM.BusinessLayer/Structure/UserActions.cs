@@ -97,7 +97,7 @@ public class UserActions
             {
                 Name = userCreateDto.Name,
                 Email = userCreateDto.Email,
-                PasswordHash = userCreateDto.Password,
+                PasswordHash = PasswordHasher.Hash(userCreateDto.Password),
                 Role = userCreateDto.Role,
                 Bio = userCreateDto.Bio,
                 Avatar = userCreateDto.Avatar,
@@ -161,6 +161,49 @@ public class UserActions
         }
     }
 
+    public ServiceResponse ChangePasswordAction(int id, ChangePasswordDto dto)
+    {
+        try
+        {
+            var entity = _dbContext.Users.Find(id);
+            if (entity == null)
+                return new ServiceResponse { IsSuccess = false, Message = "User not found" };
+
+            if (entity.PasswordHash != PasswordHasher.Hash(dto.OldPassword))
+                return new ServiceResponse { IsSuccess = false, Message = "Current password is incorrect" };
+
+            entity.PasswordHash = PasswordHasher.Hash(dto.NewPassword);
+            _dbContext.SaveChanges();
+
+            return new ServiceResponse { IsSuccess = true, Message = "Password changed successfully" };
+        }
+        catch (Exception e)
+        {
+            return new ServiceResponse { IsSuccess = false, Message = $"Error changing password: {e.Message}" };
+        }
+    }
+
+    public ServiceResponse UpdateUserInfoAction(int id, UserInfoUpdateDto dto)
+    {
+        try
+        {
+            var entity = _dbContext.Users.Find(id);
+            if (entity == null)
+                return new ServiceResponse { IsSuccess = false, Message = "User not found" };
+
+            entity.Name = dto.Name;
+            entity.Email = dto.Email;
+            entity.Avatar = dto.Avatar;
+            _dbContext.SaveChanges();
+
+            return new ServiceResponse { IsSuccess = true, Message = "User info updated successfully" };
+        }
+        catch (Exception e)
+        {
+            return new ServiceResponse { IsSuccess = false, Message = $"Error updating user info: {e.Message}" };
+        }
+    }
+
     public ServiceResponse DeleteUserAction(int id)
     {
         try
@@ -198,20 +241,9 @@ public class UserActions
         try
         {
             // Corectat: am adăugat "== loginDto.Email"
-            var user = _dbContext.Users.FirstOrDefault(x => 
-                x.Email == loginDto.Email && x.PasswordHash == loginDto.Password);
+            var passwordHash = PasswordHasher.Hash(loginDto.Password);
+            var user = _dbContext.Users.FirstOrDefault(x => x.Email == loginDto.Email && x.PasswordHash == passwordHash);
             
-            // Corectat: Verificăm MAI ÎNTÂI dacă user-ul a fost găsit
-            if (user == null)
-            {
-                return new ServiceResponse
-                {
-                    IsSuccess = false,
-                    Message = "Email or password not matching."
-                };
-            }
-
-            // Acum putem verifica în siguranță dacă este activ
             if (!user.IsActive)
             {
                 return new ServiceResponse { IsSuccess = false, Message = "Inactive account." };
@@ -221,11 +253,19 @@ public class UserActions
 
             // Corectat: Am șters punctul din fața parantezei
             var token = tokenService.GenerateToken(user.Id, user.Name, user.Role.ToString());
-            
+
             return new ServiceResponse
             {
                 IsSuccess = true,
-                Message = token
+                Data = new
+                {
+                    id = user.Id,
+                    name = user.Name,
+                    email = user.Email,
+                    role = user.Role,
+                    avatar = user.Avatar,
+                    token = token
+                }
             };
         } // Corectat: Paranteza care închidea blocul 'try' lipsea
         catch (Exception e)

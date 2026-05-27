@@ -27,6 +27,8 @@ export interface DonationInfoDto {
   status: string;
   createdDate: string;
   updatedDate?: string;
+  donorName: string;
+  donorAvatar?: string;
 }
 
 // ── Service ───────────────────────────────────────────────────────────────────
