@@ -13,11 +13,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { useTheme } from '../hooks/useTheme';
 import { useAuth } from '../context/AuthContext';
-import {
-  fetchReviews,
-  fetchAggregate,
-  fetchDonorProfile,
-} from '../services/reviewsService';
+import { fetchReviews, fetchAggregate } from '../services/reviewsService';
 import type { Review, ReviewAggregate } from '../_mock/reviews';
 import ReviewSummary from '../components/reviews/ReviewSummary';
 import ReviewList from '../components/reviews/ReviewList';
@@ -26,17 +22,39 @@ import CommentThread from '../components/comments/CommentThread';
 import DonationCard from '../components/DonationCard';
 import StockDetailModal from '../components/StockDetailModal';
 import type { Donation } from '../_mock';
-import { useInventory } from '../context/InventoryContext';
+import { userService, donorProfileService, donationService } from '../api';
+import type { UserInfoDto } from '../api/userService';
+import type { DonorProfileDto } from '../api/donorProfileService';
+import type { DonationInfoDto } from '../api/donationService';
+
+const mapDto = (dto: DonationInfoDto): Donation => ({
+  id: String(dto.id),
+  title: dto.title,
+  description: dto.description,
+  quantity: dto.quantity,
+  unit: dto.unit,
+  category: dto.category,
+  pickupLocation: dto.pickupLocation,
+  expirationDate: dto.expirationDate || new Date().toISOString(),
+  image: dto.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&q=80',
+  status: dto.status as 'Available' | 'Reserved',
+  donorId: String(dto.donorId),
+  donorName: dto.donorName,
+  donorAvatar: dto.donorAvatar,
+  postedAt: dto.createdDate,
+});
 
 const DonorProfile: React.FC = () => {
   const { theme } = useTheme();
   const { user } = useAuth();
-  const { donations } = useInventory();
   const navigate = useNavigate();
   const location = useLocation();
-  const { donorId = 'donor1' } = useParams<{ donorId: string }>();
+  const { donorId = '' } = useParams<{ donorId: string }>();
+  const donorIdNum = parseInt(donorId, 10);
 
-  const [profile, setProfile] = useState<Awaited<ReturnType<typeof fetchDonorProfile>>>(null);
+  const [userInfo, setUserInfo] = useState<UserInfoDto | null>(null);
+  const [donorProfileData, setDonorProfileData] = useState<DonorProfileDto | null>(null);
+  const [donations, setDonations] = useState<Donation[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [aggregate, setAggregate] = useState<ReviewAggregate | null>(null);
   const [loading, setLoading] = useState(true);
@@ -45,26 +63,46 @@ const DonorProfile: React.FC = () => {
 
   const load = async () => {
     setLoading(true);
-    const [p, r, a] = await Promise.all([
-      fetchDonorProfile(donorId),
+    const [u, dp, dons, r, a] = await Promise.allSettled([
+      userService.getById(donorIdNum),
+      donorProfileService.getByUser(donorIdNum),
+      donationService.getDonationsByDonorId(donorIdNum),
       fetchReviews('donor', donorId),
       fetchAggregate('donor', donorId),
     ]);
-    setProfile(p);
-    setReviews(r);
-    setAggregate(a);
+    if (u.status === 'fulfilled') setUserInfo(u.value);
+    if (dp.status === 'fulfilled') setDonorProfileData(dp.value);
+    if (dons.status === 'fulfilled') setDonations(dons.value.map(mapDto));
+    if (r.status === 'fulfilled') setReviews(r.value);
+    if (a.status === 'fulfilled') setAggregate(a.value);
     setLoading(false);
   };
 
   useEffect(() => {
-    load();
+    if (donorIdNum) load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [donorId]);
 
   const activeStocks = useMemo(
-    () => donations.filter((d) => d.donorId === donorId && d.status === 'Available'),
-    [donations, donorId]
+    () => donations.filter((d) => d.status === 'Available'),
+    [donations]
   );
+
+  const profile = useMemo(() => {
+    if (!userInfo) return null;
+    return {
+      id: donorId,
+      name: userInfo.name,
+      avatar: userInfo.avatar || `https://i.pravatar.cc/150?u=${donorId}`,
+      description: donorProfileData?.description || userInfo.bio || '',
+      location: donorProfileData?.location || donorProfileData?.address || '—',
+      joinedDate: userInfo.createdDate,
+      totalDonations: donations.length,
+      totalKgRescued: donations.reduce((sum, d) => sum + d.quantity, 0),
+      verified: false,
+      email: userInfo.email,
+    };
+  }, [userInfo, donorProfileData, donations, donorId]);
 
   const canReview = user?.role === 'receiver';
   const isOwnProfile = user?.id === donorId;
@@ -78,6 +116,7 @@ const DonorProfile: React.FC = () => {
     navigate(base, {
       state: {
         openChatWith: {
+          id: donorIdNum,
           name: profile?.name ?? donorId,
           role: 'Donor',
         },
@@ -85,7 +124,15 @@ const DonorProfile: React.FC = () => {
     });
   };
 
-  if (!loading && !profile) {
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="w-8 h-8 border-2 border-[#16a34a] border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!userInfo) {
     return (
       <div className="max-w-3xl mx-auto p-8 text-center">
         <p className={`text-lg font-semibold ${theme === 'light' ? 'text-gray-700' : 'text-gray-300'}`}>
@@ -109,7 +156,7 @@ const DonorProfile: React.FC = () => {
         <ArrowLeftIcon className="w-4 h-4" /> Back
       </Link>
 
-      {/* Profile header — Instagram style */}
+      {/* Profile header */}
       <div
         className={`rounded-3xl border overflow-hidden ${
           theme === 'light' ? 'bg-white border-gray-200' : 'bg-[#1a1a1a] border-[#2e2e2e]'
@@ -139,9 +186,11 @@ const DonorProfile: React.FC = () => {
                   <CheckBadgeIcon className="w-6 h-6 text-[#16a34a] shrink-0" />
                 )}
               </div>
-              <p className={`text-xs font-mono mb-1 ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>
-                @{profile?.id}
-              </p>
+              {donorProfileData?.companyName && (
+                <p className={`text-xs font-mono mb-1 ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>
+                  {donorProfileData.companyName}
+                </p>
+              )}
               <p className={`text-sm ${theme === 'light' ? 'text-gray-600' : 'text-gray-400'}`}>
                 {profile?.description}
               </p>
@@ -201,8 +250,8 @@ const DonorProfile: React.FC = () => {
             />
             <Stat
               icon={<ScaleIcon className="w-4 h-4" />}
-              label="Rescued"
-              value={`${profile?.totalKgRescued || 0} kg`}
+              label="Total qty"
+              value={`${profile?.totalKgRescued || 0} units`}
             />
           </div>
 
@@ -211,7 +260,7 @@ const DonorProfile: React.FC = () => {
             theme === 'light' ? 'text-gray-500' : 'text-gray-400'
           }`}>
             <EnvelopeIcon className="w-3.5 h-3.5" />
-            <span>{profile?.id}@vlm.community</span>
+            <span>{profile?.email}</span>
           </div>
         </div>
       </div>
@@ -276,7 +325,7 @@ const DonorProfile: React.FC = () => {
         <ReviewList reviews={reviews} loading={loading} />
       </section>
 
-      {/* Comment thread on profile */}
+      {/* Comment thread */}
       <section>
         <h2
           className={`text-lg font-bold mb-4 ${

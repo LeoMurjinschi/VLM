@@ -93,9 +93,9 @@ const MyPickups: React.FC = () => {
     toast.info('Reservation cancelled. Quantity returned to the feed.');
   };
 
-  const handleMessage = (donorName: string) => {
+  const handleMessage = (donorId: string, donorName: string) => {
     navigate('/receiver/messages', {
-      state: { openChatWith: { name: donorName, role: 'Donor' } },
+      state: { openChatWith: { id: parseInt(donorId, 10), name: donorName, role: 'Donor' } },
     });
   };
 
@@ -257,7 +257,7 @@ const MyPickups: React.FC = () => {
                           </button>
 
                           <button
-                            onClick={() => handleMessage(r.donorName)}
+                            onClick={() => handleMessage(r.donorId, r.donorName)}
                             title="Message donor"
                             className={`p-2 rounded-xl transition-all flex items-center justify-center ${
                               isDark ? 'bg-[#222] text-gray-300 hover:bg-gray-800' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'

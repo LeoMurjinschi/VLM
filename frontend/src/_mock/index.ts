@@ -162,6 +162,8 @@ export interface Donation {
   quantity: number;
   unit: string;
   donorId?: string;
+  donorName?: string;
+  donorAvatar?: string;
 }
 
 export const MOCK_DONATIONS: Donation[] = [

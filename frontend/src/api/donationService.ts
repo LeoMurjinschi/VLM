@@ -27,13 +27,24 @@ export interface DonationInfoDto {
   status: string;
   createdDate: string;
   updatedDate?: string;
+  donorName: string;
+  donorAvatar?: string;
 }
 
 // ── Service ───────────────────────────────────────────────────────────────────
 export const donationService = {
 
-  getDonationsByDonorId: async (donorId: number): Promise<DonationInfoDto[]> => {
-    const response = await axiosInstance.get<DonationInfoDto[]>(`/donations/donor/${donorId}`);
+  getDonationsByDonorId: async (
+    donorId: number,
+    sortBy?: string,
+    categories?: string[],
+    status?: string
+  ): Promise<DonationInfoDto[]> => {
+    const params: Record<string, string> = {};
+    if (sortBy) params.sortBy = sortBy;
+    if (categories && categories.length > 0) params.categories = categories.join(',');
+    if (status && status !== 'All') params.status = status;
+    const response = await axiosInstance.get<DonationInfoDto[]>(`/donations/donor/${donorId}`, { params });
     return response.data;
   },
 

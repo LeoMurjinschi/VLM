@@ -7,9 +7,9 @@ namespace VLM.BusinessLayer.Core;
 
 public class DonationLogic : DonationActions, IDonationLogic
 {
-    public ServiceResponse GetDonationsByDonorId(int donorId)
+    public ServiceResponse GetDonationsByDonorId(int donorId, string? sortBy = null, string? categories = null, string? status = null)
     {
-        return GetDonationsByDonorIdAction(donorId);
+        return GetDonationsByDonorIdAction(donorId, sortBy, categories, status);
     }
 
     public ServiceResponse GetDonationList()

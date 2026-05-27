@@ -4,9 +4,11 @@ using VLM.Domain.Entities.AdminAction;
 using VLM.Domain.Entities.AdminAnnouncement;
 using VLM.Domain.Entities.Category;
 using VLM.Domain.Entities.Comment;
+using VLM.Domain.Entities.Document;
 using VLM.Domain.Entities.Donation;
 using VLM.Domain.Entities.Favorite;
 using VLM.Domain.Entities.Message;
+using VLM.Domain.Entities.Milestone;
 using VLM.Domain.Entities.Notification;
 using VLM.Domain.Entities.Report;
 using VLM.Domain.Entities.Reservation;
@@ -25,6 +27,15 @@ public sealed class VlmDbContext : DbContext
     public DbSet<ReviewEntity> Reviews { get; set; }
     public DbSet<NotificationEntity> Notifications { get; set; }
     public DbSet<MessageEntity> Messages { get; set; }
+    public DbSet<UserProfileEntity> UserProfiles { get; set; }
+    public DbSet<UserSettingsEntity> UserSettings { get; set; }
+    public DbSet<DonorProfileEntity> DonorProfiles { get; set; }
+    public DbSet<ReceiverProfileEntity> ReceiverProfiles { get; set; }
+    public DbSet<UserDocumentEntity> UserDocuments { get; set; }
+    public DbSet<CategoryEntity> Categories { get; set; }
+    public DbSet<FavoriteEntity> Favorites { get; set; }
+    public DbSet<ReportEntity> Reports { get; set; }
+    public DbSet<MilestoneEntity> Milestones { get; set; }
     public DbSet<CategoryEntity> Categories { get; set; }
     public DbSet<FavoriteEntity> Favorites { get; set; }
     public DbSet<ReportEntity> Reports { get; set; }
@@ -115,6 +126,36 @@ public sealed class VlmDbContext : DbContext
             .HasForeignKey(m => m.ReceiverId)
             .OnDelete(DeleteBehavior.NoAction);
 
+        modelBuilder.Entity<UserProfileEntity>()
+            .HasOne(p => p.User)
+            .WithOne(u => u.Profile)
+            .HasForeignKey<UserProfileEntity>(p => p.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<UserSettingsEntity>()
+            .HasOne(s => s.User)
+            .WithOne(u => u.Settings)
+            .HasForeignKey<UserSettingsEntity>(s => s.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<DonorProfileEntity>()
+            .HasOne(d => d.User)
+            .WithOne(u => u.DonorProfile)
+            .HasForeignKey<DonorProfileEntity>(d => d.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<ReceiverProfileEntity>()
+            .HasOne(r => r.User)
+            .WithOne(u => u.ReceiverProfile)
+            .HasForeignKey<ReceiverProfileEntity>(r => r.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<UserDocumentEntity>()
+            .HasOne(d => d.User)
+            .WithMany(u => u.Documents)
+            .HasForeignKey(d => d.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         modelBuilder.Entity<FavoriteEntity>()
             .HasOne(f => f.User)
             .WithMany(u => u.Favorites)
@@ -144,6 +185,12 @@ public sealed class VlmDbContext : DbContext
             .WithMany()
             .HasForeignKey(u => u.ApprovedById)
             .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<MilestoneEntity>()
+            .HasOne(m => m.Donor)
+            .WithMany(u => u.Milestones)
+            .HasForeignKey(m => m.DonorId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<AdminActionEntity>()
             .HasOne(a => a.Admin)

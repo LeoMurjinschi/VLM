@@ -1,6 +1,7 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { ArchiveBoxIcon, MagnifyingGlassIcon, FunnelIcon } from '@heroicons/react/24/outline';
 import InventoryCard from '../components/InventoryCard';
+import StockEditModal, { type StockEditPayload } from '../components/StockEditModal';
 import { useTheme } from '../hooks/useTheme';
 import Select from '../components/UI/Select';
 import { toast } from 'react-toastify';
@@ -34,50 +35,36 @@ const SORT_OPTIONS = [
 
 const CurrentInventory: React.FC = () => {
   const { theme } = useTheme();
-  const { inventory, updateQuantity, deleteStock } = useInventory();
+  const { inventory, updateQuantity, deleteStock, updateStock, fetchDonations } = useInventory();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [statusFilter, setStatusFilter] = useState<string>('All');
-  const [sortBy, setSortBy] = useState<string>('newest');
+  const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
+  const [filters, setFilters] = useState<{
+    sortBy: string;
+    selectedCategories: string[];
+    statusFilter: string;
+  }>({ sortBy: 'newest', selectedCategories: [], statusFilter: 'All' });
+
+  const { sortBy, selectedCategories, statusFilter } = filters;
+
+  useEffect(() => {
+    fetchDonations({
+      sortBy: filters.sortBy,
+      categories: filters.selectedCategories.length > 0 ? filters.selectedCategories : undefined,
+      status: filters.statusFilter !== 'All' ? filters.statusFilter : undefined,
+    });
+  }, [filters, fetchDonations]);
 
   const processedInventory = useMemo(() => {
-    let results = [...inventory];
-
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      results = results.filter(
-        (item) =>
-          item.title.toLowerCase().includes(q) ||
-          item.description.toLowerCase().includes(q)
-      );
-    }
-
-    if (selectedCategories.length > 0) {
-      results = results.filter((item) => selectedCategories.includes(item.category));
-    }
-
-    if (statusFilter !== 'All') {
-      results = results.filter((item) => item.status === statusFilter);
-    }
-
-    if (sortBy === 'oldest') {
-      results.reverse();
-    } else if (sortBy === 'expiring_soon') {
-      results.sort(
-        (a, b) => new Date(a.expirationDate).getTime() - new Date(b.expirationDate).getTime()
-      );
-    } else if (sortBy === 'name_asc') {
-      results.sort((a, b) => a.title.localeCompare(b.title));
-    } else if (sortBy === 'quantity_high') {
-      results.sort((a, b) => b.quantity - a.quantity);
-    } else if (sortBy === 'quantity_low') {
-      results.sort((a, b) => a.quantity - b.quantity);
-    }
-
-    return results;
-  }, [inventory, searchQuery, selectedCategories, statusFilter, sortBy]);
+    if (!searchQuery.trim()) return inventory;
+    const q = searchQuery.toLowerCase();
+    return inventory.filter(
+      (item) =>
+        item.title.toLowerCase().includes(q) ||
+        item.description.toLowerCase().includes(q)
+    );
+  }, [inventory, searchQuery]);
 
   const stats = useMemo(
     () => ({
@@ -90,35 +77,68 @@ const CurrentInventory: React.FC = () => {
   );
 
   const toggleCategory = useCallback((category: string) => {
-    setSelectedCategories((prev) =>
-      prev.includes(category) ? prev.filter((c) => c !== category) : [...prev, category]
-    );
+    setFilters((prev) => ({
+      ...prev,
+      selectedCategories: prev.selectedCategories.includes(category)
+        ? prev.selectedCategories.filter((c) => c !== category)
+        : [...prev.selectedCategories, category],
+    }));
   }, []);
 
   const clearFilters = useCallback(() => {
     setSearchQuery('');
-    setSelectedCategories([]);
-    setStatusFilter('All');
-    setSortBy('newest');
+    setFilters({ sortBy: 'newest', selectedCategories: [], statusFilter: 'All' });
     setIsFilterOpen(false);
   }, []);
 
-  const handleDeleteItem = useCallback((id: string) => {
-    deleteStock(id);
-    toast.success('Item deleted successfully');
+  const handleDeleteItem = useCallback(async (id: string) => {
+    try {
+      await deleteStock(id);
+      toast.success('Item deleted successfully');
+    } catch {
+      toast.error('Failed to delete item');
+    }
   }, [deleteStock]);
 
-  const handleEditItem = useCallback((_item: InventoryItem) => {
-    // Edit item handler
+  const handleEditItem = useCallback((item: InventoryItem) => {
+    setEditingItem(item);
   }, []);
 
-  const handleUpdateQuantity = useCallback((id: string, quantity: number) => {
-    updateQuantity(id, quantity);
-    toast.success('Quantity updated');
+  const handleSaveEdit = useCallback(async (payload: StockEditPayload) => {
+    if (!editingItem) return;
+    try {
+      await updateStock(editingItem.id, {
+        title: payload.title,
+        description: payload.description,
+        category: payload.category,
+        expirationDate: payload.expirationDate,
+        image: payload.image,
+        pickupLocation: payload.pickupLocation,
+      });
+      setEditingItem(null);
+      toast.success('Item updated successfully');
+    } catch {
+      toast.error('Failed to update item');
+    }
+  }, [editingItem, updateStock]);
+
+  const handleUpdateQuantity = useCallback(async (id: string, quantity: number) => {
+    try {
+      await updateQuantity(id, quantity);
+      toast.success('Quantity updated');
+    } catch {
+      toast.error('Failed to update quantity');
+    }
   }, [updateQuantity]);
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto min-h-screen relative">
+      <StockEditModal
+        isOpen={editingItem !== null}
+        item={editingItem}
+        onClose={() => setEditingItem(null)}
+        onSave={handleSaveEdit}
+      />
       {/* Header */}
       <div className={`pb-6 border-b relative z-20 ${
         theme === 'light' ? 'border-gray-200/60' : 'border-[#2e2e2e]'
@@ -256,7 +276,7 @@ const CurrentInventory: React.FC = () => {
               <Select
                 options={STATUS_OPTIONS}
                 value={statusFilter}
-                onChange={(value) => setStatusFilter(value)}
+                onChange={(value) => setFilters((prev) => ({ ...prev, statusFilter: value }))}
               />
             </div>
 
@@ -267,7 +287,7 @@ const CurrentInventory: React.FC = () => {
               <Select
                 options={SORT_OPTIONS}
                 value={sortBy}
-                onChange={(value) => setSortBy(value)}
+                onChange={(value) => setFilters((prev) => ({ ...prev, sortBy: value }))}
               />
             </div>
           </div>

@@ -20,16 +20,21 @@ public class CommentActions
         {
             var comments = _dbContext.Comments
                 .Where(c => c.DonationId == donationId)
-                .Select(entity => new CommentInfoDto
-                {
-                    Id = entity.Id,
-                    Text = entity.Text,
-                    UserId = entity.UserId,
-                    DonationId = entity.DonationId,
-                    ParentCommentId = entity.ParentCommentId,
-                    CreatedDate = entity.CreatedDate,
-                    UpdatedDate = entity.UpdatedDate
-                })
+                .Join(_dbContext.Users,
+                    c => c.UserId,
+                    u => u.Id,
+                    (c, u) => new CommentInfoDto
+                    {
+                        Id = c.Id,
+                        Text = c.Text,
+                        UserId = c.UserId,
+                        UserName = u.Name,
+                        UserAvatar = u.Avatar,
+                        DonationId = c.DonationId,
+                        ParentCommentId = c.ParentCommentId,
+                        CreatedDate = c.CreatedDate,
+                        UpdatedDate = c.UpdatedDate
+                    })
                 .ToList();
 
             return new ServiceResponse

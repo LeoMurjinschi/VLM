@@ -326,6 +326,47 @@ namespace VLM.DataAccessLayer.Migrations
                         });
                 });
 
+            modelBuilder.Entity("VLM.Domain.Entities.Document.UserDocumentEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("DocumentType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("FileData")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("UploadedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserDocuments");
+                });
+
             modelBuilder.Entity("VLM.Domain.Entities.Donation.DonationEntity", b =>
                 {
                     b.Property<int>("Id")
@@ -481,6 +522,41 @@ namespace VLM.DataAccessLayer.Migrations
                     b.HasIndex("SenderId");
 
                     b.ToTable("Messages");
+                });
+
+            modelBuilder.Entity("VLM.Domain.Entities.Milestone.MilestoneEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal>("CurrentAmount")
+                        .HasColumnType("numeric");
+
+                    b.Property<int>("DonorId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Reward")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("TargetAmount")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DonorId");
+
+                    b.ToTable("Milestones");
                 });
 
             modelBuilder.Entity("VLM.Domain.Entities.Notification.NotificationEntity", b =>
@@ -687,6 +763,7 @@ namespace VLM.DataAccessLayer.Migrations
                         });
                 });
 
+            modelBuilder.Entity("VLM.Domain.Entities.User.DonorProfileEntity", b =>
             modelBuilder.Entity("VLM.Domain.Entities.SystemSetting.SystemSettingEntity", b =>
                 {
                     b.Property<int>("Id")
@@ -695,10 +772,100 @@ namespace VLM.DataAccessLayer.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("CompanyName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("Location")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("OperatingHours")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("PickupLocationsJson")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("TransportType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("DonorProfiles");
+                });
+
+            modelBuilder.Entity("VLM.Domain.Entities.User.ReceiverProfileEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AcceptedCategories")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("HasIndustrialStorage")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Location")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("MissionStatement")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("OperatingRadius")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("OrgName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("TransportType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("ReceiverProfiles");
                     b.Property<string>("Key")
                         .IsRequired()
                         .HasColumnType("text");
@@ -1035,6 +1202,17 @@ namespace VLM.DataAccessLayer.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("VLM.Domain.Entities.Document.UserDocumentEntity", b =>
+                {
+                    b.HasOne("VLM.Domain.Entities.User.UserEntity", "User")
+                        .WithMany("Documents")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("VLM.Domain.Entities.Donation.DonationEntity", b =>
                 {
                     b.HasOne("VLM.Domain.Entities.User.UserEntity", "Donor")
@@ -1082,6 +1260,17 @@ namespace VLM.DataAccessLayer.Migrations
                     b.Navigation("Receiver");
 
                     b.Navigation("Sender");
+                });
+
+            modelBuilder.Entity("VLM.Domain.Entities.Milestone.MilestoneEntity", b =>
+                {
+                    b.HasOne("VLM.Domain.Entities.User.UserEntity", "Donor")
+                        .WithMany("Milestones")
+                        .HasForeignKey("DonorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Donor");
                 });
 
             modelBuilder.Entity("VLM.Domain.Entities.Notification.NotificationEntity", b =>
@@ -1151,6 +1340,26 @@ namespace VLM.DataAccessLayer.Migrations
                     b.Navigation("Receiver");
                 });
 
+            modelBuilder.Entity("VLM.Domain.Entities.User.DonorProfileEntity", b =>
+                {
+                    b.HasOne("VLM.Domain.Entities.User.UserEntity", "User")
+                        .WithOne("DonorProfile")
+                        .HasForeignKey("VLM.Domain.Entities.User.DonorProfileEntity", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("VLM.Domain.Entities.User.ReceiverProfileEntity", b =>
+                {
+                    b.HasOne("VLM.Domain.Entities.User.UserEntity", "User")
+                        .WithOne("ReceiverProfile")
+                        .HasForeignKey("VLM.Domain.Entities.User.ReceiverProfileEntity", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
             modelBuilder.Entity("VLM.Domain.Entities.SystemSetting.SystemSettingEntity", b =>
                 {
                     b.HasOne("VLM.Domain.Entities.User.UserEntity", "UpdatedBy")
@@ -1221,17 +1430,25 @@ namespace VLM.DataAccessLayer.Migrations
 
                     b.Navigation("Comments");
 
+                    b.Navigation("Documents");
+
                     b.Navigation("Donations");
+
+                    b.Navigation("DonorProfile");
 
                     b.Navigation("DonorReviews");
 
                     b.Navigation("Favorites");
+
+                    b.Navigation("Milestones");
 
                     b.Navigation("Notifications");
 
                     b.Navigation("Profile");
 
                     b.Navigation("ReceivedMessages");
+
+                    b.Navigation("ReceiverProfile");
 
                     b.Navigation("ReceiverReviews");
 
