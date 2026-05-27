@@ -36,11 +36,6 @@ public sealed class VlmDbContext : DbContext
     public DbSet<FavoriteEntity> Favorites { get; set; }
     public DbSet<ReportEntity> Reports { get; set; }
     public DbSet<MilestoneEntity> Milestones { get; set; }
-    public DbSet<CategoryEntity> Categories { get; set; }
-    public DbSet<FavoriteEntity> Favorites { get; set; }
-    public DbSet<ReportEntity> Reports { get; set; }
-    public DbSet<UserProfileEntity> UserProfiles { get; set; }
-    public DbSet<UserSettingsEntity> UserSettings { get; set; }
     public DbSet<AdminActionEntity> AdminActions { get; set; }
     public DbSet<AccountApprovalEntity> AccountApprovals { get; set; }
     public DbSet<AdminAnnouncementEntity> AdminAnnouncements { get; set; }
