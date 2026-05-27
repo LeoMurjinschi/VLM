@@ -21,8 +21,8 @@ export interface HistoryRecord {
 const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1488459716781-6f3ee109e5e4?auto=format&fit=crop&q=80&w=300&h=300';
 
 const mapStatus = (s: string): 'Completed' | 'Cancelled' | 'Expired' => {
-  if (s === 'completed') return 'Completed';
-  if (s === 'cancelled') return 'Cancelled';
+  if (s === 'completed' || s === 'Confirmed') return 'Completed';
+  if (s === 'cancelled' || s === 'Cancelled') return 'Cancelled';
   return 'Expired';
 };
 
@@ -32,6 +32,29 @@ const ReservationHistory: React.FC = () => {
   const [historyData, setHistoryData] = useState<HistoryRecord[]>([]);
 
   useEffect(() => {
+    if (!user?.id) return;
+    
+    reservationService.getAll()
+      .then((reservations) => {
+        const userReservations = reservations.filter(r => 
+            user.role === 'donor' ? r.donorId === Number(user.id) : r.userId === Number(user.id)
+        );
+
+        const mapped: HistoryRecord[] = userReservations.map(r => {
+          return {
+            id: String(r.id),
+            title: r.donationTitle ?? `Donation #${r.donationId}`,
+            donor: r.donorName ?? `Donor #${r.userId}`,
+            quantity: `${r.quantityReserved} ${r.donationUnit ?? 'units'}`,
+            pickupDate: new Date(r.createdDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+            status: mapStatus(r.status),
+            image: r.donationImage ?? DEFAULT_IMAGE,
+          };
+        });
+        setHistoryData(mapped);
+      })
+      .catch((err) => console.error("Failed to fetch reservation history", err));
+  }, [user?.id, user?.role]);
     if (!user) return;
     const userId = parseInt(user.id);
     reservationService.getByReceiver(userId)
@@ -68,7 +91,7 @@ const ReservationHistory: React.FC = () => {
       
       return matchesSearch && matchesStatus;
     });
-  }, [searchQuery, statusFilter, dateFilter]);
+  }, [searchQuery, statusFilter, dateFilter, historyData]);
 
   const totalPickups = historyData.filter(i => i.status === 'Completed').length;
   const foodSavedKg = historyData.filter(i => i.status === 'Completed').length * 5;

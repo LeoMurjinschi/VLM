@@ -41,12 +41,13 @@ const LoginPage = () => {
         avatar: user.avatar,
       });
 
+      // AICI ESTE MODIFICAREA: Redirecționare către pagina de profil
       if (role === 'admin') {
-        navigate('/admin/dashboard');
+        navigate('/admin/profile');
       } else if (role === 'donor') {
-        navigate('/donor/dashboard');
+        navigate('/donor/profile');
       } else {
-        navigate('/receiver/feed');
+        navigate('/receiver/profile');
       }
     } catch {
       setError('Invalid email or password. Please try again.');

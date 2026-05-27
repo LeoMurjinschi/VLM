@@ -1,22 +1,23 @@
 using System.Security.Cryptography;
 using System.Text;
 
-namespace VLM.BusinessLayer.Structure;
-
-public static class PasswordHasher
+namespace VLM.BusinessLayer.Structure
 {
-    private const string PasswordSuffix = "tw_curs2026";
-
-    public static string Hash(string password)
+    public static class PasswordHasher
     {
-        var input = password + PasswordSuffix;
-        var bytes = Encoding.UTF8.GetBytes(input);
-        var hashBytes = MD5.HashData(bytes);
+        public static string Hash(string password)
+        {
+            if (string.IsNullOrEmpty(password))
+            {
+                return string.Empty;
+            }
 
-        var sb = new StringBuilder();
-        foreach (var b in hashBytes)
-            sb.Append(b.ToString("x2"));
-
-        return sb.ToString();
+            using (var sha256 = SHA256.Create())
+            {
+                var bytes = Encoding.UTF8.GetBytes(password);
+                var hash = sha256.ComputeHash(bytes);
+                return Convert.ToBase64String(hash);
+            }
+        }
     }
 }

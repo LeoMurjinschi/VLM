@@ -1,6 +1,7 @@
 using VLM.DataAccessLayer.Context;
 using VLM.Domain.Entities.Donation;
 using VLM.Domain.Models.Donation;
+using VLM.Domain.Models.Notification; // Adăugat pentru a putea folosi DTO-ul de notificare
 using VLM.Domain.Models.Service;
 
 namespace VLM.BusinessLayer.Structure;
@@ -8,12 +9,75 @@ namespace VLM.BusinessLayer.Structure;
 public class DonationActions
 {
     private readonly VlmDbContext _dbContext;
+    private readonly NotificationActions _notificationActions; // Adăugat pentru a putea crea notificări
 
     public DonationActions()
     {
         _dbContext = new VlmDbContext();
+        _notificationActions = new NotificationActions(); // Inițializat
     }
 
+    public ServiceResponse CreateDonationAction(DonationCreateDto donationCreateDto)
+    {
+        try
+        {
+            var donationEntity = new DonationEntity
+            {
+                Title = donationCreateDto.Title,
+                Description = donationCreateDto.Description,
+                Quantity = donationCreateDto.Quantity,
+                Unit = donationCreateDto.Unit,
+                DonorId = donationCreateDto.DonorId,
+                Category = donationCreateDto.Category,
+                PickupLocation = donationCreateDto.PickupLocation,
+                ExpirationDate = donationCreateDto.ExpirationDate,
+                Image = donationCreateDto.Image,
+                Status = "Available",
+                CreatedDate = DateTime.UtcNow
+            };
+
+            _dbContext.Donations.Add(donationEntity);
+            _dbContext.SaveChanges();
+
+            // --- AICI ADAUG NOTIFICAREA PENTRU DONAȚII URGENTE ---
+            // Verificăm dacă donația este urgentă (expiră în mai puțin de 24 de ore)
+            if (donationCreateDto.ExpirationDate.HasValue && (donationCreateDto.ExpirationDate.Value - DateTime.UtcNow).TotalHours < 24)
+            {
+                // Găsim toți utilizatorii cu rolul de "receiver"
+                var receivers = _dbContext.Users.Where(u => u.Role == "receiver").ToList();
+
+                foreach (var receiver in receivers)
+                {
+                    _notificationActions.CreateNotificationAction(new NotificationCreateDto
+                    {
+                        UserId = receiver.Id,
+                        Title = "Urgent Donation Available!",
+                        Description = $"A new urgent donation '{donationCreateDto.Title}' has been listed.",
+                        Type = "urgent_donation",
+                        Link = $"/receiver/stock/{donationEntity.Id}" // Link direct către donație
+                    });
+                }
+            }
+            // ----------------------------------------------------
+
+            return new ServiceResponse
+            {
+                IsSuccess = true,
+                Message = "Donation created successfully"
+            };
+        }
+        catch (Exception e)
+        {
+            return new ServiceResponse
+            {
+                IsSuccess = false,
+                Message = $"Error creating donation: {e.Message}"
+            };
+        }
+    }
+
+    // ... (restul metodelor rămân neschimbate)
+    public ServiceResponse GetDonationsByDonorIdAction(int donorId)
     private const decimal LowStockThreshold = 5;
 
     public ServiceResponse GetDonationsByDonorIdAction(
@@ -85,44 +149,6 @@ public class DonationActions
             {
                 IsSuccess = false,
                 Message = $"Error retrieving donations: {e.Message}"
-            };
-        }
-    }
-
-    public ServiceResponse CreateDonationAction(DonationCreateDto donationCreateDto)
-    {
-        try
-        {
-            var donationEntity = new DonationEntity
-            {
-                Title = donationCreateDto.Title,
-                Description = donationCreateDto.Description,
-                Quantity = donationCreateDto.Quantity,
-                Unit = donationCreateDto.Unit,
-                DonorId = donationCreateDto.DonorId,
-                Category = donationCreateDto.Category,
-                PickupLocation = donationCreateDto.PickupLocation,
-                ExpirationDate = donationCreateDto.ExpirationDate,
-                Image = donationCreateDto.Image,
-                Status = "Available",
-                CreatedDate = DateTime.UtcNow
-            };
-
-            _dbContext.Donations.Add(donationEntity);
-            _dbContext.SaveChanges();
-
-            return new ServiceResponse
-            {
-                IsSuccess = true,
-                Message = "Donation created successfully"
-            };
-        }
-        catch (Exception e)
-        {
-            return new ServiceResponse
-            {
-                IsSuccess = false,
-                Message = $"Error creating donation: {e.Message}"
             };
         }
     }

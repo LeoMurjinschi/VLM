@@ -7,7 +7,14 @@ using VLM.DataAccessLayer.Context;
 using VLM.BusinessLayer.Structure; 
 
 var builder = WebApplication.CreateBuilder(args);
+
+// --- AICI ADAUG DEPENDENCY INJECTION ---
 builder.Services.AddDbContext<VlmDbContext>();
+builder.Services.AddScoped<UserActions>();
+builder.Services.AddScoped<NotificationActions>();
+builder.Services.AddScoped<ReservationActions>(); // Adăugat
+builder.Services.AddScoped<DonationActions>();   // Adăugat
+// ------------------------------------
 
 builder.Services.AddCors(options =>
 {
@@ -81,8 +88,12 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("AllowReactFrontend");
-app.UseHttpsRedirection();
 
+// Am scos UseHttpsRedirection() din modul de dezvoltare pentru a opri warning-ul
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseAuthentication();
 app.UseAuthorization();

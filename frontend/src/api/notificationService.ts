@@ -1,45 +1,24 @@
 import axiosInstance from './axiosProvider';
+import type { NotificationInfoDto } from './types'; // Modificat pentru a importa din types.ts
 
-// ── Types ─────────────────────────────────────────────────────────────────────
-export interface NotificationCreateDto {
-  userId: number;
-  title: string;
-  description: string;
-  type: string;
-  link: string;
-}
-
-export interface NotificationInfoDto {
-  id: number;
-  userId: number;
-  title: string;
-  description: string;
-  type: string;
-  link: string;
-  isRead: boolean;
-  createdDate: string;
+interface UnreadCountResponse {
+  count: number;
 }
 
 // ── Service ───────────────────────────────────────────────────────────────────
 export const notificationService = {
 
   getByUser: async (userId: number): Promise<NotificationInfoDto[]> => {
-    const response = await axiosInstance.get<NotificationInfoDto[]>(`/notifications/by-user/${userId}`);
+    const response = await axiosInstance.get<NotificationInfoDto[]>(`/notifications/${userId}`);
     return response.data;
   },
 
-  create: async (notification: NotificationCreateDto): Promise<string> => {
-    const response = await axiosInstance.post<string>('/notifications/create', notification);
-    return response.data;
+  getUnreadCount: async (userId: number): Promise<number> => {
+    const response = await axiosInstance.get<UnreadCountResponse>(`/notifications/unread-count/${userId}`);
+    return response.data.count;
   },
 
-  markAsRead: async (id: number): Promise<string> => {
-    const response = await axiosInstance.put<string>(`/notifications/read/${id}`);
-    return response.data;
-  },
-
-  delete: async (id: number): Promise<string> => {
-    const response = await axiosInstance.delete<string>(`/notifications/delete/${id}`);
-    return response.data;
+  markAsRead: async (id: number): Promise<void> => {
+    await axiosInstance.post(`/notifications/${id}/mark-as-read`);
   },
 };

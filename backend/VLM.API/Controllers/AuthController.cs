@@ -10,22 +10,36 @@ public class AuthController : ControllerBase
 {
     private readonly UserActions _userActions;
 
-    public AuthController()
+    // AICI ESTE SCHIMBAREA: Injectăm UserActions
+    public AuthController(UserActions userActions)
     {
-        
-        _userActions = new UserActions();
+        _userActions = userActions;
     }
 
     [HttpPost("login")]
     public IActionResult Login([FromBody] UserLoginDto loginDto)
     {
-        
-        var result = _userActions.LoginAction(loginDto);
+        var userAgent = Request.Headers["User-Agent"].ToString();
+        var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
 
-        
+        var result = _userActions.LoginAction(loginDto, userAgent, ipAddress);
+
         if (!result.IsSuccess)
-            return Unauthorized(result.Message);
+            return Unauthorized(new { message = result.Message }); // Returnăm un obiect pentru consistență
 
         return Ok(result.Data);
+    }
+
+    [HttpPost("register")]
+    public IActionResult Register([FromBody] UserCreateDto userCreateDto)
+    {
+        var result = _userActions.CreateUserAction(userCreateDto);
+
+        if (!result.IsSuccess)
+        {
+            return BadRequest(new { message = result.Message });
+        }
+
+        return StatusCode(201, new { message = result.Message });
     }
 }
