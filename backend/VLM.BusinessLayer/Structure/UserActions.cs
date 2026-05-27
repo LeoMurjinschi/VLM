@@ -2,18 +2,99 @@ using VLM.DataAccessLayer.Context;
 using VLM.Domain.Entities.User;
 using VLM.Domain.Models.Service;
 using VLM.Domain.Models.User;
+using VLM.Domain.Models.Notification; // Adăugat pentru a putea folosi DTO-ul de notificare
+using System.Linq; // Pentru FirstOrDefault
 
 namespace VLM.BusinessLayer.Structure;
 
 public class UserActions
 {
     private readonly VlmDbContext _dbContext;
+    private readonly NotificationActions _notificationActions;
 
+    // AICI ESTE SCHIMBAREA CHEIE: Injectăm VlmDbContext și NotificationActions
+    public UserActions(VlmDbContext dbContext, NotificationActions notificationActions)
+    {
+        _dbContext = dbContext;
+        _notificationActions = notificationActions;
+    }
+
+    // Constructor fără parametri păstrat pentru compatibilitate inversă în alte părți ale codului (deocamdată)
+    // În mod ideal, toate locurile unde se folosește 'new UserActions()' ar trebui refăcute.
     public UserActions()
     {
         _dbContext = new VlmDbContext();
+        _notificationActions = new NotificationActions(_dbContext); 
     }
 
+    public ServiceResponse LoginAction(UserLoginDto loginDto, string userAgent, string ipAddress)
+    {
+        try
+        {
+            var user = _dbContext.Users.FirstOrDefault(x => x.Email == loginDto.Email);
+
+            if (user == null || user.PasswordHash != PasswordHasher.Hash(loginDto.Password))
+            {
+                return new ServiceResponse
+                {
+                    IsSuccess = false,
+                    Message = "Email or password not matching."
+                };
+            }
+            
+            if (!user.IsActive)
+            {
+                return new ServiceResponse { IsSuccess = false, Message = "Inactive account." };
+            }
+
+            // --- AICI ADAUG NOTIFICAREA DE LOGIN CU DETALII ---
+            string device = "an unknown device";
+            if (!string.IsNullOrEmpty(userAgent))
+            {
+                if (userAgent.Contains("Chrome")) device = "Chrome";
+                else if (userAgent.Contains("Firefox")) device = "Firefox";
+                else if (userAgent.Contains("Safari")) device = "Safari";
+                else if (userAgent.Contains("Edg")) device = "Edge";
+                else device = "a browser";
+            }
+
+            _notificationActions.CreateNotificationAction(new NotificationCreateDto
+            {
+                UserId = user.Id,
+                Title = "Successful Login",
+                Description = $"We detected a new login from {device} at IP: {ipAddress ?? "unknown"}.",
+                Type = "security", 
+                Link = $"/{user.Role.ToString().ToLower()}/profile"
+            });
+            // -----------------------------------------
+
+            var tokenService = new TokenService();
+            var token = tokenService.GenerateToken(user.Id, user.Name, user.Role.ToString());
+
+            return new ServiceResponse
+            {
+                IsSuccess = true,
+                Data = new
+                {
+                    id = user.Id,
+                    name = user.Name,
+                    email = user.Email,
+                    role = user.Role,
+                    avatar = user.Avatar,
+                    token = token
+                }
+            };
+        }
+        catch (Exception e)
+        {
+            return new ServiceResponse
+            {
+                IsSuccess = false,
+                Message = $"Error logging in: {e.Message}"
+            };
+        }
+    }
+    
     public ServiceResponse GetUserListAction()
     {
         try
@@ -232,48 +313,6 @@ public class UserActions
             {
                 IsSuccess = false,
                 Message = $"Error deleting user: {e.Message}"
-            };
-        }
-    }
-
-    public ServiceResponse LoginAction(UserLoginDto loginDto)
-    {
-        try
-        {
-            // Corectat: am adăugat "== loginDto.Email"
-            var passwordHash = PasswordHasher.Hash(loginDto.Password);
-            var user = _dbContext.Users.FirstOrDefault(x => x.Email == loginDto.Email && x.PasswordHash == passwordHash);
-            
-            if (!user.IsActive)
-            {
-                return new ServiceResponse { IsSuccess = false, Message = "Inactive account." };
-            }
-
-            var tokenService = new TokenService();
-
-            // Corectat: Am șters punctul din fața parantezei
-            var token = tokenService.GenerateToken(user.Id, user.Name, user.Role.ToString());
-
-            return new ServiceResponse
-            {
-                IsSuccess = true,
-                Data = new
-                {
-                    id = user.Id,
-                    name = user.Name,
-                    email = user.Email,
-                    role = user.Role,
-                    avatar = user.Avatar,
-                    token = token
-                }
-            };
-        } // Corectat: Paranteza care închidea blocul 'try' lipsea
-        catch (Exception e)
-        {
-            return new ServiceResponse
-            {
-                IsSuccess = false,
-                Message = $"Error logging in: {e.Message}"
             };
         }
     }
