@@ -6,6 +6,7 @@ using VLM.Domain.Entities.Document;
 using VLM.Domain.Entities.Donation;
 using VLM.Domain.Entities.Favorite;
 using VLM.Domain.Entities.Message;
+using VLM.Domain.Entities.Milestone;
 using VLM.Domain.Entities.Notification;
 using VLM.Domain.Entities.Report;
 using VLM.Domain.Entities.Reservation;
@@ -32,6 +33,7 @@ public sealed class VlmDbContext : DbContext
     public DbSet<CategoryEntity> Categories { get; set; }
     public DbSet<FavoriteEntity> Favorites { get; set; }
     public DbSet<ReportEntity> Reports { get; set; }
+    public DbSet<MilestoneEntity> Milestones { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 {
@@ -180,6 +182,12 @@ public sealed class VlmDbContext : DbContext
             .HasForeignKey(r => r.DonationId)
             .IsRequired(false)
             .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<MilestoneEntity>()
+            .HasOne(m => m.Donor)
+            .WithMany(u => u.Milestones)
+            .HasForeignKey(m => m.DonorId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<UserEntity>().HasData(
             new UserEntity

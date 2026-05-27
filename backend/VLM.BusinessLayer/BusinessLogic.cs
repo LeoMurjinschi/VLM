@@ -36,4 +36,8 @@ public class BusinessLogic
     public IFavoriteLogic GetFavoriteLogic() => new FavoriteLogic();
 
     public IReportLogic GetReportLogic() => new ReportLogic();
+
+    public IMilestoneLogic GetMilestoneLogic() => new MilestoneLogic();
+
+    public IDashboardLogic GetDashboardLogic() => new DashboardLogic();
 }

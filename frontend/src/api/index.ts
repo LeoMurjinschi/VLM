@@ -14,6 +14,8 @@ export { settingsService } from './settingsService';
 export { donorProfileService } from './donorProfileService';
 export { receiverProfileService } from './receiverProfileService';
 export { documentService } from './documentService';
+export { milestoneService } from './milestoneService';
+export { dashboardApiService } from './dashboardApiService';
 
 // Re-export types
 export type { DonationCreateDto, DonationInfoDto } from './donationService';
@@ -28,3 +30,5 @@ export type { UserSettingsDto } from './settingsService';
 export type { DonorProfileDto, PickupLocation } from './donorProfileService';
 export type { ReceiverProfileDto } from './receiverProfileService';
 export type { UserDocumentInfoDto, UserDocumentCreateDto } from './documentService';
+export type { MilestoneCreateDto, MilestoneUpdateDto, MilestoneInfoDto } from './milestoneService';
+export type { DonorDashboardStatsDto, ChartPointDto, ActivityItemDto } from './dashboardApiService';
