@@ -7,6 +7,11 @@ namespace VLM.BusinessLayer.Core;
 
 public class ReviewLogic : ReviewActions, IReviewLogic
 {
+    public ServiceResponse GetAllReviews()
+    {
+        return GetAllReviewsAction();
+    }
+
     public ServiceResponse GetReviewsByDonor(int donorId)
     {
         return GetReviewsByDonorAction(donorId);

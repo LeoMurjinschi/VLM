@@ -1,3 +1,4 @@
+using VLM.Domain.Models.Admin;
 using VLM.Domain.Models.Service;
 using VLM.Domain.Models.User;
 
@@ -12,7 +13,7 @@ public interface IUserLogic
     ServiceResponse UpdateUserInfo(int id, UserInfoUpdateDto dto);
     ServiceResponse ChangePassword(int id, ChangePasswordDto dto);
     ServiceResponse DeleteUser(int id);
-    ServiceResponse DeleteUser(int id);
+    ServiceResponse ToggleUserActive(int id);
     ServiceResponse GetPendingUsers();
     ServiceResponse ApproveUser(int userId, AccountApprovalDecisionDto decisionDto);
     ServiceResponse RejectUser(int userId, AccountApprovalDecisionDto decisionDto);

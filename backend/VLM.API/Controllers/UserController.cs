@@ -75,6 +75,16 @@ public class UserController : ControllerBase
         return Ok(result.Message);
     }
 
+    [HttpPut("toggle-active/{id}")]
+    [Authorize(Roles = "admin")]
+    public IActionResult ToggleUserActive([FromRoute] int id)
+    {
+        var result = _userLogic.ToggleUserActive(id);
+        if (!result.IsSuccess)
+            return NotFound(result.Message);
+        return Ok(result.Data);
+    }
+
     [HttpDelete("delete/{id}")]
     [Authorize(Roles = "admin")]
     public IActionResult DeleteUser([FromRoute] int id)

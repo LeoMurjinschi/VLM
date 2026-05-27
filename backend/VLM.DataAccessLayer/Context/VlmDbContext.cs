@@ -29,6 +29,7 @@ public sealed class VlmDbContext : DbContext
     public DbSet<FavoriteEntity> Favorites { get; set; }
     public DbSet<ReportEntity> Reports { get; set; }
     public DbSet<UserProfileEntity> UserProfiles { get; set; }
+    public DbSet<UserSettingsEntity> UserSettings { get; set; }
     public DbSet<AdminActionEntity> AdminActions { get; set; }
     public DbSet<AccountApprovalEntity> AccountApprovals { get; set; }
     public DbSet<AdminAnnouncementEntity> AdminAnnouncements { get; set; }
@@ -38,7 +39,7 @@ public sealed class VlmDbContext : DbContext
     {
         if (!optionsBuilder.IsConfigured)
         {
-            optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=onlinevlm;Username=postgres;Password=maranda123;");
+            optionsBuilder.UseNpgsql("Host=localhost;Port=5433;Database=onlinevlm;Username=postgres;Password=maranda123;");
         }
     }
 

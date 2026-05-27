@@ -1,3 +1,6 @@
+using VLM.Domain.Entities.AccountApproval;
+using VLM.Domain.Entities.AdminAction;
+using VLM.Domain.Entities.AdminAnnouncement;
 using VLM.Domain.Entities.Comment;
 using VLM.Domain.Entities.Donation;
 using VLM.Domain.Entities.Favorite;
@@ -6,6 +9,7 @@ using VLM.Domain.Entities.Notification;
 using VLM.Domain.Entities.Report;
 using VLM.Domain.Entities.Reservation;
 using VLM.Domain.Entities.Review;
+using VLM.Domain.Entities.SystemSetting;
 
 namespace VLM.Domain.Entities.User;
 

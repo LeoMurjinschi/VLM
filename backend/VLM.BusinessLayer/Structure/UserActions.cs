@@ -3,6 +3,7 @@ using VLM.Domain.Entities.AccountApproval;
 using VLM.Domain.Entities.AdminAction;
 using VLM.Domain.Entities.User;
 using VLM.Domain.Models.Admin;
+using VLM.Domain.Models.Auth;
 using VLM.Domain.Models.Service;
 using VLM.Domain.Models.User;
 
@@ -15,6 +16,41 @@ public class UserActions
     public UserActions()
     {
         _dbContext = new VlmDbContext();
+    }
+
+    public ServiceResponse LoginAction(UserLoginDto loginDto)
+    {
+        try
+        {
+            var hash = PasswordHasher.Hash(loginDto.Password);
+            var entity = _dbContext.Users.FirstOrDefault(u => u.Email == loginDto.Email && u.PasswordHash == hash);
+
+            if (entity == null)
+                return new ServiceResponse { IsSuccess = false, Message = "Invalid email or password" };
+
+            if (!entity.IsActive)
+                return new ServiceResponse { IsSuccess = false, Message = "Account is inactive" };
+
+            var token = new TokenService().GenerateToken(entity.Id, entity.Name, entity.Role);
+
+            return new ServiceResponse
+            {
+                IsSuccess = true,
+                Data = new LoginResponseDto
+                {
+                    Id = entity.Id,
+                    Name = entity.Name,
+                    Email = entity.Email,
+                    Role = entity.Role,
+                    Avatar = entity.Avatar,
+                    Token = token
+                }
+            };
+        }
+        catch (Exception e)
+        {
+            return new ServiceResponse { IsSuccess = false, Message = $"Login error: {e.Message}" };
+        }
     }
 
     public ServiceResponse GetUserListAction()
@@ -186,6 +222,49 @@ public class UserActions
         }
     }
 
+    public ServiceResponse UpdateUserInfoAction(int id, UserInfoUpdateDto dto)
+    {
+        try
+        {
+            var entity = _dbContext.Users.Find(id);
+            if (entity == null)
+                return new ServiceResponse { IsSuccess = false, Message = "User not found" };
+
+            entity.Name = dto.Name;
+            entity.Email = dto.Email;
+            entity.Avatar = dto.Avatar;
+            _dbContext.SaveChanges();
+
+            return new ServiceResponse { IsSuccess = true, Message = "User info updated successfully" };
+        }
+        catch (Exception e)
+        {
+            return new ServiceResponse { IsSuccess = false, Message = $"Error updating user info: {e.Message}" };
+        }
+    }
+
+    public ServiceResponse ChangePasswordAction(int id, ChangePasswordDto dto)
+    {
+        try
+        {
+            var entity = _dbContext.Users.Find(id);
+            if (entity == null)
+                return new ServiceResponse { IsSuccess = false, Message = "User not found" };
+
+            if (entity.PasswordHash != dto.OldPassword)
+                return new ServiceResponse { IsSuccess = false, Message = "Current password is incorrect" };
+
+            entity.PasswordHash = dto.NewPassword;
+            _dbContext.SaveChanges();
+
+            return new ServiceResponse { IsSuccess = true, Message = "Password changed successfully" };
+        }
+        catch (Exception e)
+        {
+            return new ServiceResponse { IsSuccess = false, Message = $"Error changing password: {e.Message}" };
+        }
+    }
+
     public ServiceResponse GetPendingUsersAction()
     {
         try
@@ -350,6 +429,30 @@ public class UserActions
                 IsSuccess = false,
                 Message = $"Error rejecting user: {e.Message}"
             };
+        }
+    }
+
+    public ServiceResponse ToggleUserActiveAction(int id)
+    {
+        try
+        {
+            var entity = _dbContext.Users.Find(id);
+            if (entity == null)
+                return new ServiceResponse { IsSuccess = false, Message = "User not found" };
+
+            entity.IsActive = !entity.IsActive;
+            _dbContext.SaveChanges();
+
+            return new ServiceResponse
+            {
+                IsSuccess = true,
+                Message = entity.IsActive ? "User reactivated successfully" : "User deactivated successfully",
+                Data = entity.IsActive
+            };
+        }
+        catch (Exception e)
+        {
+            return new ServiceResponse { IsSuccess = false, Message = $"Error toggling user active: {e.Message}" };
         }
     }
 

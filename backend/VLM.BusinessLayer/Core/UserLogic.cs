@@ -1,5 +1,6 @@
 using VLM.BusinessLayer.Interface;
 using VLM.BusinessLayer.Structure;
+using VLM.Domain.Models.Admin;
 using VLM.Domain.Models.Service;
 using VLM.Domain.Models.User;
 
@@ -41,7 +42,12 @@ public class UserLogic : UserActions, IUserLogic
     {
         return DeleteUserAction(id);
     }
-    
+
+    public ServiceResponse ToggleUserActive(int id)
+    {
+        return ToggleUserActiveAction(id);
+    }
+
     public ServiceResponse GetPendingUsers()
     {
         return GetPendingUsersAction();
