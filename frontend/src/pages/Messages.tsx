@@ -50,6 +50,21 @@ const Messages: React.FC = () => {
               name: openWith.name,
               role: openWith.role || 'User',
               initials: openWith.name.substring(0, 2).toUpperCase(),
+    const target = location.state?.openChatWith;
+
+    messageService.getContacts(currentUserId)
+      .then(data => {
+        if (target) {
+          const existing = data.find(c => c.id === target.id || c.name === target.name);
+          if (existing) {
+            setContacts(data);
+            setActiveChatId(existing.id);
+          } else {
+            const newContact: Contact = {
+              id: target.id,
+              name: target.name,
+              role: target.role || 'User',
+              initials: target.name.substring(0, 2).toUpperCase(),
               lastMessage: '',
               time: 'Just now',
               unread: 0,
@@ -66,6 +81,18 @@ const Messages: React.FC = () => {
         if (activeId) setActiveChatId(activeId);
       })
       .catch(err => console.error('Failed to load contacts', err));
+            setContacts([newContact, ...data]);
+            setActiveChatId(target.id);
+          }
+          setIsMobileListVisible(false);
+        } else {
+          setContacts(data);
+          if (data.length > 0) {
+            setActiveChatId(data[0].id);
+          }
+        }
+      })
+      .catch(err => console.error("Failed to load contacts", err));
   }, [currentUserId]);
 
   // Load real messages when active contact changes

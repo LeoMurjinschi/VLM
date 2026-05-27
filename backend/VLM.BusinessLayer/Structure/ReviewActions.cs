@@ -14,6 +14,31 @@ public class ReviewActions
         _dbContext = new VlmDbContext();
     }
 
+    public ServiceResponse GetAllReviewsAction()
+    {
+        try
+        {
+            var reviews = _dbContext.Reviews
+                .Select(entity => new ReviewInfoDto
+                {
+                    Id = entity.Id,
+                    DonorId = entity.DonorId,
+                    ReceiverId = entity.ReceiverId,
+                    Rating = entity.Rating,
+                    Text = entity.Text,
+                    Status = entity.Status,
+                    CreatedDate = entity.CreatedDate
+                })
+                .ToList();
+
+            return new ServiceResponse { IsSuccess = true, Data = reviews };
+        }
+        catch (Exception e)
+        {
+            return new ServiceResponse { IsSuccess = false, Message = $"Error retrieving reviews: {e.Message}" };
+        }
+    }
+
     public ServiceResponse GetReviewsByDonorAction(int donorId)
     {
         try

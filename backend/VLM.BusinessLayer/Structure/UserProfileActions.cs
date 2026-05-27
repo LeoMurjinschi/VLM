@@ -37,7 +37,8 @@ public class UserProfileActions
                 TransportType = entity.TransportType,
                 HasIndustrialStorage = entity.HasIndustrialStorage,
                 Location = entity.Location,
-                Verified = entity.Verified
+                Verified = entity.Verified,
+                VerificationDocument = entity.VerificationDocument
             };
 
             return new ServiceResponse { IsSuccess = true, Data = dto };

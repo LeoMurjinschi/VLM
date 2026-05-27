@@ -40,4 +40,11 @@ public class BusinessLogic
     public IMilestoneLogic GetMilestoneLogic() => new MilestoneLogic();
 
     public IDashboardLogic GetDashboardLogic() => new DashboardLogic();
+    public IAdminActionLogic GetAdminActionLogic() => new AdminActionLogic();
+
+    public IAccountApprovalLogic GetAccountApprovalLogic() => new AccountApprovalLogic();
+
+    public IAdminAnnouncementLogic GetAdminAnnouncementLogic() => new AdminAnnouncementLogic();
+
+    public ISystemSettingLogic GetSystemSettingLogic() => new SystemSettingLogic();
 }

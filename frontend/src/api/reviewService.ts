@@ -21,6 +21,11 @@ export interface ReviewInfoDto {
 // ── Service ───────────────────────────────────────────────────────────────────
 export const reviewService = {
 
+  getAll: async (): Promise<ReviewInfoDto[]> => {
+    const response = await axiosInstance.get<ReviewInfoDto[]>('/reviews/list');
+    return response.data;
+  },
+
   getByDonor: async (donorId: number): Promise<ReviewInfoDto[]> => {
     const response = await axiosInstance.get<ReviewInfoDto[]>(`/reviews/by-donor/${donorId}`);
     return response.data;

@@ -15,6 +15,7 @@ export interface UserProfileDto {
   hasIndustrialStorage: boolean;
   location?: string;
   verified: boolean;
+  verificationDocument?: string;
 }
 
 // ── Service ───────────────────────────────────────────────────────────────────

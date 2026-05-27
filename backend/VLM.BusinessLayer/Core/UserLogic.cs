@@ -1,5 +1,6 @@
 using VLM.BusinessLayer.Interface;
 using VLM.BusinessLayer.Structure;
+using VLM.Domain.Models.Admin;
 using VLM.Domain.Models.Service;
 using VLM.Domain.Models.User;
 
@@ -40,6 +41,26 @@ public class UserLogic : UserActions, IUserLogic
     public ServiceResponse DeleteUser(int id)
     {
         return DeleteUserAction(id);
+    }
+
+    public ServiceResponse ToggleUserActive(int id)
+    {
+        return ToggleUserActiveAction(id);
+    }
+
+    public ServiceResponse GetPendingUsers()
+    {
+        return GetPendingUsersAction();
+    }
+
+    public ServiceResponse ApproveUser(int userId, AccountApprovalDecisionDto decisionDto)
+    {
+        return ApproveUserAction(userId, decisionDto);
+    }
+
+    public ServiceResponse RejectUser(int userId, AccountApprovalDecisionDto decisionDto)
+    {
+        return RejectUserAction(userId, decisionDto);
     }
 }
 

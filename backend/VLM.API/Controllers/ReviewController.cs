@@ -19,6 +19,16 @@ public class ReviewController : ControllerBase
         _reviewLogic = businessLogic.GetReviewLogic();
     }
 
+    [HttpGet("list")]
+    [Authorize(Roles = "admin")]
+    public IActionResult GetAllReviews()
+    {
+        var result = _reviewLogic.GetAllReviews();
+        if (!result.IsSuccess)
+            return BadRequest(result.Message);
+        return Ok(result.Data);
+    }
+
     [HttpGet("by-donor/{donorId}")]
     public IActionResult GetReviewsByDonor([FromRoute] int donorId)
     {

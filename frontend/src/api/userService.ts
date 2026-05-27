@@ -8,6 +8,10 @@ export interface UserCreateDto {
   role: string;
   bio: string;
   avatar?: string;
+  orgName?: string;
+  address?: string;
+  fiscalCode?: string;
+  verificationDocument?: string;
 }
 
 export interface UserInfoUpdateDto {
@@ -25,6 +29,10 @@ export interface UserInfoDto {
   avatar?: string;
   isActive: boolean;
   createdDate: string;
+  approvalStatus: string;
+  approvedById?: number;
+  approvedAt?: string;
+  rejectionReason?: string;
 }
 
 // ── Service ───────────────────────────────────────────────────────────────────
@@ -57,6 +65,11 @@ export const userService = {
 
   changePassword: async (id: number, oldPassword: string, newPassword: string): Promise<string> => {
     const response = await axiosInstance.put<string>(`/users/change-password/${id}`, { oldPassword, newPassword });
+    return response.data;
+  },
+
+  toggleActive: async (id: number): Promise<boolean> => {
+    const response = await axiosInstance.put<boolean>(`/users/toggle-active/${id}`);
     return response.data;
   },
 

@@ -16,6 +16,11 @@ export { receiverProfileService } from './receiverProfileService';
 export { documentService } from './documentService';
 export { milestoneService } from './milestoneService';
 export { dashboardApiService } from './dashboardApiService';
+export { adminService } from './adminService';
+export { adminActionService } from './adminActionService';
+export { adminAnnouncementService } from './adminAnnouncementService';
+export { accountApprovalService } from './accountApprovalService';
+export { systemSettingService } from './systemSettingService';
 
 // Re-export types
 export type { DonationCreateDto, DonationInfoDto } from './donationService';
@@ -32,3 +37,8 @@ export type { ReceiverProfileDto } from './receiverProfileService';
 export type { UserDocumentInfoDto, UserDocumentCreateDto } from './documentService';
 export type { MilestoneCreateDto, MilestoneUpdateDto, MilestoneInfoDto } from './milestoneService';
 export type { DonorDashboardStatsDto, ChartPointDto, ActivityItemDto } from './dashboardApiService';
+export type { AccountApprovalDecisionDto } from './adminService';
+export type { AdminActionInfoDto, AdminActionCreateDto } from './adminActionService';
+export type { AdminAnnouncementInfoDto, AdminAnnouncementCreateDto } from './adminAnnouncementService';
+export type { AccountApprovalInfoDto, AccountApprovalCreateDto } from './accountApprovalService';
+export type { SystemSettingInfoDto, SystemSettingCreateDto } from './systemSettingService';

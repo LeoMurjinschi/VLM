@@ -1,3 +1,6 @@
+using VLM.Domain.Entities.AccountApproval;
+using VLM.Domain.Entities.AdminAction;
+using VLM.Domain.Entities.AdminAnnouncement;
 using VLM.Domain.Entities.Comment;
 using VLM.Domain.Entities.Document;
 using VLM.Domain.Entities.Donation;
@@ -8,6 +11,7 @@ using VLM.Domain.Entities.Notification;
 using VLM.Domain.Entities.Report;
 using VLM.Domain.Entities.Reservation;
 using VLM.Domain.Entities.Review;
+using VLM.Domain.Entities.SystemSetting;
 
 namespace VLM.Domain.Entities.User;
 
@@ -22,6 +26,11 @@ public class UserEntity
     public string? Avatar { get; set; }
     public bool IsActive { get; set; } = true;
     public DateTime CreatedDate { get; set; }
+    
+    public string ApprovalStatus { get; set; } = "pending";
+    public int? ApprovedById { get; set; }
+    public DateTime? ApprovedAt { get; set; }
+    public string? RejectionReason { get; set; }
 
     // Navigation properties
     public ICollection<DonationEntity> Donations { get; set; } = new List<DonationEntity>();
@@ -40,4 +49,11 @@ public class UserEntity
     public ICollection<FavoriteEntity> Favorites { get; set; } = new List<FavoriteEntity>();
     public ICollection<ReportEntity> Reports { get; set; } = new List<ReportEntity>();
     public ICollection<MilestoneEntity> Milestones { get; set; } = new List<MilestoneEntity>();
+    
+    public UserEntity? ApprovedBy { get; set; }
+    public ICollection<AccountApprovalEntity> ApprovalsReceived { get; set; } = new List<AccountApprovalEntity>();
+    public ICollection<AccountApprovalEntity> ApprovalsDecided { get; set; } = new List<AccountApprovalEntity>();
+    public ICollection<AdminActionEntity> AdminActions { get; set; } = new List<AdminActionEntity>();
+    public ICollection<AdminAnnouncementEntity> Announcements { get; set; } = new List<AdminAnnouncementEntity>();
+    public ICollection<SystemSettingEntity> SettingsUpdated { get; set; } = new List<SystemSettingEntity>();
 }
