@@ -76,8 +76,6 @@ public class DonationActions
         }
     }
 
-    // ... (restul metodelor rămân neschimbate)
-    public ServiceResponse GetDonationsByDonorIdAction(int donorId)
     private const decimal LowStockThreshold = 5;
 
     public ServiceResponse GetDonationsByDonorIdAction(

@@ -28,8 +28,6 @@ public class ReservationActions
         UserId = entity.UserId,
         DonationId = entity.DonationId,
         QuantityReserved = entity.QuantityReserved,
-        // QuantityPickedUpByReceiver = entity.QuantityPickedUpByReceiver, // Comentat
-        // QuantityConfirmed = entity.QuantityConfirmed, // Comentat
         Status = entity.Status,
         Notes = entity.Notes,
         CreatedDate = entity.CreatedDate,
@@ -37,8 +35,6 @@ public class ReservationActions
         DonorConfirmedAt = entity.DonorConfirmedAt,
         ReceiverConfirmedAt = entity.ReceiverConfirmedAt,
         CompletedAt = entity.CompletedAt,
-        // CancelledAt = entity.CancelledAt, // Comentat
-        // CancelledBy = entity.CancelledBy, // Comentat
         DonationTitle = entity.Donation?.Title ?? string.Empty,
         DonationImage = entity.Donation?.Image,
         DonationCategory = entity.Donation?.Category ?? string.Empty,
@@ -184,41 +180,6 @@ public class ReservationActions
 
             entity.Status = dto.Status;
             entity.UpdatedDate = DateTime.UtcNow;
-
-            // Logica pentru coloanele lipsă a fost comentată
-            /*
-            switch (dto.Status)
-            {
-                case "donor_confirmed":
-                    entity.DonorConfirmedAt = DateTime.UtcNow;
-                    break;
-                case "receiver_confirmed":
-                    entity.ReceiverConfirmedAt = DateTime.UtcNow;
-                    // entity.QuantityPickedUpByReceiver = dto.QuantityPickedUpByReceiver;
-                    break;
-                case "completed":
-                    entity.CompletedAt = DateTime.UtcNow;
-                    // entity.QuantityConfirmed = dto.QuantityConfirmed;
-                    // if (dto.QuantityConfirmed.HasValue)
-                    // {
-                    //     var diff = entity.QuantityReserved - dto.QuantityConfirmed.Value;
-                    //     if (diff > 0)
-                    //     {
-                    //         var donation = _dbContext.Donations.Find(entity.DonationId);
-                    //         if (donation != null && (donation.ExpirationDate == null || donation.ExpirationDate > DateTime.UtcNow))
-                    //             donation.Quantity += diff;
-                    //     }
-                    // }
-                    break;
-                case "cancelled":
-                    // entity.CancelledAt = DateTime.UtcNow;
-                    // entity.CancelledBy = dto.CancelledBy;
-                    var cancelledDonation = _dbContext.Donations.Find(entity.DonationId);
-                    if (cancelledDonation != null && (cancelledDonation.ExpirationDate == null || cancelledDonation.ExpirationDate > DateTime.UtcNow))
-                        cancelledDonation.Quantity += entity.QuantityReserved;
-                    break;
-            }
-            */
 
             _dbContext.SaveChanges();
 

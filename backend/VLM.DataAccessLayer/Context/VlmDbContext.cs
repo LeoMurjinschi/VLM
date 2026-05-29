@@ -11,6 +11,11 @@ using VLM.Domain.Entities.Report;
 using VLM.Domain.Entities.Reservation;
 using VLM.Domain.Entities.Review;
 using VLM.Domain.Entities.User;
+using VLM.Domain.Entities.AdminAction;
+using VLM.Domain.Entities.Milestone;
+using VLM.Domain.Entities.AdminAnnouncement;
+using VLM.Domain.Entities.AccountApproval;
+using VLM.Domain.Entities.SystemSetting;
 
 
 namespace VLM.DataAccessLayer.Context;
@@ -32,7 +37,11 @@ public sealed class VlmDbContext : DbContext
     public DbSet<CategoryEntity> Categories { get; set; }
     public DbSet<FavoriteEntity> Favorites { get; set; }
     public DbSet<ReportEntity> Reports { get; set; }
-
+    public DbSet<AdminAnnouncementEntity> AdminAnnouncements { get; set; }
+    public DbSet<AccountApprovalEntity> AccountApprovals { get; set; }
+    public DbSet<AdminActionEntity> AdminActions { get; set; }
+    public DbSet<MilestoneEntity> Milestones { get; set; }
+    public DbSet<SystemSettingEntity> SystemSettings { get; set; }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 {
     if (!optionsBuilder.IsConfigured)
@@ -55,7 +64,18 @@ public sealed class VlmDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
-       
+        modelBuilder.Entity<AccountApprovalEntity>()
+            .HasOne(a => a.User)
+            .WithMany() 
+            .HasForeignKey(a => a.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<AccountApprovalEntity>()
+            .HasOne(a => a.Admin)
+            .WithMany()
+            .HasForeignKey(a => a.AdminId)
+            .OnDelete(DeleteBehavior.NoAction);
+
         modelBuilder.Entity<DonationEntity>()
             .HasOne(d => d.Donor)
             .WithMany(u => u.Donations)

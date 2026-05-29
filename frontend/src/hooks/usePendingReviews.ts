@@ -60,11 +60,10 @@ export function usePendingReviews(receiverId: number | undefined) {
         text: comment,
       };
 
-      if (reviewId > 0) {
-        await reviewService.update(reviewId, payload);
-      } else {
-        await reviewService.create(payload);
-      }
+      // In our logic, a pending review is tied to a reservation, so we always update.
+      // The `reviewId` from a pending review is actually the `reservationId`.
+      await reviewService.update(reviewId, payload);
+
       await refresh();
     },
     [refresh]

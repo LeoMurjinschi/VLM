@@ -28,10 +28,10 @@ export interface HistoryRecord {
 const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1488459716781-6f3ee109e5e4?auto=format&fit=crop&q=80&w=300&h=300';
 
 /** Reservation statuses that belong on History & Status (pickup confirmed or finished). */
-const HISTORY_STATUSES = new Set(['receiver_confirmed', 'completed', 'cancelled']);
+const HISTORY_STATUSES = new Set(['donor_confirmed', 'receiver_confirmed', 'completed', 'cancelled']);
 
 const mapStatus = (s: string): 'Completed' | 'Cancelled' | 'Expired' => {
-  if (s === 'completed' || s === 'receiver_confirmed') return 'Completed';
+  if (s === 'completed' || s === 'receiver_confirmed' || s === 'donor_confirmed') return 'Completed';
   if (s === 'cancelled') return 'Cancelled';
   return 'Expired';
 };
@@ -46,7 +46,7 @@ const ReservationHistory: React.FC = () => {
   const { user } = useAuth();
   const { myReservations, loading } = useReservations();
   const userId = user?.id ? Number(user.id) : undefined;
-  const { getPendingByDonationId, submitReview } = usePendingReviews(
+  const { getPendingByReservationId, submitReview } = usePendingReviews(
     user?.role === 'receiver' ? userId : undefined
   );
   const [reviewingItem, setReviewingItem] = useState<PendingReviewDto | null>(null);
@@ -68,13 +68,13 @@ const ReservationHistory: React.FC = () => {
       })
       .map((r): HistoryRecord => {
         const pickupIso = r.receiverConfirmedAt ?? r.completedAt ?? r.reservedAt;
-        const donationId = parseInt(r.stockId, 10);
+        const reservationId = parseInt(r.id, 10);
         const pendingReview =
-          r.status !== 'cancelled' ? getPendingByDonationId(donationId) : undefined;
+          r.status !== 'cancelled' ? getPendingByReservationId(reservationId) : undefined;
 
         return {
           id: r.id,
-          donationId,
+          donationId: parseInt(r.stockId, 10),
           title: r.stockTitle,
           donor: r.donorName,
           quantity: `${r.quantityReserved} ${r.unit}`,
@@ -84,18 +84,20 @@ const ReservationHistory: React.FC = () => {
           pendingReview,
         };
       });
-  }, [myReservations, user?.id, user?.role, getPendingByDonationId]);
+  }, [myReservations, user?.id, user?.role, getPendingByReservationId]);
 
   const handleSubmitReview = async (
     reviewId: number,
     donationId: number,
     donorId: number,
     rating: number,
-    comment: string
+    comment: string,
+    reservationId?: number
   ) => {
     if (!userId) return;
-    await submitReview(reviewId, donationId, donorId, userId, rating, comment);
+    await submitReview(reviewId, donationId, donorId, userId, rating, comment, reservationId);
     toast.success('Thank you! Your review has been submitted.');
+    setReviewingItem(null);
   };
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -184,12 +186,16 @@ const ReservationHistory: React.FC = () => {
           </div>
         )}
 
-        <ReviewSubmitModal
-          isOpen={!!reviewingItem}
-          item={reviewingItem}
-          onClose={() => setReviewingItem(null)}
-          onSubmit={handleSubmitReview}
-        />
+        {reviewingItem && (
+          <ReviewSubmitModal
+            isOpen={!!reviewingItem}
+            item={reviewingItem}
+            onClose={() => setReviewingItem(null)}
+            onSubmit={(reviewId, donationId, donorId, rating, comment) => 
+              handleSubmitReview(reviewId, donationId, donorId, rating, comment, reviewingItem.reservationId)
+            }
+          />
+        )}
       </div>
     </PageLayout>
   );
