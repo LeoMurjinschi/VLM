@@ -532,12 +532,6 @@ namespace VLM.DataAccessLayer.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime?>("CancelledAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("CancelledBy")
-                        .HasColumnType("text");
-
                     b.Property<DateTime?>("CompletedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -554,17 +548,17 @@ namespace VLM.DataAccessLayer.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("QuantityConfirmed")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("QuantityPickedUpByReceiver")
-                        .HasColumnType("integer");
-
                     b.Property<int>("QuantityReserved")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("Rating")
                         .HasColumnType("integer");
 
                     b.Property<DateTime?>("ReceiverConfirmedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ReviewText")
+                        .HasColumnType("text");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -609,6 +603,9 @@ namespace VLM.DataAccessLayer.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<int>("DonationId")
+                        .HasColumnType("integer");
+
                     b.Property<int>("DonorId")
                         .HasColumnType("integer");
 
@@ -616,6 +613,9 @@ namespace VLM.DataAccessLayer.Migrations
                         .HasColumnType("integer");
 
                     b.Property<int>("ReceiverId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("ReservationId")
                         .HasColumnType("integer");
 
                     b.Property<string>("Status")
@@ -628,9 +628,13 @@ namespace VLM.DataAccessLayer.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("DonationId");
+
                     b.HasIndex("DonorId");
 
                     b.HasIndex("ReceiverId");
+
+                    b.HasIndex("ReservationId");
 
                     b.ToTable("Reviews");
 
@@ -639,6 +643,7 @@ namespace VLM.DataAccessLayer.Migrations
                         {
                             Id = 1,
                             CreatedDate = new DateTime(2026, 1, 15, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DonationId = 1,
                             DonorId = 1,
                             Rating = 5,
                             ReceiverId = 2,
@@ -1148,6 +1153,12 @@ namespace VLM.DataAccessLayer.Migrations
 
             modelBuilder.Entity("VLM.Domain.Entities.Review.ReviewEntity", b =>
                 {
+                    b.HasOne("VLM.Domain.Entities.Donation.DonationEntity", "Donation")
+                        .WithMany()
+                        .HasForeignKey("DonationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("VLM.Domain.Entities.User.UserEntity", "Donor")
                         .WithMany("DonorReviews")
                         .HasForeignKey("DonorId")
@@ -1160,9 +1171,17 @@ namespace VLM.DataAccessLayer.Migrations
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
+                    b.HasOne("VLM.Domain.Entities.Reservation.ReservationEntity", "Reservation")
+                        .WithMany()
+                        .HasForeignKey("ReservationId");
+
+                    b.Navigation("Donation");
+
                     b.Navigation("Donor");
 
                     b.Navigation("Receiver");
+
+                    b.Navigation("Reservation");
                 });
 
             modelBuilder.Entity("VLM.Domain.Entities.User.DonorProfileEntity", b =>
