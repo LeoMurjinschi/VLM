@@ -78,30 +78,64 @@ public class DonationActions
 
     // ... (restul metodelor rămân neschimbate)
     public ServiceResponse GetDonationsByDonorIdAction(int donorId)
+    private const decimal LowStockThreshold = 5;
+
+    public ServiceResponse GetDonationsByDonorIdAction(
+        int donorId,
+        string? sortBy = null,
+        string? categories = null,
+        string? status = null)
     {
         try
         {
-            var donations = _dbContext.Donations
-                .Where(d => d.DonorId == donorId)
-                .Select(entity => new DonationInfoDto
-                {
-                    Id = entity.Id,
-                    Title = entity.Title,
-                    Description = entity.Description,
-                    Quantity = entity.Quantity,
-                    Unit = entity.Unit,
-                    DonorId = entity.DonorId,
-                    Category = entity.Category,
-                    PickupLocation = entity.PickupLocation,
-                    ExpirationDate = entity.ExpirationDate,
-                    Image = entity.Image,
-                    Status = entity.Status,
-                    CreatedDate = entity.CreatedDate,
-                    UpdatedDate = entity.UpdatedDate,
-                    DonorName = entity.Donor.Name,
-                    DonorAvatar = entity.Donor.Avatar
-                })
-                .ToList();
+            var now = DateTime.UtcNow;
+            var categoryList = categories?
+                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            var baseQuery = _dbContext.Donations.Where(d => d.DonorId == donorId);
+
+            // Category filter
+            if (categoryList is { Count: > 0 })
+                baseQuery = baseQuery.Where(d => categoryList.Contains(d.Category));
+
+            // Status filter (derived from DB fields)
+            baseQuery = status switch
+            {
+                "In Stock"  => baseQuery.Where(d => d.Status == "Available" && d.ExpirationDate > now && d.Quantity >= LowStockThreshold),
+                "Low Stock" => baseQuery.Where(d => d.Status == "Available" && d.ExpirationDate > now && d.Quantity > 0 && d.Quantity < LowStockThreshold),
+                "Expired"   => baseQuery.Where(d => d.ExpirationDate <= now || d.Quantity <= 0),
+                _           => baseQuery
+            };
+
+            var query = baseQuery.Select(entity => new DonationInfoDto
+            {
+                Id = entity.Id,
+                Title = entity.Title,
+                Description = entity.Description,
+                Quantity = entity.Quantity,
+                Unit = entity.Unit,
+                DonorId = entity.DonorId,
+                Category = entity.Category,
+                PickupLocation = entity.PickupLocation,
+                ExpirationDate = entity.ExpirationDate,
+                Image = entity.Image,
+                Status = entity.Status,
+                CreatedDate = entity.CreatedDate,
+                UpdatedDate = entity.UpdatedDate,
+                DonorName = entity.Donor.Name,
+                DonorAvatar = entity.Donor.Avatar
+            });
+
+            var donations = sortBy switch
+            {
+                "oldest"        => query.OrderBy(d => d.CreatedDate).ToList(),
+                "expiring_soon" => query.OrderBy(d => d.ExpirationDate).ToList(),
+                "name_asc"      => query.OrderBy(d => d.Title).ToList(),
+                "quantity_high" => query.OrderByDescending(d => d.Quantity).ToList(),
+                "quantity_low"  => query.OrderBy(d => d.Quantity).ToList(),
+                _               => query.OrderByDescending(d => d.CreatedDate).ToList(),
+            };
 
             return new ServiceResponse
             {

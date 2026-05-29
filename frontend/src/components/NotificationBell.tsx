@@ -1,26 +1,75 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useTheme } from '../hooks/useTheme';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { notificationService } from '../api/notificationService';
 import type { NotificationInfoDto } from '../api/types'; 
 import { 
   BellIcon, 
   ExclamationTriangleIcon, 
+import { adminService } from '../api/adminService';
+import {
+  BellIcon,
+  ExclamationTriangleIcon,
   InformationCircleIcon,
   CheckCircleIcon,
   CheckIcon,
   ShieldCheckIcon
 } from '@heroicons/react/24/outline';
 
+interface AppNotification {
+  id: number;
+  title: string;
+  desc: string;
+  time: string;
+  unread: boolean;
+  type: string;
+  link: string;
+}
+
+const getMockNotifications = (role?: string | null): AppNotification[] => {
+  const basePath = role === 'donor' ? '/donor' : '/receiver';
+  return [
+    { id: 1, title: 'Urgent: Hot Meals Available', desc: 'Restaurant Casa has 20 hot meals ready.', time: '5 min ago', unread: true, type: 'urgent', link: `${basePath}/dashboard` },
+    { id: 2, title: 'Pickup Completed', desc: 'Successfully logged 15kg of bakery items.', time: '2 hours ago', unread: true, type: 'success', link: `${basePath}/history` },
+    { id: 3, title: 'Donation Canceled', desc: 'A scheduled pickup was canceled.', time: '1 day ago', unread: false, type: 'warning', link: `${basePath}/dashboard` },
+  ];
+};
+
 const NotificationBell: React.FC = () => {
   const { theme } = useTheme();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState<NotificationInfoDto[]>([]);
+  const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (user?.role === 'admin') {
+      adminService.getPendingUsers()
+        .then(pending => {
+          const notifs: AppNotification[] = [];
+          if (pending.length > 0) {
+            notifs.push({
+              id: 1,
+              title: `${pending.length} Pending Sign-Up${pending.length !== 1 ? 's' : ''}`,
+              desc: `${pending.length} organization application${pending.length !== 1 ? 's' : ''} awaiting your review.`,
+              time: 'Pending',
+              unread: true,
+              type: 'warning',
+              link: '/admin/signups',
+            });
+          }
+          setNotifications(notifs);
+        })
+        .catch(() => setNotifications([]));
+    } else {
+      setNotifications(getMockNotifications(user?.role));
+    }
+  }, [user?.role, location.pathname]);
 
   const isAdmin = user?.role === 'admin';
   const basePath = isAdmin ? '/admin' : (user?.role === 'donor' ? '/donor' : '/receiver');
@@ -65,6 +114,12 @@ const NotificationBell: React.FC = () => {
   const handleNotificationClick = async (link: string, id: number) => {
     await notificationService.markAsRead(id);
     setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n));
+  const markAllAsRead = () => {
+    setNotifications([]);
+  };
+
+  const handleNotificationClick = (link: string, id: number) => {
+    setNotifications(prev => prev.filter(n => n.id !== id));
     setIsOpen(false);
     navigate(link);
   };

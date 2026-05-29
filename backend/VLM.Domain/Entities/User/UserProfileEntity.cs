@@ -16,6 +16,7 @@ public class UserProfileEntity
     public bool HasIndustrialStorage { get; set; } = false;
     public string Location { get; set; } = string.Empty;
     public bool Verified { get; set; } = false;
+    public string? VerificationDocument { get; set; }
 
     // Navigation properties
     public UserEntity User { get; set; } = null!;
