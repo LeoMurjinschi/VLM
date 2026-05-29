@@ -1,77 +1,102 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useTheme } from '../hooks/useTheme';
 import PageLayout from '../components/PageLayout';
 import HistoryHeader from '../components/HistoryHeader';
 import HistoryFilters from '../components/HistoryFilters';
 import HistoryItem from '../components/HistoryItem';
+import ReviewSubmitModal from '../components/ReviewSubmitModal';
 import { ArchiveBoxXMarkIcon } from '@heroicons/react/24/outline';
-import { reservationService } from '../api';
 import { useAuth } from '../context/AuthContext';
+import { useReservations } from '../context/ReservationContext';
+import { usePendingReviews } from '../hooks/usePendingReviews';
+import type { PendingReviewDto } from '../api';
+import type { Reservation } from '../types/reservation';
+import { toast } from 'react-toastify';
 
 export interface HistoryRecord {
   id: string;
+  donationId: number;
   title: string;
   donor: string;
   quantity: string;
   pickupDate: string;
   status: 'Completed' | 'Cancelled' | 'Expired';
   image: string;
+  pendingReview?: PendingReviewDto;
 }
 
 const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1488459716781-6f3ee109e5e4?auto=format&fit=crop&q=80&w=300&h=300';
 
+/** Reservation statuses that belong on History & Status (pickup confirmed or finished). */
+const HISTORY_STATUSES = new Set(['receiver_confirmed', 'completed', 'cancelled']);
+
 const mapStatus = (s: string): 'Completed' | 'Cancelled' | 'Expired' => {
-  if (s === 'completed' || s === 'Confirmed') return 'Completed';
-  if (s === 'cancelled' || s === 'Cancelled') return 'Cancelled';
+  if (s === 'completed' || s === 'receiver_confirmed') return 'Completed';
+  if (s === 'cancelled') return 'Cancelled';
   return 'Expired';
+};
+
+const formatPickupDate = (iso?: string) => {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 };
 
 const ReservationHistory: React.FC = () => {
   const { theme } = useTheme();
   const { user } = useAuth();
-  const [historyData, setHistoryData] = useState<HistoryRecord[]>([]);
+  const { myReservations, loading } = useReservations();
+  const userId = user?.id ? Number(user.id) : undefined;
+  const { getPendingByDonationId, submitReview } = usePendingReviews(
+    user?.role === 'receiver' ? userId : undefined
+  );
+  const [reviewingItem, setReviewingItem] = useState<PendingReviewDto | null>(null);
 
-  useEffect(() => {
-    if (!user?.id) return;
-    
-    reservationService.getAll()
-      .then((reservations) => {
-        const userReservations = reservations.filter(r => 
-            user.role === 'donor' ? r.donorId === Number(user.id) : r.userId === Number(user.id)
-        );
+  const historyData = useMemo(() => {
+    if (!user?.id) return [];
 
-        const mapped: HistoryRecord[] = userReservations.map(r => {
-          return {
-            id: String(r.id),
-            title: r.donationTitle ?? `Donation #${r.donationId}`,
-            donor: r.donorName ?? `Donor #${r.userId}`,
-            quantity: `${r.quantityReserved} ${r.donationUnit ?? 'units'}`,
-            pickupDate: new Date(r.createdDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-            status: mapStatus(r.status),
-            image: r.donationImage ?? DEFAULT_IMAGE,
-          };
-        });
-        setHistoryData(mapped);
+    const mine =
+      user.role === 'donor'
+        ? myReservations.filter((r) => r.donorId === user.id)
+        : myReservations.filter((r) => r.receiverId === user.id);
+
+    return mine
+      .filter((r) => HISTORY_STATUSES.has(r.status))
+      .sort((a, b) => {
+        const dateA = a.receiverConfirmedAt ?? a.completedAt ?? a.reservedAt;
+        const dateB = b.receiverConfirmedAt ?? b.completedAt ?? b.reservedAt;
+        return new Date(dateB).getTime() - new Date(dateA).getTime();
       })
-      .catch((err) => console.error("Failed to fetch reservation history", err));
-  }, [user?.id, user?.role]);
-    if (!user) return;
-    const userId = parseInt(user.id);
-    reservationService.getByReceiver(userId)
-      .then(reservations => {
-        const mapped: HistoryRecord[] = reservations.map(r => ({
-          id: String(r.id),
-          title: r.donationTitle ?? `Donation #${r.donationId}`,
-          donor: r.donorName ?? `Donor #${r.donorId}`,
-          quantity: `${r.quantityReserved} ${r.donationUnit ?? 'units'}`,
-          pickupDate: new Date(r.createdDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+      .map((r): HistoryRecord => {
+        const pickupIso = r.receiverConfirmedAt ?? r.completedAt ?? r.reservedAt;
+        const donationId = parseInt(r.stockId, 10);
+        const pendingReview =
+          r.status !== 'cancelled' ? getPendingByDonationId(donationId) : undefined;
+
+        return {
+          id: r.id,
+          donationId,
+          title: r.stockTitle,
+          donor: r.donorName,
+          quantity: `${r.quantityReserved} ${r.unit}`,
+          pickupDate: formatPickupDate(pickupIso),
           status: mapStatus(r.status),
-          image: r.donationImage ?? DEFAULT_IMAGE,
-        }));
-        setHistoryData(mapped);
-      })
-      .catch(() => {});
-  }, [user]);
+          image: r.stockImage || DEFAULT_IMAGE,
+          pendingReview,
+        };
+      });
+  }, [myReservations, user?.id, user?.role, getPendingByDonationId]);
+
+  const handleSubmitReview = async (
+    reviewId: number,
+    donationId: number,
+    donorId: number,
+    rating: number,
+    comment: string
+  ) => {
+    if (!userId) return;
+    await submitReview(reviewId, donationId, donorId, userId, rating, comment);
+    toast.success('Thank you! Your review has been submitted.');
+  };
 
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
@@ -119,10 +144,22 @@ const ReservationHistory: React.FC = () => {
         />
 
         {/* Lista de Istoric sau Empty State */}
-        {filteredData.length > 0 ? (
+        {loading ? (
+          <div className={`text-center py-16 rounded-2xl ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>
+            Loading history…
+          </div>
+        ) : filteredData.length > 0 ? (
           <div className="space-y-3 animate-fade-in-up">
             {filteredData.map((item) => (
-              <HistoryItem key={item.id} item={item} />
+              <HistoryItem
+                key={item.id}
+                item={item}
+                onRate={
+                  item.pendingReview
+                    ? () => setReviewingItem(item.pendingReview!)
+                    : undefined
+                }
+              />
             ))}
           </div>
         ) : (
@@ -131,10 +168,10 @@ const ReservationHistory: React.FC = () => {
           }`}>
             <ArchiveBoxXMarkIcon className={`w-16 h-16 mb-4 ${theme === 'light' ? 'text-gray-300' : 'text-gray-600'}`} />
             <p className={`text-lg font-semibold ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>
-              No reservations yet.
+              No confirmed pickups yet.
             </p>
             <p className={`text-sm mt-1 text-center max-w-sm ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>
-              Start making reservations from available donations to build your history and help your community.
+              Donations you have confirmed at pickup will appear here after you complete pickup in My Pickups.
             </p>
             <button 
               onClick={() => { setSearchQuery(''); setStatusFilter('All'); setDateFilter('All Time'); }}
@@ -147,6 +184,12 @@ const ReservationHistory: React.FC = () => {
           </div>
         )}
 
+        <ReviewSubmitModal
+          isOpen={!!reviewingItem}
+          item={reviewingItem}
+          onClose={() => setReviewingItem(null)}
+          onSubmit={handleSubmitReview}
+        />
       </div>
     </PageLayout>
   );

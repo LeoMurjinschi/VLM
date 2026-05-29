@@ -5,6 +5,7 @@ public class ReviewInfoDto
     public int Id { get; set; }
     public int DonorId { get; set; }
     public int ReceiverId { get; set; }
+    public int DonationId { get; set; }
     public int Rating { get; set; }
     public string Text { get; set; } = string.Empty;
     public string Status { get; set; } = string.Empty;

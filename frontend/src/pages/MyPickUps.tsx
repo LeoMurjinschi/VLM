@@ -10,6 +10,7 @@ import {
   MapIcon,
   CheckCircleIcon,
   ExclamationTriangleIcon,
+  StarIcon,
 } from '@heroicons/react/24/outline';
 import PageLayout from '../components/PageLayout';
 import PickupConfirmModal from '../components/PickupConfirmModal';
@@ -81,11 +82,12 @@ const MyPickups: React.FC = () => {
 
   const displayList = activeTab === 'active' ? activeList : activeTab === 'completed' ? completedList : cancelledList;
 
-  const handleConfirmPickup = (actualQty: number) => {
+  const handleConfirmPickup = async (actualQty: number) => {
     if (!confirmingReservation) return;
-    confirmPickup(confirmingReservation.id, actualQty);
+
+    await confirmPickup(confirmingReservation.id, actualQty);
+    toast.success('Pickup confirmed! You can now go to the Feedback page to leave a review.');
     setConfirmingReservation(null);
-    toast.success("Pickup confirmed! You're helping prevent food waste.");
   };
 
   const handleCancel = (id: string) => {
