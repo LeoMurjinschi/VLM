@@ -398,7 +398,7 @@ const DonationCard: React.FC<DonationCardProps> = ({
 
       <StockEditModal
         isOpen={editOpen}
-        donation={donation}
+        item={donation as any}
         onClose={() => setEditOpen(false)}
         onSave={(payload) => {
           onEdit?.(donation.id, payload);

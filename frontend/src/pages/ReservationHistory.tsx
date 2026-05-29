@@ -55,6 +55,23 @@ const ReservationHistory: React.FC = () => {
       })
       .catch((err) => console.error("Failed to fetch reservation history", err));
   }, [user?.id, user?.role]);
+    if (!user) return;
+    const userId = parseInt(user.id);
+    reservationService.getByReceiver(userId)
+      .then(reservations => {
+        const mapped: HistoryRecord[] = reservations.map(r => ({
+          id: String(r.id),
+          title: r.donationTitle ?? `Donation #${r.donationId}`,
+          donor: r.donorName ?? `Donor #${r.donorId}`,
+          quantity: `${r.quantityReserved} ${r.donationUnit ?? 'units'}`,
+          pickupDate: new Date(r.createdDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+          status: mapStatus(r.status),
+          image: r.donationImage ?? DEFAULT_IMAGE,
+        }));
+        setHistoryData(mapped);
+      })
+      .catch(() => {});
+  }, [user]);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');

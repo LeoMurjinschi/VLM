@@ -1,17 +1,20 @@
-using DotNetEnv;
 using Microsoft.EntityFrameworkCore;
+using VLM.Domain.Entities.AccountApproval;
+using VLM.Domain.Entities.AdminAction;
+using VLM.Domain.Entities.AdminAnnouncement;
 using VLM.Domain.Entities.Category;
 using VLM.Domain.Entities.Comment;
 using VLM.Domain.Entities.Document;
 using VLM.Domain.Entities.Donation;
 using VLM.Domain.Entities.Favorite;
 using VLM.Domain.Entities.Message;
+using VLM.Domain.Entities.Milestone;
 using VLM.Domain.Entities.Notification;
 using VLM.Domain.Entities.Report;
 using VLM.Domain.Entities.Reservation;
 using VLM.Domain.Entities.Review;
+using VLM.Domain.Entities.SystemSetting;
 using VLM.Domain.Entities.User;
-
 
 namespace VLM.DataAccessLayer.Context;
 
@@ -32,27 +35,19 @@ public sealed class VlmDbContext : DbContext
     public DbSet<CategoryEntity> Categories { get; set; }
     public DbSet<FavoriteEntity> Favorites { get; set; }
     public DbSet<ReportEntity> Reports { get; set; }
+    public DbSet<MilestoneEntity> Milestones { get; set; }
+    public DbSet<AdminActionEntity> AdminActions { get; set; }
+    public DbSet<AccountApprovalEntity> AccountApprovals { get; set; }
+    public DbSet<AdminAnnouncementEntity> AdminAnnouncements { get; set; }
+    public DbSet<SystemSettingEntity> SystemSettings { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-{
-    if (!optionsBuilder.IsConfigured)
     {
-         var envPath = @"C:\Users\user\Documents\Universitate\tweb\VLM\.env";
-        Env.Load(envPath);
-        
-       
-        
-        var host = Environment.GetEnvironmentVariable("DATABASE_HOST") ?? "localhost";
-        var port = Environment.GetEnvironmentVariable("DATABASE_PORT") ?? "5432";
-        var user = Environment.GetEnvironmentVariable("DATABASE_USER") ?? "postgres";
-        var password = Environment.GetEnvironmentVariable("DATABASE_PASSWORD") ?? "postgres";
-        var database = Environment.GetEnvironmentVariable("DATABASE_NAME") ?? "onlinevlm";
-
-        var connectionString = $"Host={host};Port={port};Database={database};Username={user};Password={password};";
-        
-        optionsBuilder.UseNpgsql(connectionString);
+        if (!optionsBuilder.IsConfigured)
+        {
+            optionsBuilder.UseNpgsql("Host=localhost;Port=5433;Database=onlinevlm;Username=postgres;Password=maranda123;");
+        }
     }
-}
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -178,8 +173,83 @@ public sealed class VlmDbContext : DbContext
             .HasOne(r => r.Donation)
             .WithMany(d => d.Reports)
             .HasForeignKey(r => r.DonationId)
-            .IsRequired(false)
             .OnDelete(DeleteBehavior.SetNull);
+        
+        modelBuilder.Entity<UserEntity>()
+            .HasOne(u => u.ApprovedBy)
+            .WithMany()
+            .HasForeignKey(u => u.ApprovedById)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<MilestoneEntity>()
+            .HasOne(m => m.Donor)
+            .WithMany(u => u.Milestones)
+            .HasForeignKey(m => m.DonorId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<AdminActionEntity>()
+            .HasOne(a => a.Admin)
+            .WithMany(u => u.AdminActions)
+            .HasForeignKey(a => a.AdminId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<AccountApprovalEntity>()
+            .HasOne(a => a.User)
+            .WithMany(u => u.ApprovalsReceived)
+            .HasForeignKey(a => a.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<AccountApprovalEntity>()
+            .HasOne(a => a.Admin)
+            .WithMany(u => u.ApprovalsDecided)
+            .HasForeignKey(a => a.AdminId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        modelBuilder.Entity<AdminAnnouncementEntity>()
+            .HasOne(a => a.Admin)
+            .WithMany(u => u.Announcements)
+            .HasForeignKey(a => a.AdminId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<SystemSettingEntity>()
+            .HasIndex(s => s.Key)
+            .IsUnique();
+
+        modelBuilder.Entity<SystemSettingEntity>()
+            .HasOne(s => s.UpdatedBy)
+            .WithMany(u => u.SettingsUpdated)
+            .HasForeignKey(s => s.UpdatedById)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<CategoryEntity>().HasData(
+            new CategoryEntity
+            {
+                Id = 1,
+                Name = "Fruits",
+                Description = "Fresh fruits and produce.",
+                Icon = null,
+                IsActive = true,
+                CreatedDate = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+            },
+            new CategoryEntity
+            {
+                Id = 2,
+                Name = "Bakery",
+                Description = "Bread, pastries and baked goods.",
+                Icon = null,
+                IsActive = true,
+                CreatedDate = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+            },
+            new CategoryEntity
+            {
+                Id = 3,
+                Name = "Dairy",
+                Description = "Milk, cheese and dairy products.",
+                Icon = null,
+                IsActive = true,
+                CreatedDate = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+            }
+        );
 
         modelBuilder.Entity<UserEntity>().HasData(
             new UserEntity
@@ -187,36 +257,64 @@ public sealed class VlmDbContext : DbContext
                 Id = 1,
                 Name = "Alex Donor",
                 Email = "alex@vlm.com",
-                PasswordHash = "3820be471b75236bf93e1790ea484432",
+                PasswordHash = "hashed_password_1",
                 Role = "donor",
                 Bio = "I love helping my community by donating food.",
                 Avatar = null,
                 IsActive = true,
-                CreatedDate = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+                CreatedDate = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                ApprovalStatus = "approved",
+                ApprovedById = 4,
+                ApprovedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                RejectionReason = null
             },
             new UserEntity
             {
                 Id = 2,
                 Name = "Maria Receiver",
                 Email = "maria@vlm.com",
-                PasswordHash = "d003257014b8a10582419f1f84478281",
+                PasswordHash = "hashed_password_2",
                 Role = "receiver",
                 Bio = "Grateful for every donation I receive.",
                 Avatar = null,
                 IsActive = true,
-                CreatedDate = new DateTime(2026, 1, 2, 0, 0, 0, DateTimeKind.Utc)
+                CreatedDate = new DateTime(2026, 1, 2, 0, 0, 0, DateTimeKind.Utc),
+                ApprovalStatus = "approved",
+                ApprovedById = 4,
+                ApprovedAt = new DateTime(2026, 1, 2, 0, 0, 0, DateTimeKind.Utc),
+                RejectionReason = null
             },
             new UserEntity
             {
                 Id = 3,
                 Name = "John Donor",
                 Email = "john@vlm.com",
-                PasswordHash = "f9a28b5d9ee09b2a5281a579d4f4090a",
+                PasswordHash = "hashed_password_3",
                 Role = "donor",
                 Bio = "Regular donor since 2025.",
                 Avatar = null,
                 IsActive = true,
-                CreatedDate = new DateTime(2026, 1, 3, 0, 0, 0, DateTimeKind.Utc)
+                CreatedDate = new DateTime(2026, 1, 3, 0, 0, 0, DateTimeKind.Utc),
+                ApprovalStatus = "approved",
+                ApprovedById = 4,
+                ApprovedAt = new DateTime(2026, 1, 3, 0, 0, 0, DateTimeKind.Utc),
+                RejectionReason = null
+            },
+            new UserEntity
+            {
+                Id = 4,
+                Name = "System Admin",
+                Email = "admin@vlm.com",
+                PasswordHash = "hashed_password_admin",
+                Role = "admin",
+                Bio = "Platform administrator.",
+                Avatar = null,
+                IsActive = true,
+                CreatedDate = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                ApprovalStatus = "approved",
+                ApprovedById = null,
+                ApprovedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                RejectionReason = null
             }
         );
 
@@ -316,153 +414,112 @@ public sealed class VlmDbContext : DbContext
             }
         );
 
-        modelBuilder.Entity<CategoryEntity>().HasData(
-            new CategoryEntity { Id = 1, Name = "Fruits", Description = "Fresh fruits and berries", Icon = "🍎", IsActive = true, CreatedDate = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc) },
-            new CategoryEntity { Id = 2, Name = "Vegetables", Description = "Fresh vegetables and greens", Icon = "🥦", IsActive = true, CreatedDate = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc) },
-            new CategoryEntity { Id = 3, Name = "Bakery", Description = "Bread, pastries and baked goods", Icon = "🍞", IsActive = true, CreatedDate = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc) },
-            new CategoryEntity { Id = 4, Name = "Dairy", Description = "Milk, cheese, yogurt and eggs", Icon = "🥛", IsActive = true, CreatedDate = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc) },
-            new CategoryEntity { Id = 5, Name = "Cooked Food", Description = "Prepared and cooked meals", Icon = "🍲", IsActive = true, CreatedDate = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc) }
-        );
-
-        modelBuilder.Entity<UserProfileEntity>().HasData(
-            new UserProfileEntity
+        modelBuilder.Entity<AccountApprovalEntity>().HasData(
+            new AccountApprovalEntity
             {
                 Id = 1,
                 UserId = 1,
-                Phone = "+40712345678",
-                Address = "Str. Principala 12, Cluj-Napoca",
-                OrgName = "Alex's Farm",
-                Description = "Local farmer donating surplus produce.",
-                MissionStatement = "Reduce food waste in our community.",
-                OperatingHours = "Mon-Fri 8:00-18:00",
-                OperatingRadius = 15,
-                AcceptedCategories = "Fruits,Vegetables,Dairy",
-                TransportType = "Van",
-                HasIndustrialStorage = false,
-                Location = "Cluj-Napoca",
-                Verified = true
+                AdminId = 4,
+                Decision = "approved",
+                Reason = "Initial seed approval.",
+                DecidedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc)
             },
-            new UserProfileEntity
+            new AccountApprovalEntity
             {
                 Id = 2,
                 UserId = 2,
-                Phone = "+40723456789",
-                Address = "Bd. Eroilor 10, Cluj-Napoca",
-                OrgName = "Maria's Kitchen",
-                Description = "Community kitchen serving daily meals.",
-                MissionStatement = "No one goes hungry in our neighborhood.",
-                OperatingHours = "Daily 7:00-20:00",
-                OperatingRadius = 10,
-                AcceptedCategories = "Fruits,Vegetables,Bakery,Cooked Food,Dairy",
-                TransportType = "Car",
-                HasIndustrialStorage = false,
-                Location = "Cluj-Napoca",
-                Verified = true
+                AdminId = 4,
+                Decision = "approved",
+                Reason = "Initial seed approval.",
+                DecidedAt = new DateTime(2026, 1, 2, 0, 0, 0, DateTimeKind.Utc)
             },
-            new UserProfileEntity
+            new AccountApprovalEntity
             {
                 Id = 3,
                 UserId = 3,
-                Phone = "+40734567890",
-                Address = "Bd. Eroilor 5, Cluj-Napoca",
-                OrgName = "John's Dairy",
-                Description = "Small local dairy farm.",
-                MissionStatement = "Fresh dairy products for everyone.",
-                OperatingHours = "Mon-Sat 6:00-16:00",
-                OperatingRadius = 20,
-                AcceptedCategories = "Dairy",
-                TransportType = "Truck",
-                HasIndustrialStorage = true,
-                Location = "Cluj-Napoca",
-                Verified = false
+                AdminId = 4,
+                Decision = "approved",
+                Reason = "Initial seed approval.",
+                DecidedAt = new DateTime(2026, 1, 3, 0, 0, 0, DateTimeKind.Utc)
             }
         );
 
-        modelBuilder.Entity<UserSettingsEntity>().HasData(
-            new UserSettingsEntity { Id = 1, UserId = 1, Theme = "light", NotifyPush = true, NotifySms = false, NotifyEmail = true, EmailUpdates = true },
-            new UserSettingsEntity { Id = 2, UserId = 2, Theme = "light", NotifyPush = true, NotifySms = true, NotifyEmail = true, EmailUpdates = false },
-            new UserSettingsEntity { Id = 3, UserId = 3, Theme = "dark", NotifyPush = false, NotifySms = false, NotifyEmail = true, EmailUpdates = true }
-        );
-
-        modelBuilder.Entity<NotificationEntity>().HasData(
-            new NotificationEntity
+        modelBuilder.Entity<AdminActionEntity>().HasData(
+            new AdminActionEntity
             {
                 Id = 1,
-                UserId = 1,
-                Title = "New Reservation",
-                Description = "Maria Receiver reserved 5L of Milk from your donation.",
-                Type = "reservation",
-                Link = "/reservations/1",
-                IsRead = true,
-                CreatedDate = new DateTime(2026, 1, 12, 9, 0, 0, DateTimeKind.Utc)
+                AdminId = 4,
+                ActionType = "approve_user",
+                TargetType = "user",
+                TargetId = 1,
+                Details = "Approved user 'alex@vlm.com' during initial seed.",
+                CreatedDate = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc)
             },
-            new NotificationEntity
+            new AdminActionEntity
             {
                 Id = 2,
-                UserId = 2,
-                Title = "Reservation Confirmed",
-                Description = "Your reservation for Milk has been confirmed by the donor.",
-                Type = "reservation",
-                Link = "/reservations/1",
-                IsRead = false,
-                CreatedDate = new DateTime(2026, 1, 12, 10, 0, 0, DateTimeKind.Utc)
+                AdminId = 4,
+                ActionType = "approve_user",
+                TargetType = "user",
+                TargetId = 2,
+                Details = "Approved user 'maria@vlm.com' during initial seed.",
+                CreatedDate = new DateTime(2026, 1, 2, 0, 0, 0, DateTimeKind.Utc)
             },
-            new NotificationEntity
+            new AdminActionEntity
             {
                 Id = 3,
-                UserId = 2,
-                Title = "New Donation Available",
-                Description = "Fresh Apples are available for pickup near you.",
-                Type = "donation",
-                Link = "/donations/1",
-                IsRead = false,
-                CreatedDate = new DateTime(2026, 1, 10, 8, 0, 0, DateTimeKind.Utc)
+                AdminId = 4,
+                ActionType = "approve_user",
+                TargetType = "user",
+                TargetId = 3,
+                Details = "Approved user 'john@vlm.com' during initial seed.",
+                CreatedDate = new DateTime(2026, 1, 3, 0, 0, 0, DateTimeKind.Utc)
             }
         );
 
-        modelBuilder.Entity<MessageEntity>().HasData(
-            new MessageEntity
+        modelBuilder.Entity<AdminAnnouncementEntity>().HasData(
+            new AdminAnnouncementEntity
             {
                 Id = 1,
-                SenderId = 2,
-                ReceiverId = 1,
-                Text = "Hi Alex! Is the milk still available for pickup tomorrow?",
-                CreatedDate = new DateTime(2026, 1, 12, 8, 0, 0, DateTimeKind.Utc)
+                AdminId = 4,
+                Title = "Welcome to Foodshare!",
+                Body = "Thank you for joining our community. Together we reduce food waste.",
+                Type = "info",
+                Priority = "medium",
+                StartsAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                EndsAt = null,
+                IsActive = true,
+                CreatedDate = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+            }
+        );
+
+        modelBuilder.Entity<SystemSettingEntity>().HasData(
+            new SystemSettingEntity
+            {
+                Id = 1,
+                Key = "registration.requires_approval",
+                Value = "true",
+                Description = "If true, new accounts require admin approval before they can log in.",
+                UpdatedById = 4,
+                UpdatedDate = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc)
             },
-            new MessageEntity
+            new SystemSettingEntity
             {
                 Id = 2,
-                SenderId = 1,
-                ReceiverId = 2,
-                Text = "Yes, it is! You can come anytime between 8 and 12.",
-                CreatedDate = new DateTime(2026, 1, 12, 8, 30, 0, DateTimeKind.Utc)
+                Key = "donations.max_per_user_per_day",
+                Value = "5",
+                Description = "Maximum number of donations a single user can post per day.",
+                UpdatedById = 4,
+                UpdatedDate = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc)
             },
-            new MessageEntity
+            new SystemSettingEntity
             {
                 Id = 3,
-                SenderId = 2,
-                ReceiverId = 1,
-                Text = "Perfect, I'll be there at 9. Thank you!",
-                CreatedDate = new DateTime(2026, 1, 12, 8, 45, 0, DateTimeKind.Utc)
-            }
-        );
-
-        modelBuilder.Entity<FavoriteEntity>().HasData(
-            new FavoriteEntity { Id = 1, UserId = 2, DonationId = 1, CreatedDate = new DateTime(2026, 1, 10, 14, 0, 0, DateTimeKind.Utc) },
-            new FavoriteEntity { Id = 2, UserId = 2, DonationId = 2, CreatedDate = new DateTime(2026, 1, 11, 10, 0, 0, DateTimeKind.Utc) }
-        );
-
-        modelBuilder.Entity<ReportEntity>().HasData(
-            new ReportEntity
-            {
-                Id = 1,
-                ReporterId = 2,
-                DonationId = 2,
-                Reason = "Incorrect information",
-                Description = "The quantity listed does not match what was available on pickup.",
-                Status = "pending",
-                CreatedDate = new DateTime(2026, 1, 13, 10, 0, 0, DateTimeKind.Utc),
-                ResolvedDate = null
+                Key = "platform.support_email",
+                Value = "support@vlm.com",
+                Description = "Support email shown to users across the platform.",
+                UpdatedById = 4,
+                UpdatedDate = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc)
             }
         );
     }

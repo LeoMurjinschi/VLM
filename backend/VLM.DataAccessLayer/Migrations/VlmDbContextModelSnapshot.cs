@@ -22,6 +22,197 @@ namespace VLM.DataAccessLayer.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("VLM.Domain.Entities.AccountApproval.AccountApprovalEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AdminId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("DecidedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Decision")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AdminId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AccountApprovals");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            AdminId = 4,
+                            DecidedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Decision = "approved",
+                            Reason = "Initial seed approval.",
+                            UserId = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            AdminId = 4,
+                            DecidedAt = new DateTime(2026, 1, 2, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Decision = "approved",
+                            Reason = "Initial seed approval.",
+                            UserId = 2
+                        },
+                        new
+                        {
+                            Id = 3,
+                            AdminId = 4,
+                            DecidedAt = new DateTime(2026, 1, 3, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Decision = "approved",
+                            Reason = "Initial seed approval.",
+                            UserId = 3
+                        });
+                });
+
+            modelBuilder.Entity("VLM.Domain.Entities.AdminAction.AdminActionEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ActionType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("AdminId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Details")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int?>("TargetId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("TargetType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AdminId");
+
+                    b.ToTable("AdminActions");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            ActionType = "approve_user",
+                            AdminId = 4,
+                            CreatedDate = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Details = "Approved user 'alex@vlm.com' during initial seed.",
+                            TargetId = 1,
+                            TargetType = "user"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            ActionType = "approve_user",
+                            AdminId = 4,
+                            CreatedDate = new DateTime(2026, 1, 2, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Details = "Approved user 'maria@vlm.com' during initial seed.",
+                            TargetId = 2,
+                            TargetType = "user"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            ActionType = "approve_user",
+                            AdminId = 4,
+                            CreatedDate = new DateTime(2026, 1, 3, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Details = "Approved user 'john@vlm.com' during initial seed.",
+                            TargetId = 3,
+                            TargetType = "user"
+                        });
+                });
+
+            modelBuilder.Entity("VLM.Domain.Entities.AdminAnnouncement.AdminAnnouncementEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AdminId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Body")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("EndsAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Priority")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("StartsAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AdminId");
+
+                    b.ToTable("AdminAnnouncements");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            AdminId = 4,
+                            Body = "Thank you for joining our community. Together we reduce food waste.",
+                            CreatedDate = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            IsActive = true,
+                            Priority = "medium",
+                            StartsAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Title = "Welcome to Foodshare!",
+                            Type = "info"
+                        });
+                });
+
             modelBuilder.Entity("VLM.Domain.Entities.Category.CategoryEntity", b =>
                 {
                     b.Property<int>("Id")
@@ -56,8 +247,7 @@ namespace VLM.DataAccessLayer.Migrations
                         {
                             Id = 1,
                             CreatedDate = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Fresh fruits and berries",
-                            Icon = "🍎",
+                            Description = "Fresh fruits and produce.",
                             IsActive = true,
                             Name = "Fruits"
                         },
@@ -65,37 +255,17 @@ namespace VLM.DataAccessLayer.Migrations
                         {
                             Id = 2,
                             CreatedDate = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Fresh vegetables and greens",
-                            Icon = "🥦",
-                            IsActive = true,
-                            Name = "Vegetables"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            CreatedDate = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Bread, pastries and baked goods",
-                            Icon = "🍞",
+                            Description = "Bread, pastries and baked goods.",
                             IsActive = true,
                             Name = "Bakery"
                         },
                         new
                         {
-                            Id = 4,
+                            Id = 3,
                             CreatedDate = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Milk, cheese, yogurt and eggs",
-                            Icon = "🥛",
+                            Description = "Milk, cheese and dairy products.",
                             IsActive = true,
                             Name = "Dairy"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            CreatedDate = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Prepared and cooked meals",
-                            Icon = "🍲",
-                            IsActive = true,
-                            Name = "Cooked Food"
                         });
                 });
 
@@ -322,22 +492,6 @@ namespace VLM.DataAccessLayer.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Favorites");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            CreatedDate = new DateTime(2026, 1, 10, 14, 0, 0, 0, DateTimeKind.Utc),
-                            DonationId = 1,
-                            UserId = 2
-                        },
-                        new
-                        {
-                            Id = 2,
-                            CreatedDate = new DateTime(2026, 1, 11, 10, 0, 0, 0, DateTimeKind.Utc),
-                            DonationId = 2,
-                            UserId = 2
-                        });
                 });
 
             modelBuilder.Entity("VLM.Domain.Entities.Message.MessageEntity", b =>
@@ -368,32 +522,41 @@ namespace VLM.DataAccessLayer.Migrations
                     b.HasIndex("SenderId");
 
                     b.ToTable("Messages");
+                });
 
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            CreatedDate = new DateTime(2026, 1, 12, 8, 0, 0, 0, DateTimeKind.Utc),
-                            ReceiverId = 1,
-                            SenderId = 2,
-                            Text = "Hi Alex! Is the milk still available for pickup tomorrow?"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            CreatedDate = new DateTime(2026, 1, 12, 8, 30, 0, 0, DateTimeKind.Utc),
-                            ReceiverId = 2,
-                            SenderId = 1,
-                            Text = "Yes, it is! You can come anytime between 8 and 12."
-                        },
-                        new
-                        {
-                            Id = 3,
-                            CreatedDate = new DateTime(2026, 1, 12, 8, 45, 0, 0, DateTimeKind.Utc),
-                            ReceiverId = 1,
-                            SenderId = 2,
-                            Text = "Perfect, I'll be there at 9. Thank you!"
-                        });
+            modelBuilder.Entity("VLM.Domain.Entities.Milestone.MilestoneEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal>("CurrentAmount")
+                        .HasColumnType("numeric");
+
+                    b.Property<int>("DonorId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Reward")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("TargetAmount")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DonorId");
+
+                    b.ToTable("Milestones");
                 });
 
             modelBuilder.Entity("VLM.Domain.Entities.Notification.NotificationEntity", b =>
@@ -434,41 +597,6 @@ namespace VLM.DataAccessLayer.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Notifications");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            CreatedDate = new DateTime(2026, 1, 12, 9, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Maria Receiver reserved 5L of Milk from your donation.",
-                            IsRead = true,
-                            Link = "/reservations/1",
-                            Title = "New Reservation",
-                            Type = "reservation",
-                            UserId = 1
-                        },
-                        new
-                        {
-                            Id = 2,
-                            CreatedDate = new DateTime(2026, 1, 12, 10, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Your reservation for Milk has been confirmed by the donor.",
-                            IsRead = false,
-                            Link = "/reservations/1",
-                            Title = "Reservation Confirmed",
-                            Type = "reservation",
-                            UserId = 2
-                        },
-                        new
-                        {
-                            Id = 3,
-                            CreatedDate = new DateTime(2026, 1, 10, 8, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Fresh Apples are available for pickup near you.",
-                            IsRead = false,
-                            Link = "/donations/1",
-                            Title = "New Donation Available",
-                            Type = "donation",
-                            UserId = 2
-                        });
                 });
 
             modelBuilder.Entity("VLM.Domain.Entities.Report.ReportEntity", b =>
@@ -510,18 +638,6 @@ namespace VLM.DataAccessLayer.Migrations
                     b.HasIndex("ReporterId");
 
                     b.ToTable("Reports");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            CreatedDate = new DateTime(2026, 1, 13, 10, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "The quantity listed does not match what was available on pickup.",
-                            DonationId = 2,
-                            Reason = "Incorrect information",
-                            ReporterId = 2,
-                            Status = "pending"
-                        });
                 });
 
             modelBuilder.Entity("VLM.Domain.Entities.Reservation.ReservationEntity", b =>
@@ -751,6 +867,71 @@ namespace VLM.DataAccessLayer.Migrations
                     b.ToTable("ReceiverProfiles");
                 });
 
+            modelBuilder.Entity("VLM.Domain.Entities.SystemSetting.SystemSettingEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int?>("UpdatedById")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("UpdatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Key")
+                        .IsUnique();
+
+                    b.HasIndex("UpdatedById");
+
+                    b.ToTable("SystemSettings");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Description = "If true, new accounts require admin approval before they can log in.",
+                            Key = "registration.requires_approval",
+                            UpdatedById = 4,
+                            UpdatedDate = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Value = "true"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Description = "Maximum number of donations a single user can post per day.",
+                            Key = "donations.max_per_user_per_day",
+                            UpdatedById = 4,
+                            UpdatedDate = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Value = "5"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Description = "Support email shown to users across the platform.",
+                            Key = "platform.support_email",
+                            UpdatedById = 4,
+                            UpdatedDate = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Value = "support@vlm.com"
+                        });
+                });
+
             modelBuilder.Entity("VLM.Domain.Entities.User.UserEntity", b =>
                 {
                     b.Property<int>("Id")
@@ -758,6 +939,16 @@ namespace VLM.DataAccessLayer.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ApprovalStatus")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ApprovedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("ApprovedById")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Avatar")
                         .HasColumnType("text");
@@ -784,11 +975,16 @@ namespace VLM.DataAccessLayer.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("RejectionReason")
+                        .HasColumnType("text");
+
                     b.Property<string>("Role")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ApprovedById");
 
                     b.ToTable("Users");
 
@@ -796,6 +992,9 @@ namespace VLM.DataAccessLayer.Migrations
                         new
                         {
                             Id = 1,
+                            ApprovalStatus = "approved",
+                            ApprovedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ApprovedById = 4,
                             Bio = "I love helping my community by donating food.",
                             CreatedDate = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "alex@vlm.com",
@@ -807,6 +1006,9 @@ namespace VLM.DataAccessLayer.Migrations
                         new
                         {
                             Id = 2,
+                            ApprovalStatus = "approved",
+                            ApprovedAt = new DateTime(2026, 1, 2, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ApprovedById = 4,
                             Bio = "Grateful for every donation I receive.",
                             CreatedDate = new DateTime(2026, 1, 2, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "maria@vlm.com",
@@ -818,13 +1020,29 @@ namespace VLM.DataAccessLayer.Migrations
                         new
                         {
                             Id = 3,
+                            ApprovalStatus = "approved",
+                            ApprovedAt = new DateTime(2026, 1, 3, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ApprovedById = 4,
                             Bio = "Regular donor since 2025.",
                             CreatedDate = new DateTime(2026, 1, 3, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "john@vlm.com",
                             IsActive = true,
                             Name = "John Donor",
-                            PasswordHash = "f9a28b5d9ee09b2a5281a579d4f4090a",
+                            PasswordHash = "3820be471b75236bf93e1790ea484432",
                             Role = "donor"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            ApprovalStatus = "approved",
+                            ApprovedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Bio = "Platform administrator.",
+                            CreatedDate = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Email = "admin@vlm.com",
+                            IsActive = true,
+                            Name = "System Admin",
+                            PasswordHash = "43fafe46607d081246596c121faf0e76",
+                            Role = "admin"
                         });
                 });
 
@@ -881,6 +1099,9 @@ namespace VLM.DataAccessLayer.Migrations
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
 
+                    b.Property<string>("VerificationDocument")
+                        .HasColumnType("text");
+
                     b.Property<bool>("Verified")
                         .HasColumnType("boolean");
 
@@ -890,59 +1111,6 @@ namespace VLM.DataAccessLayer.Migrations
                         .IsUnique();
 
                     b.ToTable("UserProfiles");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            AcceptedCategories = "Fruits,Vegetables,Dairy",
-                            Address = "Str. Principala 12, Cluj-Napoca",
-                            Description = "Local farmer donating surplus produce.",
-                            HasIndustrialStorage = false,
-                            Location = "Cluj-Napoca",
-                            MissionStatement = "Reduce food waste in our community.",
-                            OperatingHours = "Mon-Fri 8:00-18:00",
-                            OperatingRadius = 15,
-                            OrgName = "Alex's Farm",
-                            Phone = "+40712345678",
-                            TransportType = "Van",
-                            UserId = 1,
-                            Verified = true
-                        },
-                        new
-                        {
-                            Id = 2,
-                            AcceptedCategories = "Fruits,Vegetables,Bakery,Cooked Food,Dairy",
-                            Address = "Bd. Eroilor 10, Cluj-Napoca",
-                            Description = "Community kitchen serving daily meals.",
-                            HasIndustrialStorage = false,
-                            Location = "Cluj-Napoca",
-                            MissionStatement = "No one goes hungry in our neighborhood.",
-                            OperatingHours = "Daily 7:00-20:00",
-                            OperatingRadius = 10,
-                            OrgName = "Maria's Kitchen",
-                            Phone = "+40723456789",
-                            TransportType = "Car",
-                            UserId = 2,
-                            Verified = true
-                        },
-                        new
-                        {
-                            Id = 3,
-                            AcceptedCategories = "Dairy",
-                            Address = "Bd. Eroilor 5, Cluj-Napoca",
-                            Description = "Small local dairy farm.",
-                            HasIndustrialStorage = true,
-                            Location = "Cluj-Napoca",
-                            MissionStatement = "Fresh dairy products for everyone.",
-                            OperatingHours = "Mon-Sat 6:00-16:00",
-                            OperatingRadius = 20,
-                            OrgName = "John's Dairy",
-                            Phone = "+40734567890",
-                            TransportType = "Truck",
-                            UserId = 3,
-                            Verified = false
-                        });
                 });
 
             modelBuilder.Entity("VLM.Domain.Entities.User.UserSettingsEntity", b =>
@@ -978,38 +1146,47 @@ namespace VLM.DataAccessLayer.Migrations
                         .IsUnique();
 
                     b.ToTable("UserSettings");
+                });
 
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            EmailUpdates = true,
-                            NotifyEmail = true,
-                            NotifyPush = true,
-                            NotifySms = false,
-                            Theme = "light",
-                            UserId = 1
-                        },
-                        new
-                        {
-                            Id = 2,
-                            EmailUpdates = false,
-                            NotifyEmail = true,
-                            NotifyPush = true,
-                            NotifySms = true,
-                            Theme = "light",
-                            UserId = 2
-                        },
-                        new
-                        {
-                            Id = 3,
-                            EmailUpdates = true,
-                            NotifyEmail = true,
-                            NotifyPush = false,
-                            NotifySms = false,
-                            Theme = "dark",
-                            UserId = 3
-                        });
+            modelBuilder.Entity("VLM.Domain.Entities.AccountApproval.AccountApprovalEntity", b =>
+                {
+                    b.HasOne("VLM.Domain.Entities.User.UserEntity", "Admin")
+                        .WithMany("ApprovalsDecided")
+                        .HasForeignKey("AdminId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("VLM.Domain.Entities.User.UserEntity", "User")
+                        .WithMany("ApprovalsReceived")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Admin");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("VLM.Domain.Entities.AdminAction.AdminActionEntity", b =>
+                {
+                    b.HasOne("VLM.Domain.Entities.User.UserEntity", "Admin")
+                        .WithMany("AdminActions")
+                        .HasForeignKey("AdminId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Admin");
+                });
+
+            modelBuilder.Entity("VLM.Domain.Entities.AdminAnnouncement.AdminAnnouncementEntity", b =>
+                {
+                    b.HasOne("VLM.Domain.Entities.User.UserEntity", "Admin")
+                        .WithMany("Announcements")
+                        .HasForeignKey("AdminId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Admin");
                 });
 
             modelBuilder.Entity("VLM.Domain.Entities.Comment.CommentEntity", b =>
@@ -1096,6 +1273,17 @@ namespace VLM.DataAccessLayer.Migrations
                     b.Navigation("Receiver");
 
                     b.Navigation("Sender");
+                });
+
+            modelBuilder.Entity("VLM.Domain.Entities.Milestone.MilestoneEntity", b =>
+                {
+                    b.HasOne("VLM.Domain.Entities.User.UserEntity", "Donor")
+                        .WithMany("Milestones")
+                        .HasForeignKey("DonorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Donor");
                 });
 
             modelBuilder.Entity("VLM.Domain.Entities.Notification.NotificationEntity", b =>
@@ -1187,6 +1375,26 @@ namespace VLM.DataAccessLayer.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("VLM.Domain.Entities.SystemSetting.SystemSettingEntity", b =>
+                {
+                    b.HasOne("VLM.Domain.Entities.User.UserEntity", "UpdatedBy")
+                        .WithMany("SettingsUpdated")
+                        .HasForeignKey("UpdatedById")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("UpdatedBy");
+                });
+
+            modelBuilder.Entity("VLM.Domain.Entities.User.UserEntity", b =>
+                {
+                    b.HasOne("VLM.Domain.Entities.User.UserEntity", "ApprovedBy")
+                        .WithMany()
+                        .HasForeignKey("ApprovedById")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("ApprovedBy");
+                });
+
             modelBuilder.Entity("VLM.Domain.Entities.User.UserProfileEntity", b =>
                 {
                     b.HasOne("VLM.Domain.Entities.User.UserEntity", "User")
@@ -1227,6 +1435,14 @@ namespace VLM.DataAccessLayer.Migrations
 
             modelBuilder.Entity("VLM.Domain.Entities.User.UserEntity", b =>
                 {
+                    b.Navigation("AdminActions");
+
+                    b.Navigation("Announcements");
+
+                    b.Navigation("ApprovalsDecided");
+
+                    b.Navigation("ApprovalsReceived");
+
                     b.Navigation("Comments");
 
                     b.Navigation("Documents");
@@ -1238,6 +1454,8 @@ namespace VLM.DataAccessLayer.Migrations
                     b.Navigation("DonorReviews");
 
                     b.Navigation("Favorites");
+
+                    b.Navigation("Milestones");
 
                     b.Navigation("Notifications");
 
@@ -1256,6 +1474,8 @@ namespace VLM.DataAccessLayer.Migrations
                     b.Navigation("SentMessages");
 
                     b.Navigation("Settings");
+
+                    b.Navigation("SettingsUpdated");
                 });
 #pragma warning restore 612, 618
         }
