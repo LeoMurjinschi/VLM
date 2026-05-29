@@ -37,11 +37,8 @@ public sealed class VlmDbContext : DbContext
 {
     if (!optionsBuilder.IsConfigured)
     {
-         var envPath = @"C:\Users\user\Documents\Universitate\tweb\VLM\.env";
-        Env.Load(envPath);
-        
-       
-        
+        LoadEnvFile();
+
         var host = Environment.GetEnvironmentVariable("DATABASE_HOST") ?? "localhost";
         var port = Environment.GetEnvironmentVariable("DATABASE_PORT") ?? "5432";
         var user = Environment.GetEnvironmentVariable("DATABASE_USER") ?? "postgres";
@@ -107,6 +104,12 @@ public sealed class VlmDbContext : DbContext
             .WithMany(u => u.ReceiverReviews)
             .HasForeignKey(r => r.ReceiverId)
             .OnDelete(DeleteBehavior.NoAction);
+
+        modelBuilder.Entity<ReviewEntity>()
+            .HasOne(r => r.Donation)
+            .WithMany()
+            .HasForeignKey(r => r.DonationId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<NotificationEntity>()
             .HasOne(n => n.User)
@@ -309,6 +312,7 @@ public sealed class VlmDbContext : DbContext
                 Id = 1,
                 DonorId = 1,
                 ReceiverId = 2,
+                DonationId = 1,
                 Rating = 5,
                 Text = "Alex was very generous and the food was excellent quality!",
                 Status = "approved",
@@ -465,5 +469,27 @@ public sealed class VlmDbContext : DbContext
                 ResolvedDate = null
             }
         );
+    }
+
+    private static void LoadEnvFile()
+    {
+        var candidates = new[]
+        {
+            Path.Combine(Directory.GetCurrentDirectory(), ".env"),
+            Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", "..", ".env"),
+            Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", ".env"),
+            @"C:\Users\user\Documents\Universitate\tweb\VLM\.env",
+            @"C:\Users\vasil\VLM\.env",
+        };
+
+        foreach (var path in candidates)
+        {
+            var fullPath = Path.GetFullPath(path);
+            if (File.Exists(fullPath))
+            {
+                Env.Load(fullPath);
+                return;
+            }
+        }
     }
 }
