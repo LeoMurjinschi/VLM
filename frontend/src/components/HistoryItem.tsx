@@ -1,13 +1,14 @@
 import React from 'react';
 import { useTheme } from '../hooks/useTheme';
-import { ArchiveBoxIcon, CalendarIcon, BuildingStorefrontIcon } from '@heroicons/react/24/outline';
+import { ArchiveBoxIcon, CalendarIcon, BuildingStorefrontIcon, StarIcon } from '@heroicons/react/24/outline';
 import type { HistoryRecord } from '../pages/ReservationHistory'; 
 
 interface HistoryItemProps {
   item: HistoryRecord;
+  onRate?: () => void;
 }
 
-const HistoryItem: React.FC<HistoryItemProps> = ({ item }) => {
+const HistoryItem: React.FC<HistoryItemProps> = ({ item, onRate }) => {
   const { theme } = useTheme();
 
   const getStatusBadge = (status: string) => {
@@ -75,6 +76,16 @@ const HistoryItem: React.FC<HistoryItemProps> = ({ item }) => {
         <span className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border shadow-sm ${getStatusBadge(item.status)}`}>
           {item.status}
         </span>
+        {onRate && item.status === 'Completed' && (
+          <button
+            type="button"
+            onClick={onRate}
+            className="mt-1 flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold bg-[#16a34a] text-white hover:bg-[#15803d] transition-colors shadow-sm"
+          >
+            <StarIcon className="w-3.5 h-3.5" />
+            Rate pickup
+          </button>
+        )}
       </div>
 
     </div>
