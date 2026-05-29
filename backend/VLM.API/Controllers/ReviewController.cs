@@ -19,10 +19,28 @@ public class ReviewController : ControllerBase
         _reviewLogic = businessLogic.GetReviewLogic();
     }
 
+    [HttpGet("pending/{receiverId}")]
+    public IActionResult GetPendingReviews([FromRoute] int receiverId)
+    {
+        var result = _reviewLogic.GetPendingReviews(receiverId);
+        if (!result.IsSuccess)
+            return BadRequest(result.Message);
+        return Ok(result.Data);
+    }
+
     [HttpGet("by-donor/{donorId}")]
     public IActionResult GetReviewsByDonor([FromRoute] int donorId)
     {
         var result = _reviewLogic.GetReviewsByDonor(donorId);
+        if (!result.IsSuccess)
+            return BadRequest(result.Message);
+        return Ok(result.Data);
+    }
+
+    [HttpGet("by-receiver/{receiverId}")]
+    public IActionResult GetReviewsByReceiver([FromRoute] int receiverId)
+    {
+        var result = _reviewLogic.GetReviewsByReceiver(receiverId);
         if (!result.IsSuccess)
             return BadRequest(result.Message);
         return Ok(result.Data);

@@ -1,9 +1,10 @@
 import axiosInstance from './axiosProvider';
 
-// ── Types ─────────────────────────────────────────────────────────────────────
 export interface ReviewCreateDto {
   donorId: number;
   receiverId: number;
+  donationId: number;
+  reservationId?: number;
   rating: number;
   text: string;
 }
@@ -12,22 +13,32 @@ export interface ReviewInfoDto {
   id: number;
   donorId: number;
   receiverId: number;
+  donationId: number;
   rating: number;
   text: string;
   status: string;
   createdDate: string;
 }
 
-// ── Service ───────────────────────────────────────────────────────────────────
-export const reviewService = {
+export interface PendingReviewDto {
+  reviewId: number;
+  reservationId: number;
+  donationId: number;
+  donorId: number;
+  donorName: string;
+  donationTitle: string;
+  donationImage?: string;
+  pickupDate: string;
+}
 
-  getByDonor: async (donorId: number): Promise<ReviewInfoDto[]> => {
-    const response = await axiosInstance.get<ReviewInfoDto[]>(`/reviews/by-donor/${donorId}`);
+export const reviewService = {
+  getPending: async (receiverId: number): Promise<PendingReviewDto[]> => {
+    const response = await axiosInstance.get<PendingReviewDto[]>(`/reviews/pending/${receiverId}`);
     return response.data;
   },
 
-  getById: async (id: number): Promise<ReviewInfoDto> => {
-    const response = await axiosInstance.get<ReviewInfoDto>(`/reviews/${id}`);
+  getByReceiver: async (receiverId: number): Promise<ReviewInfoDto[]> => {
+    const response = await axiosInstance.get<ReviewInfoDto[]>(`/reviews/by-receiver/${receiverId}`);
     return response.data;
   },
 
@@ -38,11 +49,6 @@ export const reviewService = {
 
   update: async (id: number, review: ReviewCreateDto): Promise<string> => {
     const response = await axiosInstance.put<string>(`/reviews/update/${id}`, review);
-    return response.data;
-  },
-
-  delete: async (id: number): Promise<string> => {
-    const response = await axiosInstance.delete<string>(`/reviews/delete/${id}`);
     return response.data;
   },
 };
