@@ -3,23 +3,27 @@ using VLM.DataAccessLayer.Context;
 using VLM.Domain.Entities.Reservation;
 using VLM.Domain.Models.Reservation;
 using VLM.Domain.Models.Service;
+using VLM.Domain.Models.Notification; // Adăugat pentru NotificationCreateDto
 
 namespace VLM.BusinessLayer.Structure;
 
 public class ReservationActions
 {
     private readonly VlmDbContext _dbContext;
+    private readonly NotificationActions _notificationActions;
 
     // Folosim injecția de dependențe
     public ReservationActions(VlmDbContext dbContext)
     {
         _dbContext = dbContext;
+        _notificationActions = new NotificationActions(_dbContext); // Inițializăm NotificationActions
     }
 
     // Constructor păstrat pentru compatibilitate inversă
     public ReservationActions()
     {
         _dbContext = new VlmDbContext();
+        _notificationActions = new NotificationActions(_dbContext);
     }
 
     private static ReservationInfoDto MapToDto(ReservationEntity entity) => new()
@@ -185,9 +189,25 @@ public class ReservationActions
     {
         try
         {
-            var entity = _dbContext.Reservations.Find(id);
+            var entity = _dbContext.Reservations
+                .Include(r => r.Donation) // Includem donația pentru a-i lua titlul
+                .FirstOrDefault(r => r.Id == id);
+                
             if (entity == null)
                 return new ServiceResponse { IsSuccess = false, Message = "Reservation not found" };
+
+            // Creăm notificare dacă statusul se schimbă în "donor_confirmed"
+            if (dto.Status == "donor_confirmed" && entity.Status != "donor_confirmed")
+            {
+                _notificationActions.CreateNotificationAction(new NotificationCreateDto
+                {
+                    UserId = entity.UserId, // Destinatarul este receiver-ul (cel care a făcut rezervarea)
+                    Title = "Reservation Ready!",
+                    Description = $"The donor has confirmed your reservation for '{entity.Donation?.Title}'. It is now ready for pickup.",
+                    Type = "reservation",
+                    Link = "/receiver/history" // Link către istoricul rezervărilor
+                });
+            }
 
             entity.Status = dto.Status;
             entity.UpdatedDate = DateTime.UtcNow;

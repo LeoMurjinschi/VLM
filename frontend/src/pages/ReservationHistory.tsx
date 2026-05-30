@@ -20,19 +20,22 @@ export interface HistoryRecord {
   donor: string;
   quantity: string;
   pickupDate: string;
-  status: 'Completed' | 'Cancelled' | 'Expired';
+  status: 'Completed' | 'Cancelled' | 'Expired' | 'Waiting for Receiver';
   image: string;
   pendingReview?: PendingReviewDto;
 }
 
-const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1488459716781-6f3ee109e5e4?auto=format&fit=crop&q=80&w=300&h=300';
+const DEFAULT_IMAGE = 'https://images.unsplash.com/vector-1740026651800-93fb37caa211?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8ODR8fGdyb2Nlcnl8ZW58MHx8MHx8fDA%3D';
 
 /** Reservation statuses that belong on History & Status (pickup confirmed or finished). */
 const HISTORY_STATUSES = new Set(['donor_confirmed', 'receiver_confirmed', 'completed', 'cancelled']);
 
-const mapStatus = (s: string): 'Completed' | 'Cancelled' | 'Expired' => {
-  if (s === 'completed' || s === 'receiver_confirmed' || s === 'donor_confirmed') return 'Completed';
+const mapStatus = (s: string): 'Completed' | 'Cancelled' | 'Expired' | 'Waiting for Receiver' => {
+  if (s === 'completed') return 'Completed';
+  if (s === 'receiver_confirmed') return 'Completed';
   if (s === 'cancelled') return 'Cancelled';
+  if (s === 'donor_confirmed') return 'Waiting for Receiver';
+
   return 'Expired';
 };
 
