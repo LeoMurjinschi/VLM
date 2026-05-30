@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { MapPinIcon, ClockIcon, ArchiveBoxIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import { useNavigate } from 'react-router-dom';
+import { MapPinIcon, ClockIcon, ArchiveBoxIcon, CheckCircleIcon, ExclamationCircleIcon } from '@heroicons/react/24/outline';
+import { motion } from 'framer-motion';
 import type { Donation } from '../_mock';
 import { toast } from 'react-toastify';
 import { useTheme } from '../hooks/useTheme';
@@ -9,18 +11,22 @@ interface ReservationModalProps {
   isOpen: boolean;
   onClose: () => void;
   donation: Donation;
-  onReserve: (id: string, amount: number) => void;
+  onReserve: (id: string, amount: number) => Promise<void>; // Modificat să fie async
 }
 
 const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, donation, onReserve }) => {
   const { theme } = useTheme();
+  const navigate = useNavigate();
   const [quantity, setQuantity] = useState<number | string>(1);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showSafetyWarning, setShowSafetyWarning] = useState(false); // Stare pentru animația de eroare
 
   React.useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
+      // Resetăm stările la deschidere
       setShowSuccess(false);
+      setShowSafetyWarning(false);
       setQuantity(1);
     } else {
       document.body.style.overflow = 'unset';
@@ -31,7 +37,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, do
   const isKg = donation.unit.toLowerCase() === 'kg';
   const stepSize = isKg ? 0.1 : 1;
 
-  const handleConfirmReservation = () => {
+  const handleConfirmReservation = async () => {
     const finalQuantity = Number(quantity);
     
     if (isNaN(finalQuantity) || finalQuantity < (isKg ? 0.1 : 1)) {
@@ -46,16 +52,33 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, do
       return;
     }
 
-    // Show success state
-    setShowSuccess(true);
-    
-    setTimeout(() => {
-      onReserve(donation.id, finalQuantity);
-      toast.success(`You secured ${finalQuantity} ${donation.unit}! Ready for pickup.`);
-      setShowSuccess(false);
-      setQuantity(isKg ? 0.1 : 1);
-      onClose();
-    }, 1200);
+    try {
+      // Așteptăm finalizarea rezervării
+      await onReserve(donation.id, finalQuantity);
+      
+      // Dacă a avut succes, afișăm animația de succes
+      setShowSuccess(true);
+      setTimeout(() => {
+        toast.success(`You secured ${finalQuantity} ${donation.unit}! Ready for pickup.`);
+        onClose();
+      }, 1200);
+
+    } catch (error: any) {
+      // Verificăm mesajul de eroare de la backend
+      if (error?.response?.data?.message === "Safety commitment not accepted") {
+        setShowSafetyWarning(true); // Afișăm animația de eroare
+        toast.warn('Please accept the safety commitment before reserving items.');
+        
+        setTimeout(() => {
+          onClose(); // Închidem modalul
+          navigate('/receiver/safety'); // Redirecționăm
+        }, 1500);
+      } else {
+        // Eroare generică
+        const message = error?.response?.data?.message || error.message || 'Failed to reserve item';
+        toast.error(message);
+      }
+    }
   };
 
   const handleDecrement = () => {
@@ -75,7 +98,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, do
     if (val === '') { setQuantity(''); return; }
     let num = Number(val);
     if (isNaN(num)) return;
-    if (!isKg) num = Math.floor(num); // force integer for non-kg
+    if (!isKg) num = Math.floor(num);
     if (num > donation.quantity) {
       setQuantity(donation.quantity);
     } else {
@@ -99,7 +122,6 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, do
 
   return createPortal(
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
-      {/* Backdrop */}
       <div
         className={`absolute inset-0 transition-opacity ${
           theme === 'light' ? 'bg-black/30' : 'bg-black/50'
@@ -107,27 +129,32 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, do
         onClick={onClose}
       />
 
-      {/* Modal */}
       <div className={`relative rounded-2xl w-full max-w-md overflow-hidden flex flex-col max-h-[90vh] animate-fade-in-up ${
         theme === 'light'
           ? 'bg-white shadow-[0_25px_60px_-12px_rgba(0,0,0,0.2)]'
           : 'bg-[#1a1a1a] shadow-[0_25px_60px_-12px_rgba(0,0,0,0.7)]'
       }`}>
         
-        {/* Success overlay */}
-        {showSuccess && (
-          <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white dark:bg-[#1a1a1a]">
-            <div className="animate-success-pop">
-              <CheckCircleIcon className="w-20 h-20 text-[#16a34a]" />
-            </div>
-            <p className="mt-4 text-lg font-bold text-[#16a34a]">Reserved!</p>
-            <p className={`mt-1 text-sm ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>
-              {quantity} {donation.unit} confirmed
-            </p>
-          </div>
+        {/* Overlay-uri de stare */}
+        {(showSuccess || showSafetyWarning) && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/80 dark:bg-[#1a1a1a]/80 backdrop-blur-sm"
+          >
+            {showSuccess && (
+              <motion.div initial={{ scale: 0.5 }} animate={{ scale: 1 }}>
+                <CheckCircleIcon className="w-20 h-20 text-[#16a34a]" />
+              </motion.div>
+            )}
+            {showSafetyWarning && (
+              <motion.div initial={{ scale: 0.5 }} animate={{ scale: 1 }}>
+                <ExclamationCircleIcon className="w-20 h-20 text-red-500" />
+              </motion.div>
+            )}
+          </motion.div>
         )}
 
-        {/* Hero image — full width, 180px tall, rounded top */}
         <div className="relative h-[180px] overflow-hidden flex-shrink-0">
           <img 
             src={donation.image} 
@@ -137,7 +164,6 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, do
           <div className={`absolute inset-0 bg-gradient-to-t ${
             theme === 'light' ? 'from-white/30' : 'from-[#1a1a1a]/40'
           } to-transparent`} />
-          {/* Close button */}
           <button
             onClick={onClose}
             className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/40 text-white flex items-center justify-center hover:bg-black/60 transition-colors"
@@ -146,9 +172,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, do
           </button>
         </div>
 
-        {/* Scrollable content */}
         <div className="overflow-y-auto p-5 flex-grow">
-          {/* Category chip + Title + Stock */}
           <div className="mb-4">
             <span className={`inline-block px-2 py-0.5 text-[10px] font-bold rounded-md uppercase tracking-wider mb-2 ${getCategoryColor(donation.category)}`}>
               {donation.category}
@@ -166,14 +190,12 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, do
             </div>
           </div>
 
-          {/* Description */}
           <p className={`text-[13px] leading-relaxed mb-5 ${
             theme === 'light' ? 'text-gray-500' : 'text-gray-400'
           }`}>
             {donation.description}
           </p>
 
-          {/* Two-column info rows */}
           <div className="grid grid-cols-2 gap-3 mb-6">
             <div className={`flex items-start gap-2.5 p-3 rounded-xl ${
               theme === 'light' ? 'bg-gray-50' : 'bg-gray-800/50'
@@ -183,7 +205,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, do
               }`}>
                 <MapPinIcon className="w-4 h-4 text-[#16a34a]" />
               </div>
-              <div className="min-w-0">
+              <div>
                 <p className={`text-[10px] font-semibold uppercase tracking-wider mb-0.5 ${
                   theme === 'light' ? 'text-gray-400' : 'text-gray-500'
                 }`}>Pickup</p>
@@ -201,7 +223,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, do
               }`}>
                 <ClockIcon className="w-4 h-4 text-[#f59e0b]" />
               </div>
-              <div className="min-w-0">
+              <div>
                 <p className={`text-[10px] font-semibold uppercase tracking-wider mb-0.5 ${
                   theme === 'light' ? 'text-gray-400' : 'text-gray-500'
                 }`}>Expires</p>
@@ -212,7 +234,6 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, do
             </div>
           </div>
 
-          {/* Quantity stepper — pill style */}
           <div className={`flex items-center justify-between p-3 rounded-xl mb-5 ${
             theme === 'light' ? 'bg-gray-50' : 'bg-gray-800/50'
           }`}>
@@ -225,7 +246,6 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, do
               }`}>in {donation.unit} (max {donation.quantity})</p>
             </div>
             
-            {/* Pill stepper */}
             <div className={`inline-flex items-center rounded-full border ${
               theme === 'light' ? 'bg-white border-gray-200' : 'bg-[#262626] border-[#2e2e2e]'
             }`}>
@@ -268,14 +288,12 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, do
             </div>
           </div>
 
-          {/* Confirm button — full width, rounded-full, deep green with shimmer */}
           <button 
             onClick={handleConfirmReservation}
-            disabled={showSuccess}
+            disabled={showSuccess || showSafetyWarning}
             className="group w-full relative overflow-hidden bg-[#16a34a] hover:bg-[#15803d] text-white font-bold py-3.5 px-4 rounded-full shadow-lg shadow-green-500/20 transition-all active:scale-[0.98] text-sm"
           >
             <span className="relative z-10">Confirm {quantity} {donation.unit}</span>
-            {/* Shimmer overlay */}
             <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 animate-shimmer pointer-events-none" />
           </button>
         </div>

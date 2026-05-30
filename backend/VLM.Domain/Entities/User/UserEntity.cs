@@ -26,6 +26,7 @@ public class UserEntity
     public string? Avatar { get; set; }
     public bool IsActive { get; set; } = true;
     public DateTime CreatedDate { get; set; }
+    public bool? HasAcceptedSafetyCommitment { get; set; }
     
     public string ApprovalStatus { get; set; } = "pending";
     public int? ApprovedById { get; set; }

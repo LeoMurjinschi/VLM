@@ -25,7 +25,7 @@ public class ReviewActions
                 .ThenInclude(d => d.Donor)
                 .Where(r =>
                     r.UserId == receiverId &&
-                    (r.Status == "receiver_confirmed" || r.Status == "completed") &&
+                    (r.Status == "donor_confirmed" || r.Status == "receiver_confirmed" || r.Status == "completed") &&
                     (r.Rating == null || r.Rating == 0))
                 .OrderByDescending(r => r.ReceiverConfirmedAt ?? r.CompletedAt ?? r.UpdatedDate ?? r.CreatedDate)
                 .ToList();
@@ -59,7 +59,7 @@ public class ReviewActions
         {
             var reviews = _dbContext.Reservations
                 .Include(r => r.Donation)
-                .Where(r => r.Donation.DonorId == donorId && r.Rating > 0)
+                .Where(r => r.Donation.DonorId == donorId && r.Rating >= 0)
                 .Select(entity => new ReviewInfoDto
                 {
                     Id = entity.Id, // ReservationId
@@ -95,7 +95,7 @@ public class ReviewActions
         {
             var reviews = _dbContext.Reservations
                 .Include(r => r.Donation)
-                .Where(r => r.UserId == receiverId && r.Rating > 0)
+                .Where(r => r.UserId == receiverId && r.Rating >= 0)
                 .Select(entity => new ReviewInfoDto
                 {
                     Id = entity.Id, // ReservationId

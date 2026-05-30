@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import DonationCard from '../components/DonationCard';
 import DonationFilter from '../components/DonationFilter';
 import { MagnifyingGlassIcon, FunnelIcon, InformationCircleIcon } from '@heroicons/react/24/outline';
@@ -21,7 +22,7 @@ const mapDonationDtoToDonation = (dto: DonationInfoDto): Donation => ({
     category: dto.category,
     pickupLocation: dto.pickupLocation,
     expirationDate: dto.expirationDate || new Date().toISOString(),
-    image: dto.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&q=80',
+    image: dto.image || 'https://images.unsplash.com/vector-1740026651800-93fb37caa211?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8ODR8fGdyb2Nlcnl8ZW58MHx8MHx8fDA%3D',
     status: dto.status as 'Available' | 'Reserved',
     donorId: String(dto.donorId),
     donorName: dto.donorName,
@@ -31,6 +32,7 @@ const mapDonationDtoToDonation = (dto: DonationInfoDto): Donation => ({
 
 const DonationFeed: React.FC = () => {
   const { theme } = useTheme();
+  const navigate = useNavigate();
   const [donations, setDonations] = useState<Donation[]>([]);
   const { user } = useAuth();
   const { createReservation } = useReservations();
@@ -60,7 +62,11 @@ const DonationFeed: React.FC = () => {
   }, []);
 
   const filteredDonations = useMemo(() => {
-    let results = [...donations];
+    const now = new Date();
+    let results = donations.filter(d => {
+        const expirationDate = new Date(d.expirationDate);
+        return expirationDate > now;
+    });
 
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
@@ -99,13 +105,9 @@ const DonationFeed: React.FC = () => {
         toast.info('Only receiver organizations can reserve donations.');
         return;
       }
-      try {
-        await createReservation(id, amountReserved);
-        toast.success("Reserved! The donor will confirm when it's ready for pickup.");
-      } catch (err) {
-        const message = err instanceof Error ? err.message : 'Failed to reserve item';
-        toast.error(message);
-      }
+      // Verificarea se face acum pe backend.
+      // Vom prinde eroarea în modal.
+      await createReservation(id, amountReserved);
     },
     [isDonor, createReservation]
   );

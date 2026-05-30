@@ -3,23 +3,27 @@ using VLM.DataAccessLayer.Context;
 using VLM.Domain.Entities.Reservation;
 using VLM.Domain.Models.Reservation;
 using VLM.Domain.Models.Service;
+using VLM.Domain.Models.Notification; // Adăugat pentru NotificationCreateDto
 
 namespace VLM.BusinessLayer.Structure;
 
 public class ReservationActions
 {
     private readonly VlmDbContext _dbContext;
+    private readonly NotificationActions _notificationActions;
 
     // Folosim injecția de dependențe
     public ReservationActions(VlmDbContext dbContext)
     {
         _dbContext = dbContext;
+        _notificationActions = new NotificationActions(_dbContext); // Inițializăm NotificationActions
     }
 
     // Constructor păstrat pentru compatibilitate inversă
     public ReservationActions()
     {
         _dbContext = new VlmDbContext();
+        _notificationActions = new NotificationActions(_dbContext);
     }
 
     private static ReservationInfoDto MapToDto(ReservationEntity entity) => new()
@@ -28,8 +32,6 @@ public class ReservationActions
         UserId = entity.UserId,
         DonationId = entity.DonationId,
         QuantityReserved = entity.QuantityReserved,
-        // QuantityPickedUpByReceiver = entity.QuantityPickedUpByReceiver, // Comentat
-        // QuantityConfirmed = entity.QuantityConfirmed, // Comentat
         Status = entity.Status,
         Notes = entity.Notes,
         CreatedDate = entity.CreatedDate,
@@ -37,8 +39,6 @@ public class ReservationActions
         DonorConfirmedAt = entity.DonorConfirmedAt,
         ReceiverConfirmedAt = entity.ReceiverConfirmedAt,
         CompletedAt = entity.CompletedAt,
-        // CancelledAt = entity.CancelledAt, // Comentat
-        // CancelledBy = entity.CancelledBy, // Comentat
         DonationTitle = entity.Donation?.Title ?? string.Empty,
         DonationImage = entity.Donation?.Image,
         DonationCategory = entity.Donation?.Category ?? string.Empty,
@@ -125,6 +125,18 @@ public class ReservationActions
     {
         try
         {
+            var receiver = _dbContext.Users.Find(dto.UserId);
+            if (receiver == null)
+            {
+                return new ServiceResponse { IsSuccess = false, Message = "User not found" };
+            }
+
+            // Verificăm angajamentul de siguranță pe backend
+            if (receiver.HasAcceptedSafetyCommitment != true)
+            {
+                return new ServiceResponse { IsSuccess = false, Message = "Safety commitment not accepted" };
+            }
+
             var donation = _dbContext.Donations.Find(dto.DonationId);
             if (donation == null)
                 return new ServiceResponse { IsSuccess = false, Message = "Donation not found" };
@@ -145,7 +157,6 @@ public class ReservationActions
             _dbContext.Reservations.Add(entity);
             _dbContext.SaveChanges();
 
-            var receiver = _dbContext.Users.Find(dto.UserId);
             var responseDto = new ReservationInfoDto
             {
                 Id = entity.Id,
@@ -163,7 +174,7 @@ public class ReservationActions
                 ExpirationDate = donation.ExpirationDate,
                 DonorId = donation.DonorId,
                 DonorName = _dbContext.Users.Find(donation.DonorId)?.Name ?? "Unknown Donor",
-                ReceiverName = receiver?.Name ?? "Unknown Receiver",
+                ReceiverName = receiver.Name,
             };
 
             return new ServiceResponse { IsSuccess = true, Data = responseDto, Message = "Reservation created successfully" };
@@ -178,47 +189,45 @@ public class ReservationActions
     {
         try
         {
-            var entity = _dbContext.Reservations.Find(id);
+            var entity = _dbContext.Reservations
+                .Include(r => r.Donation) 
+                .FirstOrDefault(r => r.Id == id);
+                
             if (entity == null)
                 return new ServiceResponse { IsSuccess = false, Message = "Reservation not found" };
 
+            if (dto.Status == "donor_confirmed" && entity.Status != "donor_confirmed")
+            {
+                if (entity.Donation != null)
+                {
+                    if (entity.Donation.Quantity < entity.QuantityReserved)
+                        return new ServiceResponse { IsSuccess = false, Message = $"Not enough quantity. Only {entity.Donation.Quantity} available" };
+                        
+                    entity.Donation.Quantity -= entity.QuantityReserved;
+                    _dbContext.Update(entity.Donation);
+                }
+
+                _notificationActions.CreateNotificationAction(new NotificationCreateDto
+                {
+                    UserId = entity.UserId,
+                    Title = "Reservation Ready!",
+                    Description = $"The donor has confirmed your reservation for '{entity.Donation?.Title}'. It is now ready for pickup.",
+                    Type = "reservation",
+                    Link = "/receiver/history"
+                });
+            }
+
+            if (dto.Status == "cancelled" && entity.Status == "donor_confirmed")
+            {
+                if (entity.Donation != null)
+                {
+                    entity.Donation.Quantity += entity.QuantityReserved;
+                    _dbContext.Update(entity.Donation);
+                }
+            }
+
             entity.Status = dto.Status;
             entity.UpdatedDate = DateTime.UtcNow;
-
-            // Logica pentru coloanele lipsă a fost comentată
-            /*
-            switch (dto.Status)
-            {
-                case "donor_confirmed":
-                    entity.DonorConfirmedAt = DateTime.UtcNow;
-                    break;
-                case "receiver_confirmed":
-                    entity.ReceiverConfirmedAt = DateTime.UtcNow;
-                    // entity.QuantityPickedUpByReceiver = dto.QuantityPickedUpByReceiver;
-                    break;
-                case "completed":
-                    entity.CompletedAt = DateTime.UtcNow;
-                    // entity.QuantityConfirmed = dto.QuantityConfirmed;
-                    // if (dto.QuantityConfirmed.HasValue)
-                    // {
-                    //     var diff = entity.QuantityReserved - dto.QuantityConfirmed.Value;
-                    //     if (diff > 0)
-                    //     {
-                    //         var donation = _dbContext.Donations.Find(entity.DonationId);
-                    //         if (donation != null && (donation.ExpirationDate == null || donation.ExpirationDate > DateTime.UtcNow))
-                    //             donation.Quantity += diff;
-                    //     }
-                    // }
-                    break;
-                case "cancelled":
-                    // entity.CancelledAt = DateTime.UtcNow;
-                    // entity.CancelledBy = dto.CancelledBy;
-                    var cancelledDonation = _dbContext.Donations.Find(entity.DonationId);
-                    if (cancelledDonation != null && (cancelledDonation.ExpirationDate == null || cancelledDonation.ExpirationDate > DateTime.UtcNow))
-                        cancelledDonation.Quantity += entity.QuantityReserved;
-                    break;
-            }
-            */
 
             _dbContext.SaveChanges();
 
@@ -258,6 +267,16 @@ public class ReservationActions
             var entity = _dbContext.Reservations.Find(id);
             if (entity == null)
                 return new ServiceResponse { IsSuccess = false, Message = "Reservation not found" };
+
+            if (entity.Status == "donor_confirmed")
+            {
+                var donation = _dbContext.Donations.Find(entity.DonationId);
+                if (donation != null)
+                {
+                    donation.Quantity += entity.QuantityReserved;
+                    _dbContext.Update(donation);
+                }
+            }
 
             _dbContext.Reservations.Remove(entity);
             _dbContext.SaveChanges();

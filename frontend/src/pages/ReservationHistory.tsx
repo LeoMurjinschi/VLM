@@ -20,19 +20,22 @@ export interface HistoryRecord {
   donor: string;
   quantity: string;
   pickupDate: string;
-  status: 'Completed' | 'Cancelled' | 'Expired';
+  status: 'Completed' | 'Cancelled' | 'Expired' | 'Waiting for Receiver';
   image: string;
   pendingReview?: PendingReviewDto;
 }
 
-const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1488459716781-6f3ee109e5e4?auto=format&fit=crop&q=80&w=300&h=300';
+const DEFAULT_IMAGE = 'https://images.unsplash.com/vector-1740026651800-93fb37caa211?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8ODR8fGdyb2Nlcnl8ZW58MHx8MHx8fDA%3D';
 
 /** Reservation statuses that belong on History & Status (pickup confirmed or finished). */
-const HISTORY_STATUSES = new Set(['receiver_confirmed', 'completed', 'cancelled']);
+const HISTORY_STATUSES = new Set(['donor_confirmed', 'receiver_confirmed', 'completed', 'cancelled']);
 
-const mapStatus = (s: string): 'Completed' | 'Cancelled' | 'Expired' => {
-  if (s === 'completed' || s === 'receiver_confirmed') return 'Completed';
+const mapStatus = (s: string): 'Completed' | 'Cancelled' | 'Expired' | 'Waiting for Receiver' => {
+  if (s === 'completed') return 'Completed';
+  if (s === 'receiver_confirmed') return 'Completed';
   if (s === 'cancelled') return 'Cancelled';
+  if (s === 'donor_confirmed') return 'Waiting for Receiver';
+
   return 'Expired';
 };
 
@@ -46,7 +49,7 @@ const ReservationHistory: React.FC = () => {
   const { user } = useAuth();
   const { myReservations, loading } = useReservations();
   const userId = user?.id ? Number(user.id) : undefined;
-  const { getPendingByDonationId, submitReview } = usePendingReviews(
+  const { getPendingByReservationId, submitReview } = usePendingReviews(
     user?.role === 'receiver' ? userId : undefined
   );
   const [reviewingItem, setReviewingItem] = useState<PendingReviewDto | null>(null);
@@ -68,13 +71,13 @@ const ReservationHistory: React.FC = () => {
       })
       .map((r): HistoryRecord => {
         const pickupIso = r.receiverConfirmedAt ?? r.completedAt ?? r.reservedAt;
-        const donationId = parseInt(r.stockId, 10);
+        const reservationId = parseInt(r.id, 10);
         const pendingReview =
-          r.status !== 'cancelled' ? getPendingByDonationId(donationId) : undefined;
+          r.status !== 'cancelled' ? getPendingByReservationId(reservationId) : undefined;
 
         return {
           id: r.id,
-          donationId,
+          donationId: parseInt(r.stockId, 10),
           title: r.stockTitle,
           donor: r.donorName,
           quantity: `${r.quantityReserved} ${r.unit}`,
@@ -84,18 +87,20 @@ const ReservationHistory: React.FC = () => {
           pendingReview,
         };
       });
-  }, [myReservations, user?.id, user?.role, getPendingByDonationId]);
+  }, [myReservations, user?.id, user?.role, getPendingByReservationId]);
 
   const handleSubmitReview = async (
     reviewId: number,
     donationId: number,
     donorId: number,
     rating: number,
-    comment: string
+    comment: string,
+    reservationId?: number
   ) => {
     if (!userId) return;
-    await submitReview(reviewId, donationId, donorId, userId, rating, comment);
+    await submitReview(reviewId, donationId, donorId, userId, rating, comment, reservationId);
     toast.success('Thank you! Your review has been submitted.');
+    setReviewingItem(null);
   };
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -184,12 +189,16 @@ const ReservationHistory: React.FC = () => {
           </div>
         )}
 
-        <ReviewSubmitModal
-          isOpen={!!reviewingItem}
-          item={reviewingItem}
-          onClose={() => setReviewingItem(null)}
-          onSubmit={handleSubmitReview}
-        />
+        {reviewingItem && (
+          <ReviewSubmitModal
+            isOpen={!!reviewingItem}
+            item={reviewingItem}
+            onClose={() => setReviewingItem(null)}
+            onSubmit={(reviewId, donationId, donorId, rating, comment) => 
+              handleSubmitReview(reviewId, donationId, donorId, rating, comment, reviewingItem.reservationId)
+            }
+          />
+        )}
       </div>
     </PageLayout>
   );

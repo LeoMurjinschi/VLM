@@ -10,7 +10,9 @@ import {
   CheckIcon,
   MapIcon,
   XMarkIcon,
+  ExclamationCircleIcon,
 } from '@heroicons/react/24/outline';
+import { motion } from 'framer-motion';
 import type { Donation } from '../_mock';
 import ReservationModal from './ReservationModal';
 import { useTheme } from '../hooks/useTheme';
@@ -29,6 +31,7 @@ interface DonationCardProps {
   onQuantityChange?: (id: string, qty: number) => void;
   onStatusChange?: (id: string, status: 'Available' | 'Reserved') => void;
   onCardClick?: (donation: Donation) => void;
+  showSafetyWarning?: boolean;
 }
 
 const DonationCard: React.FC<DonationCardProps> = ({
@@ -41,6 +44,7 @@ const DonationCard: React.FC<DonationCardProps> = ({
   onQuantityChange,
   onStatusChange,
   onCardClick,
+  showSafetyWarning = false,
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -89,6 +93,8 @@ const DonationCard: React.FC<DonationCardProps> = ({
     else if (mode !== 'inventory') navigateToStock();
   };
 
+  const imageUrl = donation.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&q=80';
+
   return (
     <>
       <div
@@ -101,20 +107,34 @@ const DonationCard: React.FC<DonationCardProps> = ({
         ${isExpiringSoon ? 'ring-2 ring-amber-400' : ''}
       `}>
         
-        {/* Image section — fixed 200px */}
+        {showSafetyWarning && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+            className="absolute inset-0 z-20 bg-red-500/20 backdrop-blur-sm flex items-center justify-center"
+          >
+            <motion.div
+              initial={{ scale: 0.5, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 15, delay: 0.1 }}
+            >
+              <ExclamationCircleIcon className="w-24 h-24 text-red-600" />
+            </motion.div>
+          </motion.div>
+        )}
+
         <div className="relative h-[200px] overflow-hidden bg-gray-100 dark:bg-gray-800 flex-shrink-0">
           <img
-            src={donation.image}
+            src={imageUrl}
             alt={donation.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
           
-          {/* Frosted category badge — top left */}
           <span className={`absolute top-3 left-3 px-2.5 py-1 rounded-lg text-[11px] font-bold uppercase tracking-wide shadow-sm ${catColors.bg} ${catColors.text}`}>
             {donation.category}
           </span>
 
-          {/* Status badge — top right */}
           <span className={`absolute top-3 right-3 px-2.5 py-1 rounded-lg text-[11px] font-bold shadow-sm ${
             isAvailable
               ? 'bg-green-500/80 text-white'
@@ -124,9 +144,7 @@ const DonationCard: React.FC<DonationCardProps> = ({
           </span>
         </div>
 
-        {/* Card body */}
         <div className="flex flex-col flex-grow p-4 pt-3.5">
-          {/* Category chip */}
           <span className={`self-start px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider mb-2 ${
             theme === 'light'
               ? 'bg-[#16a34a]/10 text-[#16a34a]'
@@ -135,7 +153,6 @@ const DonationCard: React.FC<DonationCardProps> = ({
             {donation.category}
           </span>
 
-          {/* Title + rating */}
           <div className="flex items-start justify-between gap-2 mb-1.5">
             <h3
               className={`text-lg font-bold leading-snug ${
@@ -160,14 +177,12 @@ const DonationCard: React.FC<DonationCardProps> = ({
             )}
           </div>
 
-          {/* Description */}
           <p className={`text-[13px] mb-3 line-clamp-2 leading-relaxed ${
             theme === 'light' ? 'text-gray-500' : 'text-gray-400'
           }`}>
             {donation.description}
           </p>
 
-          {/* Donor row */}
           {donation.donorId ? (
             <Link
               to={`../donors/${donation.donorId}`}
@@ -204,7 +219,6 @@ const DonationCard: React.FC<DonationCardProps> = ({
             </div>
           )}
 
-          {/* Info rows */}
           <div className={`mt-auto space-y-2 pt-3 border-t ${
             theme === 'light' ? 'border-gray-100' : 'border-[#2e2e2e]'
           }`}>
@@ -383,7 +397,6 @@ const DonationCard: React.FC<DonationCardProps> = ({
           </div>
         )}
 
-        {/* Expiry urgency bar */}
         {isExpiringSoon && (
           <div className="absolute bottom-0 inset-x-0 h-[3px] bg-amber-400 group-hover:opacity-0 transition-opacity" />
         )}

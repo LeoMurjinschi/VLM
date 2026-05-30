@@ -37,7 +37,7 @@ const HistoryFilters: React.FC<HistoryFiltersProps> = ({
   ];
 
   return (
-    <div className={`p-4 rounded-2xl border mb-6 transition-all duration-300 animate-fade-in-up relative z-40 ${
+    <div className={`p-4 rounded-2xl border mb-6 transition-all duration-300 animate-fade-in-up relative ${
       theme === 'light' ? 'bg-white border-gray-200/60 shadow-sm' : 'bg-[#1a1a1a] border-[#2e2e2e]'
     }`}>
       <div className="flex flex-col md:flex-row gap-4 items-center">
