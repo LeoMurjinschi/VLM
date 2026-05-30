@@ -206,7 +206,9 @@ public class DonationActions
     {
         try
         {
+            var now = DateTime.UtcNow;
             var donations = _dbContext.Donations
+                .Where(d => d.ExpirationDate > now)
                 .Select(entity => new DonationInfoDto
                 {
                     Id = entity.Id,

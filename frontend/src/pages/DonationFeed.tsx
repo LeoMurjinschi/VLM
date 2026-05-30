@@ -62,7 +62,11 @@ const DonationFeed: React.FC = () => {
   }, []);
 
   const filteredDonations = useMemo(() => {
-    let results = [...donations];
+    const now = new Date();
+    let results = donations.filter(d => {
+        const expirationDate = new Date(d.expirationDate);
+        return expirationDate > now;
+    });
 
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();

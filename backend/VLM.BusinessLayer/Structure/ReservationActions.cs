@@ -190,23 +190,40 @@ public class ReservationActions
         try
         {
             var entity = _dbContext.Reservations
-                .Include(r => r.Donation) // Includem donația pentru a-i lua titlul
+                .Include(r => r.Donation) 
                 .FirstOrDefault(r => r.Id == id);
                 
             if (entity == null)
                 return new ServiceResponse { IsSuccess = false, Message = "Reservation not found" };
 
-            // Creăm notificare dacă statusul se schimbă în "donor_confirmed"
             if (dto.Status == "donor_confirmed" && entity.Status != "donor_confirmed")
             {
+                if (entity.Donation != null)
+                {
+                    if (entity.Donation.Quantity < entity.QuantityReserved)
+                        return new ServiceResponse { IsSuccess = false, Message = $"Not enough quantity. Only {entity.Donation.Quantity} available" };
+                        
+                    entity.Donation.Quantity -= entity.QuantityReserved;
+                    _dbContext.Update(entity.Donation);
+                }
+
                 _notificationActions.CreateNotificationAction(new NotificationCreateDto
                 {
-                    UserId = entity.UserId, // Destinatarul este receiver-ul (cel care a făcut rezervarea)
+                    UserId = entity.UserId,
                     Title = "Reservation Ready!",
                     Description = $"The donor has confirmed your reservation for '{entity.Donation?.Title}'. It is now ready for pickup.",
                     Type = "reservation",
-                    Link = "/receiver/history" // Link către istoricul rezervărilor
+                    Link = "/receiver/history"
                 });
+            }
+
+            if (dto.Status == "cancelled" && entity.Status == "donor_confirmed")
+            {
+                if (entity.Donation != null)
+                {
+                    entity.Donation.Quantity += entity.QuantityReserved;
+                    _dbContext.Update(entity.Donation);
+                }
             }
 
             entity.Status = dto.Status;
@@ -250,6 +267,16 @@ public class ReservationActions
             var entity = _dbContext.Reservations.Find(id);
             if (entity == null)
                 return new ServiceResponse { IsSuccess = false, Message = "Reservation not found" };
+
+            if (entity.Status == "donor_confirmed")
+            {
+                var donation = _dbContext.Donations.Find(entity.DonationId);
+                if (donation != null)
+                {
+                    donation.Quantity += entity.QuantityReserved;
+                    _dbContext.Update(donation);
+                }
+            }
 
             _dbContext.Reservations.Remove(entity);
             _dbContext.SaveChanges();
