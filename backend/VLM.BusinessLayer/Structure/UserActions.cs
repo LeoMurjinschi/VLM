@@ -39,17 +39,10 @@ public class UserActions
             }
 
             var newHash = PasswordHasher.Hash(loginDto.Password);
-            var oldHash = PasswordHasher.HashOld(loginDto.Password);
 
-            if (user.PasswordHash != newHash && user.PasswordHash != oldHash)
+            if (user.PasswordHash != newHash)
             {
                 return new ServiceResponse { IsSuccess = false, Message = "Email or password not matching." };
-            }
-
-            if (user.PasswordHash == oldHash)
-            {
-                user.PasswordHash = newHash;
-                _dbContext.SaveChanges();
             }
 
             if (!user.IsActive)
@@ -89,6 +82,7 @@ public class UserActions
                     Email = user.Email,
                     Role = user.Role,
                     Avatar = user.Avatar,
+                    HasAcceptedSafetyCommitment = user.HasAcceptedSafetyCommitment ?? false,
                     Token = token
                 }
             };
@@ -114,6 +108,7 @@ public class UserActions
                     Avatar = entity.Avatar,
                     IsActive = entity.IsActive,
                     CreatedDate = entity.CreatedDate,
+                    HasAcceptedSafetyCommitment = entity.HasAcceptedSafetyCommitment ?? false,
                     ApprovalStatus = entity.ApprovalStatus,
                     ApprovedById = entity.ApprovedById,
                     ApprovedAt = entity.ApprovedAt,
@@ -160,6 +155,7 @@ public class UserActions
                 Avatar = entity.Avatar,
                 IsActive = entity.IsActive,
                 CreatedDate = entity.CreatedDate,
+                HasAcceptedSafetyCommitment = entity.HasAcceptedSafetyCommitment ?? false,
                 ApprovalStatus = entity.ApprovalStatus,
                 ApprovedById = entity.ApprovedById,
                 ApprovedAt = entity.ApprovedAt,
@@ -328,6 +324,7 @@ public class UserActions
                     Avatar = entity.Avatar,
                     IsActive = entity.IsActive,
                     CreatedDate = entity.CreatedDate,
+                    HasAcceptedSafetyCommitment = entity.HasAcceptedSafetyCommitment ?? false,
                     ApprovalStatus = entity.ApprovalStatus,
                     ApprovedById = entity.ApprovedById,
                     ApprovedAt = entity.ApprovedAt,
@@ -512,6 +509,25 @@ public class UserActions
                 IsSuccess = false,
                 Message = $"Error deleting user: {e.Message}"
             };
+        }
+    }
+
+    public ServiceResponse AcceptSafetyCommitmentAction(int userId)
+    {
+        try
+        {
+            var entity = _dbContext.Users.Find(userId);
+            if (entity == null)
+                return new ServiceResponse { IsSuccess = false, Message = "User not found" };
+
+            entity.HasAcceptedSafetyCommitment = true;
+            _dbContext.SaveChanges();
+
+            return new ServiceResponse { IsSuccess = true, Message = "Safety commitment accepted successfully" };
+        }
+        catch (Exception e)
+        {
+            return new ServiceResponse { IsSuccess = false, Message = $"Error accepting safety commitment: {e.Message}" };
         }
     }
 }

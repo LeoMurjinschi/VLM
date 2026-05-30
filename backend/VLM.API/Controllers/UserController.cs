@@ -94,4 +94,13 @@ public class UserController : ControllerBase
             return NotFound(result.Message);
         return Ok(result.Message);
     }
+
+    [HttpPut("has-accepted-safety-commitment/{id}")]
+    public IActionResult AcceptSafetyCommitment([FromRoute] int id)
+    {
+        var result = _userLogic.AcceptSafetyCommitment(id);
+        if (!result.IsSuccess)
+            return BadRequest(result.Message);
+        return Ok(result.Message);
+    }
 }

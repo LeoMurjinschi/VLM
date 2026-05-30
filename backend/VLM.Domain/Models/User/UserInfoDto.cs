@@ -10,6 +10,7 @@ public class UserInfoDto
     public string? Avatar { get; set; }
     public bool IsActive { get; set; }
     public DateTime CreatedDate { get; set; }
+    public bool HasAcceptedSafetyCommitment { get; set; }
     public string ApprovalStatus { get; set; } = "pending";
     public int? ApprovedById { get; set; }
     public DateTime? ApprovedAt { get; set; }
