@@ -15,12 +15,12 @@ import {
   EyeIcon,
   SparklesIcon,
   CheckCircleIcon,
-  ChevronRightIcon
+  ChevronRightIcon,
+  ArrowPathIcon // Iconiță pentru loading
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../context/AuthContext';
 import { userService } from '../api/userService';
 
-// 1. Datele statice mutate în afara componentei pentru a evita re-randările inutile
 const GUIDE_SECTIONS = [
   { title: 'Faza 1: Before Pickup (Preparation)', icon: <SparklesIcon className="w-6 h-6" />, content: (<ul className="space-y-3 list-disc list-inside marker:text-[#16a34a]"><li><strong>Clean Equipment:</strong> Thermal bags must be clean.</li><li><strong>No Pets:</strong> Keep animals separate.</li></ul>) },
   { title: 'Faza 2: At the Donor (Inspection)', icon: <EyeIcon className="w-6 h-6" />, content: (<ul className="space-y-3 list-disc list-inside marker:text-[#16a34a]"><li><strong>Visual Check:</strong> Inspect packaging. Refuse leaky containers.</li><li><strong>Ask Questions:</strong> Identify allergens.</li></ul>) },
@@ -32,13 +32,39 @@ const SafetyGuide: React.FC = () => {
   const { theme } = useTheme();
   const { user, updateUser } = useAuth();
   const [openSection, setOpenSection] = useState<number | null>(0);
-  const [hasConsented, setHasConsented] = useState(user?.hasAcceptedSafetyCommitment || false);
+  
+  // Stări pentru a gestiona încărcarea și consimțământul
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasConsented, setHasConsented] = useState(false);
 
+  // Re-sincronizăm starea cu serverul de fiecare dată când pagina e vizitată
   useEffect(() => {
-    if (user) {
-      setHasConsented(user.hasAcceptedSafetyCommitment);
-    }
-  }, [user]);
+    const syncStatus = async () => {
+      if (user?.id) {
+        setIsLoading(true);
+        try {
+          const freshUser = await userService.getById(parseInt(user.id, 10));
+          const serverConsent = freshUser.hasAcceptedSafetyCommitment;
+          
+          // Actualizăm starea locală și cea globală (din AuthContext)
+          setHasConsented(serverConsent);
+          if (user.hasAcceptedSafetyCommitment !== serverConsent) {
+            updateUser({ hasAcceptedSafetyCommitment: serverConsent });
+          }
+        } catch (error) {
+          console.error("Failed to sync safety commitment status:", error);
+          // În caz de eroare, folosim valoarea locală ca fallback
+          setHasConsented(user.hasAcceptedSafetyCommitment || false);
+        } finally {
+          setIsLoading(false);
+        }
+      } else {
+        setIsLoading(false);
+      }
+    };
+
+    syncStatus();
+  }, [user?.id]); // Rulează doar când ID-ul utilizatorului se schimbă
 
   const constraintsRef = useRef<HTMLDivElement>(null);
   const x = useMotionValue(0);
@@ -49,14 +75,12 @@ const SafetyGuide: React.FC = () => {
     setOpenSection(openSection === index ? null : index);
   };
 
-  // 2. Tipizare corectă pentru Framer Motion
   const handleDragEnd = (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     if (info.point.x > 220 || info.offset.x > 220) {
       approveConsent();
     }
   };
 
-  // 3. Funcție separată pentru a permite suport de la tastatură
   const approveConsent = async () => {
     if (!hasConsented && user) {
       try {
@@ -77,11 +101,78 @@ const SafetyGuide: React.FC = () => {
     }
   };
 
+  // Funcție pentru a afișa conținutul secțiunii de consimțământ
+  const renderConsentSection = () => {
+    if (isLoading) {
+      return (
+        <div className="flex justify-center items-center p-10">
+          <ArrowPathIcon className="w-8 h-8 text-gray-400 animate-spin" />
+          <p className="ml-3 text-gray-500">Loading status...</p>
+        </div>
+      );
+    }
+
+    if (hasConsented) {
+      return (
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ type: "spring", stiffness: 200, damping: 20 }}
+          className={`p-6 rounded-2xl flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left border-2 border-[#16a34a]/30 ${
+            theme === 'light' ? 'bg-[#16a34a]/10' : 'bg-[#16a34a]/10'
+          }`}
+        >
+          <CheckCircleIcon className="w-16 h-16 text-[#16a34a] shrink-0" />
+          <div>
+            <h4 className="text-lg font-bold text-[#16a34a] dark:text-green-400" style={{ fontFamily: 'var(--font-display)' }}>Agreement Officially Logged</h4>
+            <p className="text-sm text-green-700 dark:text-green-300">
+              Thank you, volunteer! Your commitment to food safety has been securely recorded on your profile. You're ready to rescue food safely.
+            </p>
+          </div>
+        </motion.div>
+      );
+    }
+
+    return (
+      <div className="w-full flex justify-center mt-6">
+        <div 
+          ref={constraintsRef}
+          className={`relative w-full max-w-xs h-16 rounded-full p-1 flex items-center overflow-hidden shadow-inner ${
+            theme === 'light' ? 'bg-gray-100' : 'bg-[#0a0a0a]'
+          }`}
+        >
+          <motion.div 
+            style={{ opacity }}
+            className="absolute inset-0 flex items-center justify-center font-bold text-sm tracking-wide text-gray-400 select-none pointer-events-none"
+          >
+            Swipe right to Agree
+          </motion.div>
+
+          <motion.div
+            drag="x" 
+            dragConstraints={constraintsRef} 
+            dragElastic={0.05} 
+            dragMomentum={false} 
+            onDragEnd={handleDragEnd} 
+            style={{ x, backgroundColor: color }} 
+            tabIndex={0}
+            onKeyDown={handleKeyDown}
+            role="button"
+            aria-label="Swipe right or press Enter to agree to safety standards"
+            className="relative z-10 w-14 h-14 rounded-full flex items-center justify-center cursor-grab active:cursor-grabbing shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#16a34a]"
+          >
+            <ChevronRightIcon className="w-7 h-7 text-white" />
+            <ChevronRightIcon className="w-7 h-7 text-white/50 -ml-4" />
+          </motion.div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <PageLayout>
       <div className="w-full max-w-4xl mx-auto min-h-screen pb-10">
         
-        {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
             <ShieldCheckIcon className="w-10 h-10 text-[#16a34a]" />
@@ -94,7 +185,6 @@ const SafetyGuide: React.FC = () => {
           </p>
         </div>
 
-        {/* Golden Rules */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
           <div className={`p-5 rounded-2xl border ${theme === 'light' ? 'bg-white border-gray-200/60' : 'bg-[#1a1a1a] border-[#2e2e2e]'}`}>
             <FireIcon className="w-7 h-7 text-red-500 mb-2" />
@@ -113,14 +203,12 @@ const SafetyGuide: React.FC = () => {
           </div>
         </div>
 
-        {/* Accordion procedures */}
         <div className="mb-10">
           {GUIDE_SECTIONS.map((section, index) => (
             <AccordionItem key={index} title={section.title} icon={section.icon} content={section.content} isOpen={openSection === index} onClick={() => toggleSection(index)} />
           ))}
         </div>
 
-        {/* Consent Section */}
         <div className={`p-6 md:p-8 rounded-3xl mb-10 border shadow-inner transition-colors ${
           theme === 'light' ? 'bg-white border-gray-200/60' : 'bg-[#1a1a1a] border-[#2e2e2e]'
         }`}>
@@ -139,65 +227,10 @@ const SafetyGuide: React.FC = () => {
             </div>
           </div>
 
-          {!hasConsented ? (
-            <div className="w-full flex justify-center mt-6">
-              {/* Lățime redusă (max-w-xs) pentru a corela vizual distanța cu pragul de 220px */}
-              <div 
-                ref={constraintsRef}
-                className={`relative w-full max-w-xs h-16 rounded-full p-1 flex items-center overflow-hidden shadow-inner ${
-                  theme === 'light' ? 'bg-gray-100' : 'bg-[#0a0a0a]'
-                }`}
-              >
-                <motion.div 
-                  style={{ opacity }}
-                  className="absolute inset-0 flex items-center justify-center font-bold text-sm tracking-wide text-gray-400 select-none pointer-events-none"
-                >
-                  Swipe right to Agree
-                </motion.div>
+          {renderConsentSection()}
 
-                <motion.div
-                  drag="x" 
-                  dragConstraints={constraintsRef} 
-                  dragElastic={0.05} 
-                  dragMomentum={false} 
-                  onDragEnd={handleDragEnd} 
-                  style={{ x, backgroundColor: color }} 
-                  
-                  // Suport pentru tastatură
-                  tabIndex={0}
-                  onKeyDown={handleKeyDown}
-                  role="button"
-                  aria-label="Swipe right or press Enter to agree to safety standards"
-                  
-                  // h-14 în loc de h-13
-                  className="relative z-10 w-14 h-14 rounded-full flex items-center justify-center cursor-grab active:cursor-grabbing shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#16a34a]"
-                >
-                  <ChevronRightIcon className="w-7 h-7 text-white" />
-                  <ChevronRightIcon className="w-7 h-7 text-white/50 -ml-4" />
-                </motion.div>
-              </div>
-            </div>
-          ) : (
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ type: "spring", stiffness: 200, damping: 20 }}
-              className={`p-6 rounded-2xl flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left border-2 border-[#16a34a]/30 ${
-                theme === 'light' ? 'bg-[#16a34a]/10' : 'bg-[#16a34a]/10'
-              }`}
-            >
-              <CheckCircleIcon className="w-16 h-16 text-[#16a34a] shrink-0" />
-              <div>
-                <h4 className="text-lg font-bold text-[#16a34a] dark:text-green-400" style={{ fontFamily: 'var(--font-display)' }}>Agreement Officially Logged</h4>
-                <p className="text-sm text-green-700 dark:text-green-300">
-                  Thank you, volunteer! Your commitment to food safety has been securely recorded on your profile. You're ready to rescue food safely.
-                </p>
-              </div>
-            </motion.div>
-          )}
         </div>
 
-        {/* Report Hazard Section */}
         <div className={`p-6 md:p-8 rounded-3xl flex flex-col sm:flex-row items-center justify-between gap-6 border border-red-200 ${
           theme === 'light' ? 'bg-red-50' : 'bg-red-900/20 border-red-900/50'
         }`}>

@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import DonationCard from '../components/DonationCard';
 import DonationFilter from '../components/DonationFilter';
 import { MagnifyingGlassIcon, FunnelIcon, InformationCircleIcon } from '@heroicons/react/24/outline';
@@ -31,6 +32,7 @@ const mapDonationDtoToDonation = (dto: DonationInfoDto): Donation => ({
 
 const DonationFeed: React.FC = () => {
   const { theme } = useTheme();
+  const navigate = useNavigate();
   const [donations, setDonations] = useState<Donation[]>([]);
   const { user } = useAuth();
   const { createReservation } = useReservations();
@@ -99,13 +101,9 @@ const DonationFeed: React.FC = () => {
         toast.info('Only receiver organizations can reserve donations.');
         return;
       }
-      try {
-        await createReservation(id, amountReserved);
-        toast.success("Reserved! The donor will confirm when it's ready for pickup.");
-      } catch (err) {
-        const message = err instanceof Error ? err.message : 'Failed to reserve item';
-        toast.error(message);
-      }
+      // Verificarea se face acum pe backend.
+      // Vom prinde eroarea în modal.
+      await createReservation(id, amountReserved);
     },
     [isDonor, createReservation]
   );

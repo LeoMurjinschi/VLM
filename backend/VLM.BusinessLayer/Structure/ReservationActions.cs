@@ -121,6 +121,18 @@ public class ReservationActions
     {
         try
         {
+            var receiver = _dbContext.Users.Find(dto.UserId);
+            if (receiver == null)
+            {
+                return new ServiceResponse { IsSuccess = false, Message = "User not found" };
+            }
+
+            // Verificăm angajamentul de siguranță pe backend
+            if (receiver.HasAcceptedSafetyCommitment != true)
+            {
+                return new ServiceResponse { IsSuccess = false, Message = "Safety commitment not accepted" };
+            }
+
             var donation = _dbContext.Donations.Find(dto.DonationId);
             if (donation == null)
                 return new ServiceResponse { IsSuccess = false, Message = "Donation not found" };
@@ -141,7 +153,6 @@ public class ReservationActions
             _dbContext.Reservations.Add(entity);
             _dbContext.SaveChanges();
 
-            var receiver = _dbContext.Users.Find(dto.UserId);
             var responseDto = new ReservationInfoDto
             {
                 Id = entity.Id,
@@ -159,7 +170,7 @@ public class ReservationActions
                 ExpirationDate = donation.ExpirationDate,
                 DonorId = donation.DonorId,
                 DonorName = _dbContext.Users.Find(donation.DonorId)?.Name ?? "Unknown Donor",
-                ReceiverName = receiver?.Name ?? "Unknown Receiver",
+                ReceiverName = receiver.Name,
             };
 
             return new ServiceResponse { IsSuccess = true, Data = responseDto, Message = "Reservation created successfully" };
