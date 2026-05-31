@@ -9,13 +9,11 @@ public class NotificationActions
 {
     private readonly VlmDbContext _dbContext;
 
-    // AICI ESTE SCHIMBAREA: Injectăm VlmDbContext
     public NotificationActions(VlmDbContext dbContext)
     {
         _dbContext = dbContext;
     }
 
-    // Constructor fără parametri păstrat pentru compatibilitate inversă
     public NotificationActions()
     {
         _dbContext = new VlmDbContext();
@@ -105,6 +103,34 @@ public class NotificationActions
         catch (Exception e)
         {
             return new ServiceResponse { IsSuccess = false, Message = $"Error updating notification: {e.Message}" };
+        }
+    }
+
+    public ServiceResponse MarkAllAsReadAction(int userId)
+    {
+        try
+        {
+            var notifications = _dbContext.Notifications
+                .Where(n => n.UserId == userId && !n.IsRead)
+                .ToList();
+
+            if (!notifications.Any())
+            {
+                return new ServiceResponse { IsSuccess = true, Message = "No unread notifications to mark as read." };
+            }
+
+            foreach (var notification in notifications)
+            {
+                notification.IsRead = true;
+            }
+
+            _dbContext.SaveChanges();
+
+            return new ServiceResponse { IsSuccess = true, Message = "All notifications marked as read." };
+        }
+        catch (Exception e)
+        {
+            return new ServiceResponse { IsSuccess = false, Message = $"Error marking all notifications as read: {e.Message}" };
         }
     }
 

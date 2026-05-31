@@ -1,13 +1,11 @@
 import axiosInstance from './axiosProvider';
-import type { NotificationInfoDto } from './types'; // Modificat pentru a importa din types.ts
+import type { NotificationInfoDto } from './types';
 
 interface UnreadCountResponse {
   count: number;
 }
 
-// ── Service ───────────────────────────────────────────────────────────────────
 export const notificationService = {
-
   getByUser: async (userId: number): Promise<NotificationInfoDto[]> => {
     const response = await axiosInstance.get<NotificationInfoDto[]>(`/notifications/${userId}`);
     return response.data;
@@ -20,5 +18,9 @@ export const notificationService = {
 
   markAsRead: async (id: number): Promise<void> => {
     await axiosInstance.post(`/notifications/${id}/mark-as-read`);
+  },
+
+  markAllAsRead: async (userId: number): Promise<void> => {
+    await axiosInstance.post(`/notifications/mark-all-as-read/${userId}`);
   },
 };

@@ -14,7 +14,7 @@ public class NotificationLogic : NotificationActions, INotificationLogic
 
     public ServiceResponse GetUnreadCount(int userId)
     {
-        return GetUnreadCountAction(userId); // Adăugat
+        return GetUnreadCountAction(userId);
     }
 
     public ServiceResponse CreateNotification(NotificationCreateDto dto)
@@ -25,6 +25,11 @@ public class NotificationLogic : NotificationActions, INotificationLogic
     public ServiceResponse MarkAsRead(int id)
     {
         return MarkAsReadAction(id);
+    }
+
+    public ServiceResponse MarkAllAsRead(int userId)
+    {
+        return MarkAllAsReadAction(userId);
     }
 
     public ServiceResponse DeleteNotification(int id)

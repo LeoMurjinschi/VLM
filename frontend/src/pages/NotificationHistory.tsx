@@ -8,9 +8,9 @@ import {
   ExclamationTriangleIcon, 
   InformationCircleIcon,
   FunnelIcon,
-  ShieldExclamationIcon, // Pentru alerte de securitate (Logări)
-  UserPlusIcon,          // Pentru echipa
-  Cog8ToothIcon          // Pentru setari sistem
+  ShieldExclamationIcon,
+  UserPlusIcon,
+  Cog8ToothIcon
 } from '@heroicons/react/24/outline';
 import { type AppNotification } from '../_mock/notifications';
 import { notificationService } from '../api';
@@ -39,6 +39,7 @@ const NotificationHistory: React.FC = () => {
       .catch(() => {})
       .finally(() => setLoading(false));
   }, [user]);
+
   const [filter, setFilter] = useState<'all' | 'unread' | 'urgent' | 'security'>('all');
 
   const filteredNotifications = notifications.filter(notif => {
@@ -49,7 +50,17 @@ const NotificationHistory: React.FC = () => {
   });
 
   const markAllAsRead = () => {
-    setNotifications(prev => prev.map(n => ({ ...n, unread: false })));
+    // Extragem ID-ul utilizatorului exact cum o faci în useEffect
+    const userId = parseInt((user as any)?.id || '0');
+    if (!userId) return;
+
+    notificationService.markAllAsRead(userId)
+        .then(() => {
+          setNotifications(prev => prev.map(n => ({ ...n, unread: false })));
+        })
+        .catch((error) => {
+          console.error("Eroare la marcarea notificărilor ca citite:", error);
+        });
   };
 
   const markAsRead = (id: number) => {
@@ -57,7 +68,6 @@ const NotificationHistory: React.FC = () => {
     notificationService.markAsRead(id).catch(() => {});
   };
 
-  // Funcție inteligentă care returnează iconița și culoarea potrivită
   const getIconForType = (type: string) => {
     switch (type) {
       case 'urgent': return <ExclamationTriangleIcon className="w-6 h-6 text-red-500" />;
@@ -74,7 +84,6 @@ const NotificationHistory: React.FC = () => {
     <PageLayout>
       <div className={`w-full max-w-4xl mx-auto min-h-screen pb-12 bg-transparent`}>
         
-        {/* Header Pagina */}
         <div className="mb-6">
           <div className="flex items-center gap-3 mb-2">
             <BellAlertIcon className={`w-8 h-8 ${theme === 'light' ? (isAdmin ? 'text-[#8b5cf6]' : 'text-[#16a34a]') : (isAdmin ? 'text-violet-400' : 'text-green-400')}`} />
@@ -87,9 +96,7 @@ const NotificationHistory: React.FC = () => {
           </p>
         </div>
 
-        {/* Filters and Actions Bar */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-          {/* Pills Wrapper */}
           <div className={`flex items-center gap-1 p-1 rounded-xl border overflow-x-auto scrollbar-hide ${theme === 'light' ? 'bg-white border-gray-200' : 'bg-[#1a1a1a] border-[#2e2e2e]'}`}>
             <FunnelIcon className={`w-5 h-5 ml-2 mr-1 shrink-0 ${theme === 'light' ? 'text-gray-400' : 'text-gray-500'}`} />
             {(['all', 'unread', 'urgent', 'security'] as const).map((f) => (
@@ -107,7 +114,6 @@ const NotificationHistory: React.FC = () => {
             ))}
           </div>
 
-          {/* Mark as read button */}
           {notifications.some(n => n.unread) && (
             <button 
               onClick={markAllAsRead}
@@ -123,7 +129,6 @@ const NotificationHistory: React.FC = () => {
           )}
         </div>
 
-        {/* Lista de Notificari */}
         <div className={`rounded-3xl border overflow-hidden shadow-sm ${theme === 'light' ? 'bg-white border-gray-200' : 'bg-[#1a1a1a] border-[#2e2e2e]'}`}>
           {filteredNotifications.length > 0 ? (
             <div className={`divide-y ${theme === 'light' ? 'divide-gray-100' : 'divide-[#2e2e2e]'}`}>
@@ -135,7 +140,6 @@ const NotificationHistory: React.FC = () => {
                     notif.unread ? (theme === 'light' ? (isAdmin ? 'bg-[#8b5cf6]/5' : 'bg-[#16a34a]/5') : (isAdmin ? 'bg-[#8b5cf6]/10' : 'bg-[#16a34a]/10')) : ''
                   } hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer`}
                 >
-                  {/* Iconița Dinamică */}
                   <div className={`p-3 rounded-full shrink-0 ${theme === 'light' ? 'bg-gray-50' : 'bg-[#222222]'}`}>
                     {getIconForType(notif.type)}
                   </div>
