@@ -44,6 +44,11 @@ export interface ReservationInfoDto {
 
 export const reservationService = {
 
+  getAll: async (): Promise<ReservationInfoDto[]> => {
+    const response = await axiosInstance.get<ReservationInfoDto[]>('/reservations/list');
+    return response.data;
+  },
+
   getByReceiver: async (userId: number): Promise<ReservationInfoDto[]> => {
     const response = await axiosInstance.get<ReservationInfoDto[]>(`/reservations/by-receiver/${userId}`);
     return response.data;

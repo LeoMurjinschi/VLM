@@ -12,6 +12,11 @@ public class NotificationLogic : NotificationActions, INotificationLogic
         return GetNotificationsByUserAction(userId);
     }
 
+    public ServiceResponse GetUnreadCount(int userId)
+    {
+        return GetUnreadCountAction(userId); // Adăugat
+    }
+
     public ServiceResponse CreateNotification(NotificationCreateDto dto)
     {
         return CreateNotificationAction(dto);

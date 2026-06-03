@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -145,7 +145,7 @@ namespace VLM.DataAccessLayer.Migrations
             migrationBuilder.InsertData(
                 table: "Users",
                 columns: new[] { "Id", "ApprovalStatus", "ApprovedAt", "ApprovedById", "Avatar", "Bio", "CreatedDate", "Email", "IsActive", "Name", "PasswordHash", "RejectionReason", "Role" },
-                values: new object[] { 4, "approved", new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, null, "Platform administrator.", new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "admin@vlm.com", true, "System Admin", "hashed_password_admin", null, "admin" });
+                values: new object[] { 4, "approved", new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, null, "Platform administrator.", new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "admin@vlm.com", true, "System Admin", "43fafe46607d081246596c121faf0e76", null, "admin" });
 
             // Update existing users with approval data
             migrationBuilder.UpdateData(

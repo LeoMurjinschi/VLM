@@ -9,6 +9,13 @@ public class NotificationActions
 {
     private readonly VlmDbContext _dbContext;
 
+    // AICI ESTE SCHIMBAREA: Injectăm VlmDbContext
+    public NotificationActions(VlmDbContext dbContext)
+    {
+        _dbContext = dbContext;
+    }
+
+    // Constructor fără parametri păstrat pentru compatibilitate inversă
     public NotificationActions()
     {
         _dbContext = new VlmDbContext();
@@ -39,6 +46,19 @@ public class NotificationActions
         catch (Exception e)
         {
             return new ServiceResponse { IsSuccess = false, Message = $"Error retrieving notifications: {e.Message}" };
+        }
+    }
+
+    public ServiceResponse GetUnreadCountAction(int userId)
+    {
+        try
+        {
+            var count = _dbContext.Notifications.Count(n => n.UserId == userId && !n.IsRead);
+            return new ServiceResponse { IsSuccess = true, Data = count };
+        }
+        catch (Exception e)
+        {
+            return new ServiceResponse { IsSuccess = false, Message = $"Error getting unread count: {e.Message}" };
         }
     }
 

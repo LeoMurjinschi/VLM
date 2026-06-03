@@ -77,4 +77,9 @@ export const userService = {
     const response = await axiosInstance.delete<string>(`/users/delete/${id}`);
     return response.data;
   },
+
+  acceptSafetyCommitment: async (id: number): Promise<string> => {
+    const response = await axiosInstance.put<string>(`/users/has-accepted-safety-commitment/${id}`);
+    return response.data;
+  },
 };

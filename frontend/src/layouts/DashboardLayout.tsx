@@ -39,7 +39,7 @@ const DashboardLayout: React.FC = () => {
 
 
       <div className="flex-1 flex flex-col overflow-y-auto overflow-x-hidden relative">
-        <div className="sticky top-0 z-40">
+        <div className="sticky top-0 z-50">
           <Header onMenuClick={() => setIsMobileMenuOpen(true)} />
         </div>
 

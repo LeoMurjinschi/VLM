@@ -57,6 +57,7 @@ const BusinessProfileForm: React.FC = () => {
         address: formData.address,
         location: formData.location,
         transportType: formData.transportType,
+        pickupLocationsJson: '[]',
       });
       toast.success('Business profile saved!');
     } catch {

@@ -130,21 +130,21 @@ namespace VLM.DataAccessLayer.Migrations
                 keyColumn: "Id",
                 keyValue: 1,
                 column: "PasswordHash",
-                value: "hashed_password_1");
+                value: "3820be471b75236bf93e1790ea484432");
 
             migrationBuilder.UpdateData(
                 table: "Users",
                 keyColumn: "Id",
                 keyValue: 2,
                 column: "PasswordHash",
-                value: "hashed_password_2");
+                value: "d003257014b8a10582419f1f84478281");
 
             migrationBuilder.UpdateData(
                 table: "Users",
                 keyColumn: "Id",
                 keyValue: 3,
                 column: "PasswordHash",
-                value: "hashed_password_3");
+                value: "3820be471b75236bf93e1790ea484432");
         }
 
         /// <inheritdoc />
@@ -257,7 +257,7 @@ namespace VLM.DataAccessLayer.Migrations
                 keyColumn: "Id",
                 keyValue: 3,
                 column: "PasswordHash",
-                value: "f9a28b5d9ee09b2a5281a579d4f4090a");
+                value: "3820be471b75236bf93e1790ea484432");
         }
     }
 }

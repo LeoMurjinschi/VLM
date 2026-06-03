@@ -146,7 +146,7 @@ const Settings: React.FC = () => {
       next.theme = prev.theme === 'light' ? 'dark' : 'light';
       toggleTheme();
     } else {
-      (next as Record<string, unknown>)[key] = !prev[key as keyof UserSettingsDto];
+      (next as unknown as Record<string, unknown>)[key] = !prev[key as keyof UserSettingsDto];
     }
     setSettingsData(next);
     setIsSavingPrefs(true);

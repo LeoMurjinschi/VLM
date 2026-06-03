@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useTheme } from '../hooks/useTheme';
 import { StarIcon as StarOutline } from '@heroicons/react/24/outline';
 import { StarIcon as StarSolid } from '@heroicons/react/24/solid';
-import type { FeedbackRecord } from './../_mock/feedback'; 
+import type { PendingReviewDto } from '../api';
 
 interface PendingReviewCardProps {
-  item: FeedbackRecord;
-  onSubmit: (id: string, rating: number, comment: string, tags: string[]) => void;
+  item: PendingReviewDto;
+  onSubmit: (rating: number, comment: string) => void;
 }
 
 const GOOD_TAGS = ['✅ Ready on time', '✨ Great quality', '🤝 Friendly staff', '📦 Perfect packaging', '📈 Extra amount'];
@@ -20,7 +20,6 @@ const PendingReviewCard: React.FC<PendingReviewCardProps> = ({ item, onSubmit })
   const [comment, setComment] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
-  // Resetăm tag-urile dacă utilizatorul se răzgândește și schimbă de la 5 stele la 2 stele
   const isPositive = rating >= 4;
   useEffect(() => {
     setSelectedTags([]);
@@ -36,14 +35,17 @@ const PendingReviewCard: React.FC<PendingReviewCardProps> = ({ item, onSubmit })
 
   const handleSubmit = () => {
     if (rating === 0) return;
-    onSubmit(item.id, rating, comment, selectedTags);
+    const fullComment = selectedTags.length > 0 
+      ? `${selectedTags.join(', ')}. ${comment}` 
+      : comment;
+    onSubmit(rating, fullComment);
   };
 
   return (
     <div className={`p-5 flex flex-col sm:flex-row gap-5 rounded-2xl border transition-all ${
       theme === 'light' ? 'bg-white border-gray-200 hover:border-[#16a34a]/30 hover:shadow-md' : 'bg-[#1a1a1a] border-[#2e2e2e] hover:border-[#16a34a]/50'
     }`}>
-      <img src={item.image} alt={item.donationTitle} className="w-full sm:w-24 h-32 sm:h-24 object-cover rounded-xl shrink-0" />
+      <img src={item.donationImage || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&q=80'} alt={item.donationTitle} className="w-full sm:w-24 h-32 sm:h-24 object-cover rounded-xl shrink-0" />
 
       <div className="flex-1 flex flex-col">
         <div className="flex justify-between items-start mb-2">
@@ -52,12 +54,11 @@ const PendingReviewCard: React.FC<PendingReviewCardProps> = ({ item, onSubmit })
               {item.donationTitle}
             </h3>
             <p className={`text-sm font-medium ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>
-              From {item.donorName} • {item.date}
+              From {item.donorName} • {new Date(item.pickupDate).toLocaleDateString()}
             </p>
           </div>
         </div>
 
-        {/* Steluțele Interactive */}
         <div className="flex items-center gap-1 my-3">
           {[1, 2, 3, 4, 5].map((star) => (
             <button
@@ -80,11 +81,9 @@ const PendingReviewCard: React.FC<PendingReviewCardProps> = ({ item, onSubmit })
           </span>
         </div>
 
-        {/* Smart Tags & Textarea (Apar doar după ce dă o stea) */}
         {rating > 0 && (
           <div className="mt-2 animate-fade-in flex flex-col gap-3">
             
-            {/* Butoanele de Tag-uri */}
             <div className="flex flex-wrap gap-2">
               {availableTags.map(tag => {
                 const isSelected = selectedTags.includes(tag);

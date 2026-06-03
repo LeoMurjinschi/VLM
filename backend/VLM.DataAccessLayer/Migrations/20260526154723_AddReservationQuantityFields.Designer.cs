@@ -681,7 +681,7 @@ namespace VLM.DataAccessLayer.Migrations
                             Email = "john@vlm.com",
                             IsActive = true,
                             Name = "John Donor",
-                            PasswordHash = "f9a28b5d9ee09b2a5281a579d4f4090a",
+                            PasswordHash = "3820be471b75236bf93e1790ea484432",
                             Role = "donor"
                         });
                 });

@@ -1,48 +1,88 @@
 using VLM.DataAccessLayer.Context;
 using VLM.Domain.Entities.AccountApproval;
-using VLM.Domain.Entities.AdminAction;
 using VLM.Domain.Entities.User;
 using VLM.Domain.Models.Admin;
 using VLM.Domain.Models.Auth;
 using VLM.Domain.Models.Service;
 using VLM.Domain.Models.User;
+using VLM.Domain.Models.Notification;
+using System.Linq;
 
 namespace VLM.BusinessLayer.Structure;
 
 public class UserActions
 {
     private readonly VlmDbContext _dbContext;
+    private readonly NotificationActions _notificationActions;
+
+    public UserActions(VlmDbContext dbContext, NotificationActions notificationActions)
+    {
+        _dbContext = dbContext;
+        _notificationActions = notificationActions;
+    }
 
     public UserActions()
     {
         _dbContext = new VlmDbContext();
+        _notificationActions = new NotificationActions(_dbContext);
     }
 
-    public ServiceResponse LoginAction(UserLoginDto loginDto)
+    public ServiceResponse LoginAction(UserLoginDto loginDto, string userAgent, string ipAddress)
     {
         try
         {
-            var hash = PasswordHasher.Hash(loginDto.Password);
-            var entity = _dbContext.Users.FirstOrDefault(u => u.Email == loginDto.Email && u.PasswordHash == hash);
+            var user = _dbContext.Users.FirstOrDefault(x => x.Email == loginDto.Email);
 
-            if (entity == null)
-                return new ServiceResponse { IsSuccess = false, Message = "Invalid email or password" };
+            if (user == null)
+            {
+                return new ServiceResponse { IsSuccess = false, Message = "Email or password not matching." };
+            }
 
-            if (!entity.IsActive)
-                return new ServiceResponse { IsSuccess = false, Message = "Account is inactive" };
+            var newHash = PasswordHasher.Hash(loginDto.Password);
 
-            var token = new TokenService().GenerateToken(entity.Id, entity.Name, entity.Role);
+            if (user.PasswordHash != newHash)
+            {
+                return new ServiceResponse { IsSuccess = false, Message = "Email or password not matching." };
+            }
+
+            if (!user.IsActive)
+            {
+                return new ServiceResponse { IsSuccess = false, Message = "Inactive account." };
+            }
+
+            string device = "an unknown device";
+            if (!string.IsNullOrEmpty(userAgent))
+            {
+                if (userAgent.Contains("Chrome")) device = "Chrome";
+                else if (userAgent.Contains("Firefox")) device = "Firefox";
+                else if (userAgent.Contains("Safari")) device = "Safari";
+                else if (userAgent.Contains("Edg")) device = "Edge";
+                else device = "a browser";
+            }
+
+            _notificationActions.CreateNotificationAction(new NotificationCreateDto
+            {
+                UserId = user.Id,
+                Title = "Successful Login",
+                Description = $"We detected a new login from {device} at IP: {ipAddress ?? "unknown"}.",
+                Type = "security",
+                Link = $"/{user.Role.ToString().ToLower()}/profile"
+            });
+
+            var tokenService = new TokenService();
+            var token = tokenService.GenerateToken(user.Id, user.Name, user.Role.ToString());
 
             return new ServiceResponse
             {
                 IsSuccess = true,
                 Data = new LoginResponseDto
                 {
-                    Id = entity.Id,
-                    Name = entity.Name,
-                    Email = entity.Email,
-                    Role = entity.Role,
-                    Avatar = entity.Avatar,
+                    Id = user.Id,
+                    Name = user.Name,
+                    Email = user.Email,
+                    Role = user.Role,
+                    Avatar = user.Avatar,
+                    HasAcceptedSafetyCommitment = user.HasAcceptedSafetyCommitment ?? false,
                     Token = token
                 }
             };
@@ -68,6 +108,7 @@ public class UserActions
                     Avatar = entity.Avatar,
                     IsActive = entity.IsActive,
                     CreatedDate = entity.CreatedDate,
+                    HasAcceptedSafetyCommitment = entity.HasAcceptedSafetyCommitment ?? false,
                     ApprovalStatus = entity.ApprovalStatus,
                     ApprovedById = entity.ApprovedById,
                     ApprovedAt = entity.ApprovedAt,
@@ -114,6 +155,7 @@ public class UserActions
                 Avatar = entity.Avatar,
                 IsActive = entity.IsActive,
                 CreatedDate = entity.CreatedDate,
+                HasAcceptedSafetyCommitment = entity.HasAcceptedSafetyCommitment ?? false,
                 ApprovalStatus = entity.ApprovalStatus,
                 ApprovedById = entity.ApprovedById,
                 ApprovedAt = entity.ApprovedAt,
@@ -282,6 +324,7 @@ public class UserActions
                     Avatar = entity.Avatar,
                     IsActive = entity.IsActive,
                     CreatedDate = entity.CreatedDate,
+                    HasAcceptedSafetyCommitment = entity.HasAcceptedSafetyCommitment ?? false,
                     ApprovalStatus = entity.ApprovalStatus,
                     ApprovedById = entity.ApprovedById,
                     ApprovedAt = entity.ApprovedAt,
@@ -341,16 +384,6 @@ public class UserActions
                 DecidedAt = now
             });
 
-            _dbContext.AdminActions.Add(new AdminActionEntity
-            {
-                AdminId = decisionDto.AdminId,
-                ActionType = "approve_user",
-                TargetType = "user",
-                TargetId = userId,
-                Details = $"User '{entity.Email}' approved.",
-                CreatedDate = now
-            });
-
             _dbContext.SaveChanges();
 
             return new ServiceResponse
@@ -403,16 +436,6 @@ public class UserActions
                 Decision = "rejected",
                 Reason = decisionDto.Reason ?? string.Empty,
                 DecidedAt = now
-            });
-
-            _dbContext.AdminActions.Add(new AdminActionEntity
-            {
-                AdminId = decisionDto.AdminId,
-                ActionType = "reject_user",
-                TargetType = "user",
-                TargetId = userId,
-                Details = $"User '{entity.Email}' rejected. Reason: {decisionDto.Reason}",
-                CreatedDate = now
             });
 
             _dbContext.SaveChanges();
@@ -486,6 +509,25 @@ public class UserActions
                 IsSuccess = false,
                 Message = $"Error deleting user: {e.Message}"
             };
+        }
+    }
+
+    public ServiceResponse AcceptSafetyCommitmentAction(int userId)
+    {
+        try
+        {
+            var entity = _dbContext.Users.Find(userId);
+            if (entity == null)
+                return new ServiceResponse { IsSuccess = false, Message = "User not found" };
+
+            entity.HasAcceptedSafetyCommitment = true;
+            _dbContext.SaveChanges();
+
+            return new ServiceResponse { IsSuccess = true, Message = "Safety commitment accepted successfully" };
+        }
+        catch (Exception e)
+        {
+            return new ServiceResponse { IsSuccess = false, Message = $"Error accepting safety commitment: {e.Message}" };
         }
     }
 }

@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using VLM.BusinessLayer;
-using VLM.BusinessLayer.Interface;
+using VLM.BusinessLayer.Structure; // Modificat pentru a folosi clasa concretă
 using VLM.Domain.Models.Reservation;
 
 namespace VLM.API.Controllers;
@@ -11,19 +10,18 @@ namespace VLM.API.Controllers;
 [Authorize]
 public class ReservationController : ControllerBase
 {
-    private readonly IReservationLogic _reservationLogic;
+    private readonly ReservationActions _reservationActions; // Folosim clasa concretă
 
-    public ReservationController()
+    // Folosim injecția de dependențe
+    public ReservationController(ReservationActions reservationActions)
     {
-        var businessLogic = new BusinessLogic();
-        _reservationLogic = businessLogic.GetReservationLogic();
+        _reservationActions = reservationActions;
     }
 
     [HttpGet("list")]
-    [Authorize(Roles = "admin")]
     public IActionResult GetReservationList()
     {
-        var result = _reservationLogic.GetReservationList();
+        var result = _reservationActions.GetReservationListAction();
         if (!result.IsSuccess) return BadRequest(result.Message);
         return Ok(result.Data);
     }
@@ -31,7 +29,7 @@ public class ReservationController : ControllerBase
     [HttpGet("{id}")]
     public IActionResult GetReservationById([FromRoute] int id)
     {
-        var result = _reservationLogic.GetReservationById(id);
+        var result = _reservationActions.GetReservationByIdAction(id);
         if (!result.IsSuccess) return NotFound(result.Message);
         return Ok(result.Data);
     }
@@ -39,7 +37,7 @@ public class ReservationController : ControllerBase
     [HttpGet("by-receiver/{userId}")]
     public IActionResult GetByReceiver([FromRoute] int userId)
     {
-        var result = _reservationLogic.GetReservationsByReceiver(userId);
+        var result = _reservationActions.GetReservationsByReceiverAction(userId);
         if (!result.IsSuccess) return BadRequest(result.Message);
         return Ok(result.Data);
     }
@@ -47,7 +45,7 @@ public class ReservationController : ControllerBase
     [HttpGet("by-donor/{donorId}")]
     public IActionResult GetByDonor([FromRoute] int donorId)
     {
-        var result = _reservationLogic.GetReservationsByDonor(donorId);
+        var result = _reservationActions.GetReservationsByDonorAction(donorId);
         if (!result.IsSuccess) return BadRequest(result.Message);
         return Ok(result.Data);
     }
@@ -56,24 +54,24 @@ public class ReservationController : ControllerBase
     [Authorize(Roles = "receiver")]
     public IActionResult CreateReservation([FromBody] ReservationCreateDto reservationCreateDto)
     {
-        var result = _reservationLogic.CreateReservation(reservationCreateDto);
-        if (!result.IsSuccess) return BadRequest(result.Message);
+        var result = _reservationActions.CreateReservationAction(reservationCreateDto);
+        if (!result.IsSuccess) return BadRequest(new { message = result.Message });
         return Ok(result.Data);
     }
 
     [HttpPut("status/{id}")]
     public IActionResult UpdateStatus([FromRoute] int id, [FromBody] ReservationStatusUpdateDto dto)
     {
-        var result = _reservationLogic.UpdateReservationStatus(id, dto);
-        if (!result.IsSuccess) return BadRequest(result.Message);
+        var result = _reservationActions.UpdateReservationStatusAction(id, dto);
+        if (!result.IsSuccess) return BadRequest(new { message = result.Message });
         return Ok(result.Data);
     }
 
     [HttpDelete("delete/{id}")]
     public IActionResult DeleteReservation([FromRoute] int id)
     {
-        var result = _reservationLogic.DeleteReservation(id);
-        if (!result.IsSuccess) return NotFound(result.Message);
-        return Ok(result.Message);
+        var result = _reservationActions.DeleteReservationAction(id);
+        if (!result.IsSuccess) return NotFound(new { message = result.Message });
+        return Ok(new { message = result.Message });
     }
 }

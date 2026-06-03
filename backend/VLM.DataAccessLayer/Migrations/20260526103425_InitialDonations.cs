@@ -364,7 +364,7 @@ namespace VLM.DataAccessLayer.Migrations
                 {
                     { 1, null, "I love helping my community by donating food.", new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "alex@vlm.com", true, "Alex Donor", "3820be471b75236bf93e1790ea484432", "donor" },
                     { 2, null, "Grateful for every donation I receive.", new DateTime(2026, 1, 2, 0, 0, 0, 0, DateTimeKind.Utc), "maria@vlm.com", true, "Maria Receiver", "d003257014b8a10582419f1f84478281", "receiver" },
-                    { 3, null, "Regular donor since 2025.", new DateTime(2026, 1, 3, 0, 0, 0, 0, DateTimeKind.Utc), "john@vlm.com", true, "John Donor", "f9a28b5d9ee09b2a5281a579d4f4090a", "donor" }
+                    { 3, null, "Regular donor since 2025.", new DateTime(2026, 1, 3, 0, 0, 0, 0, DateTimeKind.Utc), "john@vlm.com", true, "John Donor", "3820be471b75236bf93e1790ea484432", "donor" }
                 });
 
             migrationBuilder.InsertData(

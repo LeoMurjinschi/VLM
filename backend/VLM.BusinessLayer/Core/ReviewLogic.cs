@@ -7,14 +7,19 @@ namespace VLM.BusinessLayer.Core;
 
 public class ReviewLogic : ReviewActions, IReviewLogic
 {
-    public ServiceResponse GetAllReviews()
+    public ServiceResponse GetPendingReviews(int receiverId)
     {
-        return GetAllReviewsAction();
+        return GetPendingReviewsAction(receiverId);
     }
 
     public ServiceResponse GetReviewsByDonor(int donorId)
     {
         return GetReviewsByDonorAction(donorId);
+    }
+
+    public ServiceResponse GetReviewsByReceiver(int receiverId)
+    {
+        return GetReviewsByReceiverAction(receiverId);
     }
 
     public ServiceResponse GetReviewById(int id)
@@ -37,4 +42,3 @@ public class ReviewLogic : ReviewActions, IReviewLogic
         return DeleteReviewAction(id);
     }
 }
-

@@ -653,7 +653,7 @@ namespace VLM.DataAccessLayer.Migrations
                             Email = "alex@vlm.com",
                             IsActive = true,
                             Name = "Alex Donor",
-                            PasswordHash = "hashed_password_1",
+                            PasswordHash = "3820be471b75236bf93e1790ea484432",
                             Role = "donor"
                         },
                         new
@@ -664,7 +664,7 @@ namespace VLM.DataAccessLayer.Migrations
                             Email = "maria@vlm.com",
                             IsActive = true,
                             Name = "Maria Receiver",
-                            PasswordHash = "hashed_password_2",
+                            PasswordHash = "d003257014b8a10582419f1f84478281",
                             Role = "receiver"
                         },
                         new
@@ -675,7 +675,7 @@ namespace VLM.DataAccessLayer.Migrations
                             Email = "john@vlm.com",
                             IsActive = true,
                             Name = "John Donor",
-                            PasswordHash = "hashed_password_3",
+                            PasswordHash = "3820be471b75236bf93e1790ea484432",
                             Role = "donor"
                         });
                 });
