@@ -141,8 +141,15 @@ public class ReservationActions
             if (donation == null)
                 return new ServiceResponse { IsSuccess = false, Message = "Donation not found" };
 
-            if (donation.Quantity < dto.QuantityReserved)
-                return new ServiceResponse { IsSuccess = false, Message = $"Only {donation.Quantity} {donation.Unit} available" };
+            // Calculate available quantity by subtracting pending and confirmed reservations
+            var reservedQuantity = _dbContext.Reservations
+                .Where(r => r.DonationId == dto.DonationId && (r.Status == "pending" || r.Status == "donor_confirmed"))
+                .Sum(r => r.QuantityReserved);
+
+            var availableQuantity = donation.Quantity - reservedQuantity;
+
+            if (availableQuantity < dto.QuantityReserved)
+                return new ServiceResponse { IsSuccess = false, Message = $"Only {availableQuantity} {donation.Unit} available" };
 
             var entity = new ReservationEntity
             {

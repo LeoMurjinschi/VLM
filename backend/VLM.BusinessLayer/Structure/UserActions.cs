@@ -38,9 +38,7 @@ public class UserActions
                 return new ServiceResponse { IsSuccess = false, Message = "Email or password not matching." };
             }
 
-            var newHash = PasswordHasher.Hash(loginDto.Password);
-
-            if (user.PasswordHash != newHash)
+            if (!PasswordHasher.VerifyPassword(loginDto.Password, user.PasswordHash))
             {
                 return new ServiceResponse { IsSuccess = false, Message = "Email or password not matching." };
             }

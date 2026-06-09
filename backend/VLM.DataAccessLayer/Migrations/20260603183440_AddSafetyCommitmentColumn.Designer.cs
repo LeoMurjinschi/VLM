@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using VLM.DataAccessLayer.Context;
@@ -11,9 +12,11 @@ using VLM.DataAccessLayer.Context;
 namespace VLM.DataAccessLayer.Migrations
 {
     [DbContext(typeof(VlmDbContext))]
-    partial class VlmDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260603183440_AddSafetyCommitmentColumn")]
+    partial class AddSafetyCommitmentColumn
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1019,7 +1022,7 @@ namespace VLM.DataAccessLayer.Migrations
                             Email = "alex@vlm.com",
                             IsActive = true,
                             Name = "Alex Donor",
-                            PasswordHash = "$2a$11$hnPDsLrfqVgCR7Zpl/hQheKd4gEa8kNFqQRXp4v3oaKFP5yZ3dNvG",
+                            PasswordHash = "3820be471b75236bf93e1790ea484432",
                             Role = "donor"
                         },
                         new
@@ -1031,7 +1034,7 @@ namespace VLM.DataAccessLayer.Migrations
                             Email = "maria@vlm.com",
                             IsActive = true,
                             Name = "Maria Receiver",
-                            PasswordHash = "$2a$11$qmJPFKPlePRWPFWwk0Y0L.uJCrfCPYzGYWJ0/hnJiGfHqcLPTBhLm",
+                            PasswordHash = "d003257014b8a10582419f1f84478281",
                             Role = "receiver"
                         },
                         new
@@ -1043,7 +1046,7 @@ namespace VLM.DataAccessLayer.Migrations
                             Email = "john@vlm.com",
                             IsActive = true,
                             Name = "John Donor",
-                            PasswordHash = "$2a$11$hnPDsLrfqVgCR7Zpl/hQheKd4gEa8kNFqQRXp4v3oaKFP5yZ3dNvG",
+                            PasswordHash = "f9a28b5d9ee09b2a5281a579d4f4090a",
                             Role = "donor"
                         });
                 });

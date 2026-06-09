@@ -1,5 +1,4 @@
-using System.Security.Cryptography;
-using System.Text;
+using BCrypt.Net;
 
 namespace VLM.BusinessLayer.Structure
 {
@@ -12,12 +11,17 @@ namespace VLM.BusinessLayer.Structure
                 return string.Empty;
             }
 
-            using (var sha256 = SHA256.Create())
+            return BCrypt.Net.BCrypt.HashPassword(password);
+        }
+
+        public static bool VerifyPassword(string password, string hash)
+        {
+            if (string.IsNullOrEmpty(password) || string.IsNullOrEmpty(hash))
             {
-                var bytes = Encoding.UTF8.GetBytes(password);
-                var hash = sha256.ComputeHash(bytes);
-                return Convert.ToBase64String(hash);
+                return false;
             }
+
+            return BCrypt.Net.BCrypt.Verify(password, hash);
         }
     }
 }
