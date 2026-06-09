@@ -205,11 +205,11 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, do
               }`}>
                 <MapPinIcon className="w-4 h-4 text-[#16a34a]" />
               </div>
-              <div>
+              <div className="min-w-0 flex-1">
                 <p className={`text-[10px] font-semibold uppercase tracking-wider mb-0.5 ${
                   theme === 'light' ? 'text-gray-400' : 'text-gray-500'
                 }`}>Pickup</p>
-                <p className={`text-xs font-semibold truncate ${
+                <p className={`text-xs font-semibold break-words ${
                   theme === 'light' ? 'text-[#1a1a1a]' : 'text-white'
                 }`}>{donation.pickupLocation}</p>
               </div>

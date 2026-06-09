@@ -56,6 +56,26 @@ public class ReservationActions
             .Include(r => r.Donation)
                 .ThenInclude(d => d.Donor);
 
+    private void UpdateDonationStatusIfNeeded(int donationId)
+    {
+        var donation = _dbContext.Donations.Find(donationId);
+        if (donation == null) return;
+
+        // Calculate total reserved quantity
+        var reservedQuantity = _dbContext.Reservations
+            .Where(r => r.DonationId == donationId && (r.Status == "pending" || r.Status == "donor_confirmed"))
+            .Sum(r => r.QuantityReserved);
+
+        var availableQuantity = donation.Quantity - reservedQuantity;
+
+        // If no quantity is available, mark as Reserved
+        if (availableQuantity <= 0 && donation.Status != "Reserved")
+        {
+            donation.Status = "Reserved";
+            _dbContext.SaveChanges();
+        }
+    }
+
     public ServiceResponse GetReservationListAction()
     {
         try
@@ -146,7 +166,7 @@ public class ReservationActions
                 .Where(r => r.DonationId == dto.DonationId && (r.Status == "pending" || r.Status == "donor_confirmed"))
                 .Sum(r => r.QuantityReserved);
 
-            var availableQuantity = donation.Quantity - reservedQuantity;
+            var availableQuantity = Math.Max(0, donation.Quantity - reservedQuantity);
 
             if (availableQuantity < dto.QuantityReserved)
                 return new ServiceResponse { IsSuccess = false, Message = $"Only {availableQuantity} {donation.Unit} available" };
@@ -163,6 +183,21 @@ public class ReservationActions
 
             _dbContext.Reservations.Add(entity);
             _dbContext.SaveChanges();
+
+            // Check if donation should be marked as Reserved after this reservation
+            var newReservedQuantity = reservedQuantity + dto.QuantityReserved;
+            var newAvailableQuantity = Math.Max(0, donation.Quantity - newReservedQuantity);
+
+            if (newAvailableQuantity <= 0)
+            {
+                // Refetch donation from database to ensure it's properly tracked
+                var donationToUpdate = _dbContext.Donations.Find(dto.DonationId);
+                if (donationToUpdate != null && donationToUpdate.Status != "Reserved")
+                {
+                    donationToUpdate.Status = "Reserved";
+                    _dbContext.SaveChanges();
+                }
+            }
 
             var responseDto = new ReservationInfoDto
             {
