@@ -49,4 +49,12 @@ public class DashboardController : ControllerBase
         if (!result.IsSuccess) return BadRequest(result.Message);
         return Ok(result.Data);
     }
+
+    [HttpGet("{receiverId}/receiver-stats")]
+    public IActionResult GetReceiverStats([FromRoute] int receiverId)
+    {
+        var result = _dashboardLogic.GetReceiverStats(receiverId);
+        if (!result.IsSuccess) return BadRequest(result.Message);
+        return Ok(result.Data);
+    }
 }
