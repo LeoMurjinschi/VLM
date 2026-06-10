@@ -20,6 +20,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../context/AuthContext';
 import { userService } from '../api/userService';
+import { useNavigate } from 'react-router-dom';
 
 const GUIDE_SECTIONS = [
   { title: 'Faza 1: Before Pickup (Preparation)', icon: <SparklesIcon className="w-6 h-6" />, content: (<ul className="space-y-3 list-disc list-inside marker:text-[#16a34a]"><li><strong>Clean Equipment:</strong> Thermal bags must be clean.</li><li><strong>No Pets:</strong> Keep animals separate.</li></ul>) },
@@ -32,10 +33,11 @@ const SafetyGuide: React.FC = () => {
   const { theme } = useTheme();
   const { user, updateUser } = useAuth();
   const [openSection, setOpenSection] = useState<number | null>(0);
+  const navigate = useNavigate();
   
   // Stări pentru a gestiona încărcarea și consimțământul
   const [isLoading, setIsLoading] = useState(true);
-  const [hasConsented, setHasConsented] = useState(false);
+  const [hasConsented, setHasConsented] = useState<boolean>(false);
 
   // Re-sincronizăm starea cu serverul de fiecare dată când pagina e vizitată
   useEffect(() => {
@@ -44,7 +46,7 @@ const SafetyGuide: React.FC = () => {
         setIsLoading(true);
         try {
           const freshUser = await userService.getById(parseInt(user.id, 10));
-          const serverConsent = freshUser.hasAcceptedSafetyCommitment;
+          const serverConsent = freshUser.hasAcceptedSafetyCommitment || false;
           
           // Actualizăm starea locală și cea globală (din AuthContext)
           setHasConsented(serverConsent);
@@ -64,7 +66,7 @@ const SafetyGuide: React.FC = () => {
     };
 
     syncStatus();
-  }, [user?.id]); // Rulează doar când ID-ul utilizatorului se schimbă
+  }, [user?.id, updateUser, user?.hasAcceptedSafetyCommitment]); // Rulează doar când ID-ul utilizatorului se schimbă
 
   const constraintsRef = useRef<HTMLDivElement>(null);
   const x = useMotionValue(0);
@@ -242,7 +244,10 @@ const SafetyGuide: React.FC = () => {
               Report severe hygiene issues immediately. Your safety is our priority.
             </p>
           </div>
-          <button className="shrink-0 px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-md transition-all active:scale-[0.98]">
+          <button 
+            onClick={() => navigate('/receiver/settings', { state: { activeTab: 'support' } })}
+            className="shrink-0 px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-md transition-all active:scale-[0.98]"
+          >
             Report Issue
           </button>
         </div>

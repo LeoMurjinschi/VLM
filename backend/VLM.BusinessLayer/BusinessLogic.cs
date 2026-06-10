@@ -29,6 +29,10 @@ public class BusinessLogic
 
     public IReceiverProfileLogic GetReceiverProfileLogic() => new ReceiverProfileLogic();
 
+    public IAdminProfileLogic GetAdminProfileLogic() => new AdminProfileLogic();
+
+    public IUserStatisticsLogic GetUserStatisticsLogic() => new UserStatisticsLogic();
+
     public IUserDocumentLogic GetUserDocumentLogic() => new UserDocumentLogic();
 
     public ICategoryLogic GetCategoryLogic() => new CategoryLogic();

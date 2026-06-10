@@ -47,7 +47,11 @@ public class ReservationActions
         ExpirationDate = entity.Donation?.ExpirationDate,
         DonorId = entity.Donation?.DonorId ?? 0,
         DonorName = entity.Donation?.Donor?.Name ?? string.Empty,
+        DonorAvatar = entity.Donation?.Donor?.Avatar,
         ReceiverName = entity.Receiver?.Name ?? string.Empty,
+        ReceiverAvatar = entity.Receiver?.Avatar,
+        PickupLatitude = entity.Donation?.PickupLatitude,
+        PickupLongitude = entity.Donation?.PickupLongitude,
     };
 
     private IQueryable<ReservationEntity> WithIncludes() =>
@@ -55,6 +59,26 @@ public class ReservationActions
             .Include(r => r.Receiver)
             .Include(r => r.Donation)
                 .ThenInclude(d => d.Donor);
+
+    private void UpdateDonationStatusIfNeeded(int donationId)
+    {
+        var donation = _dbContext.Donations.Find(donationId);
+        if (donation == null) return;
+
+        // Calculate total reserved quantity
+        var reservedQuantity = _dbContext.Reservations
+            .Where(r => r.DonationId == donationId && (r.Status == "pending" || r.Status == "donor_confirmed"))
+            .Sum(r => r.QuantityReserved);
+
+        var availableQuantity = donation.Quantity - reservedQuantity;
+
+        // If no quantity is available, mark as Reserved
+        if (availableQuantity <= 0 && donation.Status != "Reserved")
+        {
+            donation.Status = "Reserved";
+            _dbContext.SaveChanges();
+        }
+    }
 
     public ServiceResponse GetReservationListAction()
     {
@@ -141,8 +165,15 @@ public class ReservationActions
             if (donation == null)
                 return new ServiceResponse { IsSuccess = false, Message = "Donation not found" };
 
-            if (donation.Quantity < dto.QuantityReserved)
-                return new ServiceResponse { IsSuccess = false, Message = $"Only {donation.Quantity} {donation.Unit} available" };
+            // Calculate available quantity by subtracting pending and confirmed reservations
+            var reservedQuantity = _dbContext.Reservations
+                .Where(r => r.DonationId == dto.DonationId && (r.Status == "pending" || r.Status == "donor_confirmed"))
+                .Sum(r => r.QuantityReserved);
+
+            var availableQuantity = Math.Max(0, donation.Quantity - reservedQuantity);
+
+            if (availableQuantity < dto.QuantityReserved)
+                return new ServiceResponse { IsSuccess = false, Message = $"Only {availableQuantity} {donation.Unit} available" };
 
             var entity = new ReservationEntity
             {
@@ -156,6 +187,21 @@ public class ReservationActions
 
             _dbContext.Reservations.Add(entity);
             _dbContext.SaveChanges();
+
+            // Check if donation should be marked as Reserved after this reservation
+            var newReservedQuantity = reservedQuantity + dto.QuantityReserved;
+            var newAvailableQuantity = Math.Max(0, donation.Quantity - newReservedQuantity);
+
+            if (newAvailableQuantity <= 0)
+            {
+                // Refetch donation from database to ensure it's properly tracked
+                var donationToUpdate = _dbContext.Donations.Find(dto.DonationId);
+                if (donationToUpdate != null && donationToUpdate.Status != "Reserved")
+                {
+                    donationToUpdate.Status = "Reserved";
+                    _dbContext.SaveChanges();
+                }
+            }
 
             var responseDto = new ReservationInfoDto
             {
@@ -174,7 +220,9 @@ public class ReservationActions
                 ExpirationDate = donation.ExpirationDate,
                 DonorId = donation.DonorId,
                 DonorName = _dbContext.Users.Find(donation.DonorId)?.Name ?? "Unknown Donor",
+                DonorAvatar = _dbContext.Users.Find(donation.DonorId)?.Avatar,
                 ReceiverName = receiver.Name,
+                ReceiverAvatar = receiver.Avatar,
             };
 
             return new ServiceResponse { IsSuccess = true, Data = responseDto, Message = "Reservation created successfully" };
@@ -198,15 +246,6 @@ public class ReservationActions
 
             if (dto.Status == "donor_confirmed" && entity.Status != "donor_confirmed")
             {
-                if (entity.Donation != null)
-                {
-                    if (entity.Donation.Quantity < entity.QuantityReserved)
-                        return new ServiceResponse { IsSuccess = false, Message = $"Not enough quantity. Only {entity.Donation.Quantity} available" };
-                        
-                    entity.Donation.Quantity -= entity.QuantityReserved;
-                    _dbContext.Update(entity.Donation);
-                }
-
                 _notificationActions.CreateNotificationAction(new NotificationCreateDto
                 {
                     UserId = entity.UserId,
@@ -217,11 +256,12 @@ public class ReservationActions
                 });
             }
 
-            if (dto.Status == "cancelled" && entity.Status == "donor_confirmed")
+            if (dto.Status == "completed" && entity.Status != "completed")
             {
                 if (entity.Donation != null)
                 {
-                    entity.Donation.Quantity += entity.QuantityReserved;
+                    var actualQty = dto.QuantityConfirmed ?? entity.QuantityReserved;
+                    entity.Donation.Quantity = Math.Max(0, entity.Donation.Quantity - actualQty);
                     _dbContext.Update(entity.Donation);
                 }
             }
@@ -267,16 +307,6 @@ public class ReservationActions
             var entity = _dbContext.Reservations.Find(id);
             if (entity == null)
                 return new ServiceResponse { IsSuccess = false, Message = "Reservation not found" };
-
-            if (entity.Status == "donor_confirmed")
-            {
-                var donation = _dbContext.Donations.Find(entity.DonationId);
-                if (donation != null)
-                {
-                    donation.Quantity += entity.QuantityReserved;
-                    _dbContext.Update(donation);
-                }
-            }
 
             _dbContext.Reservations.Remove(entity);
             _dbContext.SaveChanges();

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   Squares2X2Icon,
@@ -18,6 +18,8 @@ import {
   TruckIcon,
 } from '@heroicons/react/24/outline';
 import { useTheme } from '../hooks/useTheme';
+import { useAuth } from '../context/AuthContext';
+import { dashboardApiService } from '../api/dashboardApiService';
 
 interface NavItem {
   name: string;
@@ -54,10 +56,26 @@ const donorNavigation: NavItem[] = [
 const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
   const location = useLocation();
   const { theme, toggleTheme } = useTheme();
+  const { user } = useAuth();
 
-  // === 3. LOGICA: Alegem lista corectă în funcție de URL ===
   const isReceiver = location.pathname.startsWith('/receiver');
   const currentNavigation = isReceiver ? receiverNavigation : donorNavigation;
+
+  const [impactCount, setImpactCount] = useState<number | null>(null);
+  const [impactLoading, setImpactLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user?.id) return;
+    const id = parseInt(user.id, 10);
+    setImpactLoading(true);
+    const fetch = isReceiver
+      ? dashboardApiService.getReceiverStats(id).then(s => s.mealsSaved)
+      : dashboardApiService.getStats(id).then(s => s.mealsProvided);
+    fetch
+      .then(count => { setImpactCount(count); })
+      .catch(() => { setImpactCount(null); })
+      .finally(() => setImpactLoading(false));
+  }, [user?.id, isReceiver]);
 
   return (
     <div className={`flex h-full flex-col justify-between border-r transition-all duration-300 w-56 ${
@@ -165,16 +183,26 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
         </div>
         <div className="flex items-center gap-2">
           <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-bold bg-[#16a34a] text-white">
-            14
+            {impactLoading ? '…' : impactCount !== null ? impactCount : '—'}
           </span>
           <span className={`text-sm font-semibold ${
             theme === 'light' ? 'text-[#1a1a1a]' : 'text-white'
-          }`}>meals saved</span>
+          }`}>{isReceiver ? 'meals saved' : 'meals donated'}</span>
         </div>
         <p className={`text-[11px] mt-2 font-medium leading-relaxed ${
           theme === 'light' ? 'text-gray-500' : 'text-gray-400'
         }`}>
-          Top 5% of community heroes! 🌍
+          {impactLoading
+            ? 'Loading your impact...'
+            : impactCount === null
+            ? 'Could not load stats'
+            : impactCount === 0
+            ? 'Start your journey today! 🌱'
+            : impactCount < 10
+            ? 'Great start, keep going! 🌱'
+            : impactCount < 50
+            ? 'Making a real difference! 🌍'
+            : 'Community hero! Top contributor 🏆'}
         </p>
       </div>
 

@@ -21,6 +21,8 @@ public class DonationEntity
     public string Status { get; set; } = "Available";
     public DateTime CreatedDate { get; set; }
     public DateTime? UpdatedDate { get; set; }
+    public decimal? PickupLatitude { get; set; }
+    public decimal? PickupLongitude { get; set; }
 
     // Navigation properties
     public UserEntity Donor { get; set; } = null!;

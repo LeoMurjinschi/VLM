@@ -10,6 +10,9 @@ import {
   ArrowLeftIcon,
   ChatBubbleLeftRightIcon,
   EnvelopeIcon,
+  PhoneIcon,
+  HomeIcon,
+  LockClosedIcon,
 } from '@heroicons/react/24/outline';
 import { useTheme } from '../hooks/useTheme';
 import { useAuth } from '../context/AuthContext';
@@ -32,6 +35,7 @@ const mapDto = (dto: DonationInfoDto): Donation => ({
   title: dto.title,
   description: dto.description,
   quantity: dto.quantity,
+  reservedQuantity: dto.reservedQuantity,
   unit: dto.unit,
   category: dto.category,
   pickupLocation: dto.pickupLocation,
@@ -141,6 +145,32 @@ const DonorProfile: React.FC = () => {
         <Link to=".." className="mt-4 inline-block text-[#16a34a] font-bold hover:underline">
           ← Back
         </Link>
+      </div>
+    );
+  }
+
+  const isAdmin = user?.role === 'admin';
+  const isPrivate = donorProfileData?.isPublic === false && !isOwnProfile && !isAdmin;
+
+  if (isPrivate) {
+    return (
+      <div className="max-w-3xl mx-auto p-8 space-y-4 animate-fade-in-up">
+        <Link to=".." className={`inline-flex items-center gap-1.5 text-sm font-semibold ${
+          theme === 'light' ? 'text-gray-500 hover:text-gray-900' : 'text-gray-400 hover:text-white'
+        }`}>
+          <ArrowLeftIcon className="w-4 h-4" /> Back
+        </Link>
+        <div className={`rounded-3xl border p-10 text-center ${
+          theme === 'light' ? 'bg-white border-gray-200' : 'bg-[#1a1a1a] border-[#2e2e2e]'
+        }`}>
+          <LockClosedIcon className="w-10 h-10 mx-auto mb-3 text-gray-400" />
+          <h1 className={`text-xl font-bold mb-1 ${theme === 'light' ? 'text-gray-900' : 'text-white'}`} style={{ fontFamily: 'var(--font-display)' }}>
+            {userInfo.name}
+          </h1>
+          <p className={`text-sm ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>
+            This profile is private.
+          </p>
+        </div>
       </div>
     );
   }
@@ -255,12 +285,26 @@ const DonorProfile: React.FC = () => {
             />
           </div>
 
-          {/* Email row */}
-          <div className={`mt-4 flex items-center gap-2 text-xs ${
+          {/* Contact rows — phone/address gated by the donor's visibility settings */}
+          <div className={`mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs ${
             theme === 'light' ? 'text-gray-500' : 'text-gray-400'
           }`}>
-            <EnvelopeIcon className="w-3.5 h-3.5" />
-            <span>{profile?.email}</span>
+            <span className="flex items-center gap-2">
+              <EnvelopeIcon className="w-3.5 h-3.5" />
+              {profile?.email}
+            </span>
+            {donorProfileData?.showPhone && donorProfileData.phone && (
+              <span className="flex items-center gap-2">
+                <PhoneIcon className="w-3.5 h-3.5" />
+                {donorProfileData.phone}
+              </span>
+            )}
+            {donorProfileData?.showAddress && donorProfileData.address && (
+              <span className="flex items-center gap-2">
+                <HomeIcon className="w-3.5 h-3.5" />
+                {donorProfileData.address}
+              </span>
+            )}
           </div>
         </div>
       </div>

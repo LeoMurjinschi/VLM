@@ -33,6 +33,7 @@ export interface UserInfoDto {
   approvedById?: number;
   approvedAt?: string;
   rejectionReason?: string;
+  hasAcceptedSafetyCommitment?: boolean;
 }
 
 // ── Service ───────────────────────────────────────────────────────────────────

@@ -1,8 +1,9 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useTheme } from '../hooks/useTheme';
 import { useAuth } from '../context/AuthContext';
 import PageLayout from '../components/PageLayout';
 import { toast } from 'react-toastify';
+import { useLocation } from 'react-router-dom';
 import { 
   UserCircleIcon, 
   BellAlertIcon,
@@ -36,8 +37,15 @@ const ToggleSwitch = ({ enabled, onChange }: { enabled: boolean, onChange: () =>
 const ProfileSettings: React.FC = () => {
   const { theme } = useTheme();
   const { user, updateUser } = useAuth();
+  const location = useLocation();
   const [activeTab, setActiveTab] = useState('general');
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (location.state?.activeTab) {
+      setActiveTab(location.state.activeTab);
+    }
+  }, [location]);
 
   const buildProfile = () => ({
     fullName: user?.name || '',

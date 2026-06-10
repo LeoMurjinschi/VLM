@@ -203,18 +203,18 @@ const DonationCard: React.FC<DonationCardProps> = ({
               <p className={`text-xs font-medium truncate group-hover/donor:underline ${
                 theme === 'light' ? 'text-gray-500' : 'text-gray-400'
               }`}>
-                from {donation.donorName || donation.pickupLocation.split(',')[0]}
+                from {donation.donorName}
               </p>
             </Link>
           ) : (
             <div className="flex items-center gap-2 mb-3">
               <div className="w-6 h-6 rounded-full bg-[#16a34a] flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0">
-                {donation.pickupLocation.charAt(0)}
+                {donation.donorName.charAt(0)}
               </div>
               <p className={`text-xs font-medium truncate ${
                 theme === 'light' ? 'text-gray-500' : 'text-gray-400'
               }`}>
-                from {donation.pickupLocation.split(',')[0]}
+                from {donation.donorName}
               </p>
             </div>
           )}
@@ -222,6 +222,20 @@ const DonationCard: React.FC<DonationCardProps> = ({
           <div className={`mt-auto space-y-2 pt-3 border-t ${
             theme === 'light' ? 'border-gray-100' : 'border-[#2e2e2e]'
           }`}>
+            <div className="flex items-center justify-between gap-2">
+              <div className={`flex items-center text-[13px] font-semibold ${
+                theme === 'light' ? 'text-[#16a34a]' : 'text-green-400'
+              }`}>
+                <span>{donation.quantity} {donation.unit}</span>
+              </div>
+              {(donation.reservedQuantity ?? 0) > 0 && (
+                <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${
+                  theme === 'light' ? 'bg-amber-100 text-amber-700' : 'bg-amber-900/30 text-amber-400'
+                }`}>
+                  {donation.reservedQuantity} {donation.unit} reserved
+                </span>
+              )}
+            </div>
             <div className={`flex items-center text-[13px] ${
               theme === 'light' ? 'text-gray-600' : 'text-gray-300'
             }`}>

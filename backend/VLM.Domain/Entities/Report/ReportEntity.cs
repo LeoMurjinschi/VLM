@@ -13,7 +13,8 @@ public class ReportEntity
     public string Status { get; set; } = "pending";
     public DateTime CreatedDate { get; set; }
     public DateTime? ResolvedDate { get; set; }
-    
+    public string Subject { get; set; } 
+
     public UserEntity Reporter { get; set; } = null!;
     public DonationEntity? Donation { get; set; }
 }
