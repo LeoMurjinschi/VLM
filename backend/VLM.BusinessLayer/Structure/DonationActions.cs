@@ -34,7 +34,9 @@ public class DonationActions
                 ExpirationDate = donationCreateDto.ExpirationDate,
                 Image = donationCreateDto.Image,
                 Status = "Available",
-                CreatedDate = DateTime.UtcNow
+                CreatedDate = DateTime.UtcNow,
+                PickupLatitude = donationCreateDto.PickupLatitude,
+                PickupLongitude = donationCreateDto.PickupLongitude,
             };
 
             _dbContext.Donations.Add(donationEntity);
@@ -140,7 +142,9 @@ public class DonationActions
                     CreatedDate = entity.CreatedDate,
                     UpdatedDate = entity.UpdatedDate,
                     DonorName = entity.Donor.Name,
-                    DonorAvatar = entity.Donor.Avatar
+                    DonorAvatar = entity.Donor.Avatar,
+                    PickupLatitude = entity.PickupLatitude,
+                    PickupLongitude = entity.PickupLongitude,
                 };
             });
 
@@ -206,7 +210,9 @@ public class DonationActions
                 CreatedDate = entity.CreatedDate,
                 UpdatedDate = entity.UpdatedDate,
                 DonorName = entity.Donor.Name,
-                DonorAvatar = entity.Donor.Avatar
+                DonorAvatar = entity.Donor.Avatar,
+                PickupLatitude = entity.PickupLatitude,
+                PickupLongitude = entity.PickupLongitude,
             };
 
             return new ServiceResponse
@@ -260,7 +266,9 @@ public class DonationActions
                     CreatedDate = entity.CreatedDate,
                     UpdatedDate = entity.UpdatedDate,
                     DonorName = entity.Donor?.Name ?? string.Empty,
-                    DonorAvatar = entity.Donor?.Avatar
+                    DonorAvatar = entity.Donor?.Avatar,
+                    PickupLatitude = entity.PickupLatitude,
+                    PickupLongitude = entity.PickupLongitude,
                 };
             }).ToList();
 
@@ -303,6 +311,8 @@ public class DonationActions
             entity.ExpirationDate = donationCreateDto.ExpirationDate;
             entity.Image = donationCreateDto.Image;
             entity.UpdatedDate = DateTime.UtcNow;
+            entity.PickupLatitude = donationCreateDto.PickupLatitude;
+            entity.PickupLongitude = donationCreateDto.PickupLongitude;
 
             _dbContext.SaveChanges();
 

@@ -47,7 +47,11 @@ public class ReservationActions
         ExpirationDate = entity.Donation?.ExpirationDate,
         DonorId = entity.Donation?.DonorId ?? 0,
         DonorName = entity.Donation?.Donor?.Name ?? string.Empty,
+        DonorAvatar = entity.Donation?.Donor?.Avatar,
         ReceiverName = entity.Receiver?.Name ?? string.Empty,
+        ReceiverAvatar = entity.Receiver?.Avatar,
+        PickupLatitude = entity.Donation?.PickupLatitude,
+        PickupLongitude = entity.Donation?.PickupLongitude,
     };
 
     private IQueryable<ReservationEntity> WithIncludes() =>
@@ -216,7 +220,9 @@ public class ReservationActions
                 ExpirationDate = donation.ExpirationDate,
                 DonorId = donation.DonorId,
                 DonorName = _dbContext.Users.Find(donation.DonorId)?.Name ?? "Unknown Donor",
+                DonorAvatar = _dbContext.Users.Find(donation.DonorId)?.Avatar,
                 ReceiverName = receiver.Name,
+                ReceiverAvatar = receiver.Avatar,
             };
 
             return new ServiceResponse { IsSuccess = true, Data = responseDto, Message = "Reservation created successfully" };

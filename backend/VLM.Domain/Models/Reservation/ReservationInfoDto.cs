@@ -29,5 +29,9 @@ public class ReservationInfoDto
     // Joined from Users
     public int DonorId { get; set; }
     public string DonorName { get; set; } = string.Empty;
+    public string? DonorAvatar { get; set; }
     public string ReceiverName { get; set; } = string.Empty;
+    public string? ReceiverAvatar { get; set; }
+    public decimal? PickupLatitude { get; set; }
+    public decimal? PickupLongitude { get; set; }
 }

@@ -11,4 +11,6 @@ public class DonationCreateDto
     public string PickupLocation { get; set; } = string.Empty;
     public DateTime? ExpirationDate { get; set; }
     public string? Image { get; set; }
+    public decimal? PickupLatitude { get; set; }
+    public decimal? PickupLongitude { get; set; }
 }

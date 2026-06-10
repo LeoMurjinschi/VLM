@@ -17,4 +17,6 @@ public class DonationInfoDto
     public DateTime? UpdatedDate { get; set; }
     public string DonorName { get; set; } = string.Empty;
     public string? DonorAvatar { get; set; }
+    public decimal? PickupLatitude { get; set; }
+    public decimal? PickupLongitude { get; set; }
 }

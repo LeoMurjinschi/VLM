@@ -4,9 +4,16 @@ import { toast } from 'react-toastify';
 import Select from '../components/UI/Select';
 import ImageDragDrop from '../components/UI/ImageDragDrop';
 import CustomDatePicker from '../components/UI/CustomDatePicker';
+import LocationPicker from '../components/UI/LocationPicker';
 import { useTheme } from '../hooks/useTheme';
 import { donationService } from '../api';
 import { useAuth } from '../context/AuthContext';
+
+interface PickupCoords {
+  lat: number;
+  lng: number;
+  address: string;
+}
 
 
 interface FormState {
@@ -43,6 +50,7 @@ const AddStock: React.FC = () => {
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
+  const [pickupCoords, setPickupCoords] = useState<PickupCoords | null>(null);
   const [formState, setFormState] = useState<FormState>({
     title: '',
     description: '',
@@ -155,6 +163,7 @@ const AddStock: React.FC = () => {
       expirationDate: '',
       image: '',
     });
+    setPickupCoords(null);
     setHasAttemptedSubmit(false);
   }, []);
 
@@ -200,6 +209,8 @@ const AddStock: React.FC = () => {
           pickupLocation: formState.pickupLocation,
           expirationDate: new Date(formState.expirationDate).toISOString(),
           image: formState.image || undefined,
+          pickupLatitude: pickupCoords?.lat,
+          pickupLongitude: pickupCoords?.lng,
         });
 
         toast.success('Your donation is live! Food seekers can now reserve this item.');
@@ -364,6 +375,20 @@ const AddStock: React.FC = () => {
                   placeholder="e.g., Main Warehouse, Sector 1"
                   className={getInputClass('pickupLocation')}
                 />
+              </div>
+
+              <div className="md:col-span-2 relative z-20">
+                <label
+                  className={`block text-sm font-semibold mb-2.5 ${
+                    theme === 'light' ? 'text-gray-800' : 'text-gray-200'
+                  }`}
+                >
+                  Map Location <span className={`text-xs font-normal ${theme === 'light' ? 'text-gray-400' : 'text-gray-500'}`}>(optional)</span>
+                </label>
+                <p className={`text-xs mb-2 ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>
+                  Pin the exact pickup spot so receivers can navigate to you
+                </p>
+                <LocationPicker value={pickupCoords} onChange={setPickupCoords} />
               </div>
 
               <div className="relative z-10">

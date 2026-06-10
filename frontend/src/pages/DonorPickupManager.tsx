@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { avatarSrc } from '../utils/avatarUtils';
 import {
   CheckBadgeIcon,
   XMarkIcon,
@@ -50,7 +51,10 @@ const STATUS_COLORS: Record<ReservationStatus, string> = {
   cancelled: 'bg-red-500/15 text-red-500',
 };
 
+const DEFAULT_DONATION_IMAGE = 'https://images.unsplash.com/vector-1740026651800-93fb37caa211?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8ODR8fGdyb2Nlcnl8ZW58MHx8MHx8fDA%3D';
+
 interface StockGroup {
+  groupKey: string;
   stockId: string;
   stockTitle: string;
   stockImage: string;
@@ -58,6 +62,7 @@ interface StockGroup {
   unit: string;
   pickupLocation: string;
   expirationDate: string;
+  status: ReservationStatus;
   reservations: Reservation[];
 }
 
@@ -71,7 +76,7 @@ const DonorPickupManager: React.FC = () => {
   const [activeTab, setActiveTab] = useState<FilterTab>('all');
   const [confirmingId, setConfirmingId] = useState<string | null>(null);
   const [finalConfirmReservation, setFinalConfirmReservation] = useState<Reservation | null>(null);
-  const [finalConfirmQty, setFinalConfirmQty] = useState<number>(0);
+  const [finalConfirmQty, setFinalConfirmQty] = useState<string>('0');
 
   const donorReservations = useMemo(
     () => myReservations.filter((r) => r.donorId === user?.id),
@@ -95,19 +100,22 @@ const DonorPickupManager: React.FC = () => {
   const grouped = useMemo((): StockGroup[] => {
     const map = new Map<string, StockGroup>();
     for (const r of filtered) {
-      if (!map.has(r.stockId)) {
-        map.set(r.stockId, {
+      const key = `${r.stockId}_${r.status}`;
+      if (!map.has(key)) {
+        map.set(key, {
+          groupKey: key,
           stockId: r.stockId,
           stockTitle: r.stockTitle,
-          stockImage: r.stockImage,
+          stockImage: r.stockImage || DEFAULT_DONATION_IMAGE,
           stockCategory: r.stockCategory,
           unit: r.unit,
           pickupLocation: r.pickupLocation,
           expirationDate: r.expirationDate,
+          status: r.status,
           reservations: [],
         });
       }
-      map.get(r.stockId)!.reservations.push(r);
+      map.get(key)!.reservations.push(r);
     }
     return Array.from(map.values());
   }, [filtered]);
@@ -135,12 +143,12 @@ const DonorPickupManager: React.FC = () => {
 
   const handleOpenFinalConfirm = (r: Reservation) => {
     setFinalConfirmReservation(r);
-    setFinalConfirmQty(r.quantityPickedUpByReceiver ?? r.quantityReserved);
+    setFinalConfirmQty(String(r.quantityPickedUpByReceiver ?? r.quantityReserved));
   };
 
   const handleFinalConfirm = () => {
     if (!finalConfirmReservation) return;
-    donorFinalConfirm(finalConfirmReservation.id, finalConfirmQty);
+    donorFinalConfirm(finalConfirmReservation.id, parseFloat(finalConfirmQty) || 0);
     setFinalConfirmReservation(null);
     toast.success('Pickup confirmed! Stock transfer recorded.');
   };
@@ -211,7 +219,7 @@ const DonorPickupManager: React.FC = () => {
         <div className="space-y-5">
           {grouped.map((group) => (
             <div
-              key={group.stockId}
+              key={group.groupKey}
               className={`rounded-2xl border overflow-hidden ${isDark ? 'bg-[#1a1a1a] border-[#2e2e2e]' : 'bg-white border-gray-200'}`}
             >
               {/* Stock header */}
@@ -280,9 +288,11 @@ const DonorPickupManager: React.FC = () => {
                       <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                         {/* Left: receiver info */}
                         <div className="flex items-center gap-3 flex-grow min-w-0">
-                          <div className="w-9 h-9 rounded-full bg-[#16a34a] flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
-                            {r.receiverName.charAt(0).toUpperCase()}
-                          </div>
+                          <img
+                            src={avatarSrc(r.receiverName, r.receiverAvatar)}
+                            alt={r.receiverName}
+                            className="w-9 h-9 rounded-full object-cover flex-shrink-0"
+                          />
                           <div className="min-w-0">
                             <Link
                               to={`../receivers/${r.receiverId}`}
@@ -422,16 +432,28 @@ const DonorPickupManager: React.FC = () => {
                   max={finalConfirmReservation.quantityReserved}
                   step={0.1}
                   value={finalConfirmQty}
-                  onChange={(e) => setFinalConfirmQty(Number(e.target.value))}
+                  onChange={(e) => {
+                    const raw = e.target.value;
+                    const parsed = parseFloat(raw);
+                    if (!isNaN(parsed) && parsed > finalConfirmReservation.quantityReserved) {
+                      setFinalConfirmQty(String(finalConfirmReservation.quantityReserved));
+                    } else {
+                      setFinalConfirmQty(raw);
+                    }
+                  }}
+                  onBlur={() => {
+                    const parsed = parseFloat(finalConfirmQty);
+                    if (isNaN(parsed) || parsed <= 0) setFinalConfirmQty('0.1');
+                  }}
                   className={`w-full px-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-sm font-medium ${
                     isDark ? 'bg-[#222] border-[#2e2e2e] text-gray-100' : 'bg-white border-gray-200 text-gray-700'
                   }`}
                 />
-                {finalConfirmQty < finalConfirmReservation.quantityReserved && finalConfirmQty > 0 && (
+                {(() => { const n = parseFloat(finalConfirmQty) || 0; return n > 0 && n < finalConfirmReservation.quantityReserved ? (
                   <p className={`text-xs mt-1.5 ${isDark ? 'text-amber-400' : 'text-amber-600'}`}>
-                    The remaining {(finalConfirmReservation.quantityReserved - finalConfirmQty).toFixed(1)} {finalConfirmReservation.unit} will be returned to the feed.
+                    The remaining {(finalConfirmReservation.quantityReserved - n).toFixed(1)} {finalConfirmReservation.unit} will be returned to the feed.
                   </p>
-                )}
+                ) : null; })()}
               </div>
             </div>
 
@@ -446,7 +468,7 @@ const DonorPickupManager: React.FC = () => {
               </button>
               <button
                 onClick={handleFinalConfirm}
-                disabled={finalConfirmQty <= 0}
+                disabled={(() => { const n = parseFloat(finalConfirmQty) || 0; return n <= 0 || n > finalConfirmReservation.quantityReserved; })()}
                 className="flex-1 py-2.5 rounded-xl font-semibold text-sm bg-blue-600 hover:bg-blue-700 text-white transition-all flex items-center justify-center gap-2 shadow-md shadow-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <CheckCircleIcon className="w-4 h-4" />
