@@ -292,10 +292,10 @@ public class UserActions
             if (entity == null)
                 return new ServiceResponse { IsSuccess = false, Message = "User not found" };
 
-            if (entity.PasswordHash != dto.OldPassword)
+            if (!PasswordHasher.VerifyPassword(dto.OldPassword, entity.PasswordHash))
                 return new ServiceResponse { IsSuccess = false, Message = "Current password is incorrect" };
 
-            entity.PasswordHash = dto.NewPassword;
+            entity.PasswordHash = PasswordHasher.Hash(dto.NewPassword);
             _dbContext.SaveChanges();
 
             return new ServiceResponse { IsSuccess = true, Message = "Password changed successfully" };
