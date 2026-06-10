@@ -10,6 +10,9 @@ export interface DonorProfileDto {
   address: string;
   location: string;
   pickupLocationsJson: string;
+  isPublic?: boolean;
+  showPhone?: boolean;
+  showAddress?: boolean;
 }
 
 export interface PickupLocation {

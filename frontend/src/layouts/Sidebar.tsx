@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import {
   HomeIcon, ClipboardDocumentListIcon,
@@ -6,6 +6,8 @@ import {
   XMarkIcon, SunIcon, MoonIcon, ChatBubbleLeftRightIcon
 } from '@heroicons/react/24/outline';
 import { useTheme } from '../hooks/useTheme';
+import { useAuth } from '../context/AuthContext';
+import { dashboardApiService } from '../api/dashboardApiService';
 
 interface SidebarProps {
   onClose?: () => void;
@@ -23,6 +25,19 @@ const navigation = [
 const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
   const location = useLocation();
   const { theme, toggleTheme } = useTheme();
+  const { user } = useAuth();
+
+  const [mealsCount, setMealsCount] = useState<number | null>(null);
+  const [mealsLoading, setMealsLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user?.id) return;
+    setMealsLoading(true);
+    dashboardApiService.getStats(parseInt(user.id, 10))
+      .then(s => { setMealsCount(s.mealsProvided); })
+      .catch(() => { setMealsCount(null); })
+      .finally(() => setMealsLoading(false));
+  }, [user?.id]);
 
   return (
     <div className={`flex h-full flex-col justify-between border-r transition-all duration-300 w-56 ${
@@ -130,16 +145,26 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
         </div>
         <div className="flex items-center gap-2">
           <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-bold bg-[#16a34a] text-white">
-            14
+            {mealsLoading ? '…' : mealsCount !== null ? mealsCount : '—'}
           </span>
           <span className={`text-sm font-semibold ${
             theme === 'light' ? 'text-[#1a1a1a]' : 'text-white'
-          }`}>meals saved</span>
+          }`}>meals donated</span>
         </div>
         <p className={`text-[11px] mt-2 font-medium leading-relaxed ${
           theme === 'light' ? 'text-gray-500' : 'text-gray-400'
         }`}>
-          Top 5% of community heroes! 🌍
+          {mealsLoading
+            ? 'Loading your impact...'
+            : mealsCount === null
+            ? 'Could not load stats'
+            : mealsCount === 0
+            ? 'Start donating today! 🌱'
+            : mealsCount < 10
+            ? 'Great start, keep going! 🌱'
+            : mealsCount < 50
+            ? 'Making a real difference! 🌍'
+            : 'Community hero! Top contributor 🏆'}
         </p>
       </div>
 

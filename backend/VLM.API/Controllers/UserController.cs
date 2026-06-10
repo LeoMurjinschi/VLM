@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using VLM.API.Extensions;
 using VLM.BusinessLayer;
 using VLM.BusinessLayer.Interface;
 using VLM.Domain.Models.User;
@@ -51,6 +52,10 @@ public class UserController : ControllerBase
     [HttpPut("update/{id}")]
     public IActionResult UpdateUser([FromRoute] int id, [FromBody] UserCreateDto userCreateDto)
     {
+        var callerId = User.GetUserId();
+        if (callerId != id && !User.IsAdmin())
+            return Forbid();
+
         var result = _userLogic.UpdateUser(id, userCreateDto);
         if (!result.IsSuccess)
             return NotFound(result.Message);
@@ -60,6 +65,10 @@ public class UserController : ControllerBase
     [HttpPut("info/{id}")]
     public IActionResult UpdateUserInfo([FromRoute] int id, [FromBody] UserInfoUpdateDto dto)
     {
+        var callerId = User.GetUserId();
+        if (callerId != id && !User.IsAdmin())
+            return Forbid();
+
         var result = _userLogic.UpdateUserInfo(id, dto);
         if (!result.IsSuccess)
             return BadRequest(result.Message);
@@ -69,6 +78,10 @@ public class UserController : ControllerBase
     [HttpPut("change-password/{id}")]
     public IActionResult ChangePassword([FromRoute] int id, [FromBody] ChangePasswordDto dto)
     {
+        var callerId = User.GetUserId();
+        if (callerId != id && !User.IsAdmin())
+            return Forbid();
+
         var result = _userLogic.ChangePassword(id, dto);
         if (!result.IsSuccess)
             return BadRequest(result.Message);
@@ -92,6 +105,19 @@ public class UserController : ControllerBase
         var result = _userLogic.DeleteUser(id);
         if (!result.IsSuccess)
             return NotFound(result.Message);
+        return Ok(result.Message);
+    }
+
+    [HttpPut("has-accepted-safety-commitment/{id}")]
+    public IActionResult AcceptSafetyCommitment([FromRoute] int id)
+    {
+        var callerId = User.GetUserId();
+        if (callerId != id && !User.IsAdmin())
+            return Forbid();
+
+        var result = _userLogic.AcceptSafetyCommitment(id);
+        if (!result.IsSuccess)
+            return BadRequest(result.Message);
         return Ok(result.Message);
     }
 }

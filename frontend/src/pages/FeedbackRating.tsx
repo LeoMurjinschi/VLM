@@ -1,45 +1,56 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTheme } from '../hooks/useTheme';
 import { useAuth } from '../context/AuthContext';
 import PageLayout from '../components/PageLayout';
 import PendingReviewCard from '../components/PendingReviewCard';
 import CompletedReviewCard from '../components/CompletedReviewCard';
-import { MOCK_FEEDBACK, type FeedbackRecord } from './../_mock/feedback';
 import { CheckBadgeIcon } from '@heroicons/react/24/solid';
 import { toast } from 'react-toastify';
-import { reviewService } from '../api';
+import { reviewService, type ReviewInfoDto } from '../api';
+import { usePendingReviews } from '../hooks/usePendingReviews';
 
 const FeedbackRating: React.FC = () => {
   const { theme } = useTheme();
   const { user } = useAuth();
+  const userId = user?.id ? Number(user.id) : undefined;
 
-  const [feedbackData, setFeedbackData] = useState<FeedbackRecord[]>(MOCK_FEEDBACK);
+  const { pendingReviews, submitReview, refresh: refreshPending } = usePendingReviews(userId);
+  const [completedReviews, setCompletedReviews] = useState<ReviewInfoDto[]>([]);
   const [activeTab, setActiveTab] = useState<'Pending' | 'Completed'>('Pending');
 
-  const handleSubmitReview = async (id: string, rating: number, comment: string, tags: string[]) => {
-    setFeedbackData(prev =>
-      prev.map(item => item.id === id ? { ...item, status: 'completed', rating, comment, tags } : item)
-    );
-    const receiverId = parseInt((user as any)?.id || '0');
-    if (receiverId) {
-      await reviewService.create({
-        donorId: 1,
-        receiverId,
-        rating,
-        text: comment,
-      }).catch(() => {});
+  const refreshCompleted = () => {
+    if (userId) {
+      reviewService.getByReceiver(userId).then(setCompletedReviews);
     }
-    toast.success('Thank you! Your feedback has been submitted. ⭐');
   };
 
-  const pendingReviews = feedbackData.filter(f => f.status === 'pending');
-  const completedReviews = feedbackData.filter(f => f.status === 'completed');
+  useEffect(() => {
+    refreshCompleted();
+  }, [userId]);
+
+  const handleSubmitReview = async (
+    reviewId: number,
+    donationId: number,
+    donorId: number,
+    rating: number,
+    comment: string,
+    reservationId?: number
+  ) => {
+    if (!userId) return;
+
+    await submitReview(reviewId, donationId, donorId, userId, rating, comment, reservationId);
+    
+    // Refresh both lists
+    refreshPending();
+    refreshCompleted();
+
+    toast.success('Thank you! Your feedback has been submitted.');
+  };
 
   return (
     <PageLayout>
       <div className={`max-w-4xl mx-auto min-h-screen w-full pb-10 bg-transparent`}>
         
-        {/* Header-ul Paginii */}
         <div className={`p-6 md:p-8 rounded-3xl mb-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 ${
           theme === 'light' ? 'bg-white shadow-sm border border-gray-100' : 'bg-[#1a1a1a] border border-[#2e2e2e]'
         }`}>
@@ -48,7 +59,7 @@ const FeedbackRating: React.FC = () => {
               Feedback & Rating
             </h1>
             <p className={`text-base ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>
-              Your feedback builds trust and helps donors improve.
+              Rate each confirmed pickup — your feedback helps donors improve.
             </p>
           </div>
           
@@ -62,7 +73,6 @@ const FeedbackRating: React.FC = () => {
         </div>
 
         
-        {/* Tab-uri (Box cu lățime egală 50/50) */}
         <div className="flex gap-2 mb-6 px-2 w-full max-w-md">
           <button
             onClick={() => setActiveTab('Pending')}
@@ -86,17 +96,22 @@ const FeedbackRating: React.FC = () => {
           </button>
         </div>
 
-        {/* Randarea Listei */}
         <div className="space-y-4 px-2 animate-fade-in-up">
           {activeTab === 'Pending' ? (
             pendingReviews.length > 0 ? (
               pendingReviews.map((item) => (
-                <PendingReviewCard key={item.id} item={item} onSubmit={handleSubmitReview} />
+                <PendingReviewCard
+                  key={`${item.reviewId}-${item.reservationId}`}
+                  item={item}
+                  onSubmit={(rating, comment) =>
+                    handleSubmitReview(item.reviewId, item.donationId, item.donorId, rating, comment, item.reservationId)
+                  }
+                />
               ))
             ) : (
               <div className={`text-center py-20 rounded-2xl border-2 border-dashed ${theme === 'light' ? 'border-gray-200 text-gray-400' : 'border-[#2e2e2e] text-gray-500'}`}>
                 <p className="font-bold text-lg">All caught up!</p>
-                <p className="text-sm">You have no pending reviews.</p>
+                <p className="text-sm">Confirm a pickup in My Pickups to leave a review here.</p>
               </div>
             )
           ) : (

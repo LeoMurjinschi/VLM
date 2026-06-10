@@ -55,6 +55,7 @@ import SafetyGuide from './pages/SafetyGuide';
 import NotificationHistory from './pages/NotificationHistory';
 import Messages from './pages/Messages';
 import DonorProfile from './pages/DonorProfile';
+import ReceiverProfile from './pages/ReceiverProfile';
 import StockDetail from './pages/StockDetail';
 import UserProfilePage from './pages/UserProfilePage';
 
@@ -131,6 +132,7 @@ function App() {
                   <Route path="messages" element={<Messages />} />
                   <Route path="notifications" element={<NotificationHistory />} />
                   <Route path="donors/:donorId" element={<DonorProfile />} />
+                  <Route path="receivers/:receiverId" element={<ReceiverProfile />} />
                   <Route path="stock/:stockId" element={<StockDetail />} />
                   <Route path="profile" element={<UserProfilePage />} />
                   <Route path="pickups" element={<DonorPickupManager />} />
@@ -156,6 +158,7 @@ function App() {
                   <Route path="safety" element={<SafetyGuide />} />
                   <Route path="settings" element={<Settings />} />
                   <Route path="donors/:donorId" element={<DonorProfile />} />
+                  <Route path="receivers/:receiverId" element={<ReceiverProfile />} />
                   <Route path="stock/:stockId" element={<StockDetail />} />
                   <Route path="profile" element={<UserProfilePage />} />
 
@@ -181,6 +184,8 @@ function App() {
                   <Route path="messages" element={<Messages />} />
                   <Route path="notifications" element={<NotificationHistory />} />
                   <Route path="profile" element={<UserProfilePage />} />
+                  <Route path="donors/:donorId" element={<DonorProfile />} />
+                  <Route path="receivers/:receiverId" element={<ReceiverProfile />} />
                   <Route path="*" element={<Navigate to="dashboard" replace />} />
                 </Route>
 

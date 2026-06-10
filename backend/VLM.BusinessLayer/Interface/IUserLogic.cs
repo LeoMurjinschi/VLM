@@ -17,5 +17,5 @@ public interface IUserLogic
     ServiceResponse GetPendingUsers();
     ServiceResponse ApproveUser(int userId, AccountApprovalDecisionDto decisionDto);
     ServiceResponse RejectUser(int userId, AccountApprovalDecisionDto decisionDto);
+    ServiceResponse AcceptSafetyCommitment(int userId);
 }
-

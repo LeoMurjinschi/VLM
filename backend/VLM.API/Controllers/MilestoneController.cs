@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using VLM.API.Extensions;
 using VLM.BusinessLayer;
 using VLM.BusinessLayer.Interface;
 using VLM.Domain.Models.Milestone;
@@ -39,6 +40,10 @@ public class MilestoneController : ControllerBase
     [Authorize(Roles = "donor,admin")]
     public IActionResult Create([FromBody] MilestoneCreateDto dto)
     {
+        var callerId = User.GetUserId();
+        if (callerId != dto.DonorId && !User.IsAdmin())
+            return Forbid();
+
         var result = _milestoneLogic.CreateMilestone(dto);
         if (!result.IsSuccess) return BadRequest(result.Message);
         return Ok(result.Data);

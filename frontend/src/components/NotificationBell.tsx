@@ -4,10 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { notificationService } from '../api/notificationService';
-import type { NotificationInfoDto } from '../api/types'; 
-import { 
-  BellIcon, 
-  ExclamationTriangleIcon, 
+import type { NotificationInfoDto } from '../api/types';
 import { adminService } from '../api/adminService';
 import {
   BellIcon,
@@ -44,7 +41,6 @@ const NotificationBell: React.FC = () => {
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState<NotificationInfoDto[]>([]);
-  const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -63,11 +59,10 @@ const NotificationBell: React.FC = () => {
               link: '/admin/signups',
             });
           }
-          setNotifications(notifs);
+          // This is a bit of a hack, we should probably have a separate notification type for admin
+          // setNotifications(notifs);
         })
         .catch(() => setNotifications([]));
-    } else {
-      setNotifications(getMockNotifications(user?.role));
     }
   }, [user?.role, location.pathname]);
 
@@ -89,7 +84,7 @@ const NotificationBell: React.FC = () => {
 
   useEffect(() => {
     loadNotifications();
-    const interval = setInterval(loadNotifications, 30000); 
+    const interval = setInterval(loadNotifications, 30000);
     return () => clearInterval(interval);
   }, [user?.id]);
 
@@ -114,12 +109,6 @@ const NotificationBell: React.FC = () => {
   const handleNotificationClick = async (link: string, id: number) => {
     await notificationService.markAsRead(id);
     setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n));
-  const markAllAsRead = () => {
-    setNotifications([]);
-  };
-
-  const handleNotificationClick = (link: string, id: number) => {
-    setNotifications(prev => prev.filter(n => n.id !== id));
     setIsOpen(false);
     navigate(link);
   };
@@ -141,7 +130,7 @@ const NotificationBell: React.FC = () => {
 
   return (
     <div className="relative" ref={dropdownRef}>
-      <button 
+      <button
         onClick={() => setIsOpen(!isOpen)}
         className={`p-2 transition-colors relative rounded-xl ${
           isOpen ? (theme === 'light' ? (isAdmin ? 'bg-[#8b5cf6]/10 text-[#8b5cf6]' : 'bg-[#16a34a]/10 text-[#16a34a]') : (isAdmin ? 'bg-[#1a1a1a] text-[#8b5cf6]' : 'bg-[#1a1a1a] text-[#16a34a]')) :
@@ -174,11 +163,11 @@ const NotificationBell: React.FC = () => {
                 Notifications
               </h3>
               {unreadCount > 0 && (
-                <button 
+                <button
                   onClick={markAllAsRead}
                   className={`flex items-center gap-1 text-xs font-bold transition-colors ${
-                    theme === 'light' 
-                      ? (isAdmin ? 'text-[#8b5cf6] hover:text-violet-700' : 'text-[#16a34a] hover:text-green-700') 
+                    theme === 'light'
+                      ? (isAdmin ? 'text-[#8b5cf6] hover:text-violet-700' : 'text-[#16a34a] hover:text-green-700')
                       : (isAdmin ? 'text-[#8b5cf6] hover:text-violet-400' : 'text-[#16a34a] hover:text-green-400')
                   }`}
                 >
@@ -190,7 +179,7 @@ const NotificationBell: React.FC = () => {
             <div className="max-h-[60vh] overflow-y-auto scrollbar-hide">
               {notifications.length > 0 ? (
                 notifications.slice(0, 3).map((notification) => (
-                  <div 
+                  <div
                     key={notification.id}
                     onClick={() => handleNotificationClick(notification.link, notification.id)}
                     className={`flex items-start gap-3 p-4 border-b transition-colors cursor-pointer ${
@@ -226,12 +215,12 @@ const NotificationBell: React.FC = () => {
             </div>
             
             <div className={`p-3 text-center border-t ${theme === 'light' ? 'border-gray-100 bg-gray-50' : 'border-gray-800 bg-[#1a1a1a]'}`}>
-              <Link 
-                to={notificationsUrl} 
+              <Link
+                to={notificationsUrl}
                 onClick={() => setIsOpen(false)}
                 className={`text-xs font-bold block w-full transition-colors ${
-                  theme === 'light' 
-                    ? (isAdmin ? 'text-[#8b5cf6] hover:text-violet-700' : 'text-[#16a34a] hover:text-green-700') 
+                  theme === 'light'
+                    ? (isAdmin ? 'text-[#8b5cf6] hover:text-violet-700' : 'text-[#16a34a] hover:text-green-700')
                     : (isAdmin ? 'text-[#8b5cf6] hover:text-violet-400' : 'text-[#16a34a] hover:text-green-400')
                 }`}
               >

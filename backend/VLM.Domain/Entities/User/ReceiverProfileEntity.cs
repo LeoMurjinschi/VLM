@@ -14,5 +14,11 @@ public class ReceiverProfileEntity
     public string Address { get; set; } = string.Empty;
     public string Location { get; set; } = string.Empty;
 
+    // Visibility — controls what other users see on the public profile
+    public bool IsPublic { get; set; } = true;
+    public bool ShowPhone { get; set; } = false;
+    public bool ShowAddress { get; set; } = false;
+    public DateTime? UpdatedDate { get; set; }
+
     public UserEntity User { get; set; } = null!;
 }

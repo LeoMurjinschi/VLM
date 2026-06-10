@@ -67,6 +67,11 @@ public class NotificationController : ControllerBase
         if (!result.IsSuccess)
             return BadRequest(result.Message);
 
+        if (result.Data == null)
+        {
+            return Ok(new { count = 0 });
+        }
+
         return Ok(new { count = (int)result.Data });
     }
 

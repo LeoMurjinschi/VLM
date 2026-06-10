@@ -20,7 +20,7 @@ public class AuthController : ControllerBase
     public IActionResult Login([FromBody] UserLoginDto loginDto)
     {
         var userAgent = Request.Headers["User-Agent"].ToString();
-        var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
+        var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? string.Empty;
 
         var result = _userActions.LoginAction(loginDto, userAgent, ipAddress);
 

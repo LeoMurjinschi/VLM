@@ -170,6 +170,29 @@ public class DashboardActions
         }
     }
 
+    public ServiceResponse GetReceiverStatsAction(int receiverId)
+    {
+        try
+        {
+            var completed = _dbContext.Reservations
+                .Where(r => r.UserId == receiverId && r.Status == "completed")
+                .Select(r => new { r.QuantityReserved })
+                .ToList();
+
+            var stats = new ReceiverStatsDto
+            {
+                MealsSaved = completed.Sum(r => (decimal)r.QuantityReserved),
+                CompletedPickups = completed.Count
+            };
+
+            return new ServiceResponse { IsSuccess = true, Data = stats };
+        }
+        catch (Exception ex)
+        {
+            return new ServiceResponse { IsSuccess = false, Message = ex.Message };
+        }
+    }
+
     private static string FormatTimeAgo(DateTime date, DateTime now)
     {
         var diff = now - date;

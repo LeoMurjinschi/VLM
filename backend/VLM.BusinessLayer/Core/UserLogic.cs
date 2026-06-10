@@ -62,5 +62,9 @@ public class UserLogic : UserActions, IUserLogic
     {
         return RejectUserAction(userId, decisionDto);
     }
-}
 
+    public ServiceResponse AcceptSafetyCommitment(int userId)
+    {
+        return AcceptSafetyCommitmentAction(userId);
+    }
+}

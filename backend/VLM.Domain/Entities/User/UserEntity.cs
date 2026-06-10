@@ -26,6 +26,7 @@ public class UserEntity
     public string? Avatar { get; set; }
     public bool IsActive { get; set; } = true;
     public DateTime CreatedDate { get; set; }
+    public bool? HasAcceptedSafetyCommitment { get; set; }
     
     public string ApprovalStatus { get; set; } = "pending";
     public int? ApprovedById { get; set; }
@@ -45,6 +46,7 @@ public class UserEntity
     public UserSettingsEntity? Settings { get; set; }
     public DonorProfileEntity? DonorProfile { get; set; }
     public ReceiverProfileEntity? ReceiverProfile { get; set; }
+    public AdminProfileEntity? AdminProfile { get; set; }
     public ICollection<UserDocumentEntity> Documents { get; set; } = new List<UserDocumentEntity>();
     public ICollection<FavoriteEntity> Favorites { get; set; } = new List<FavoriteEntity>();
     public ICollection<ReportEntity> Reports { get; set; } = new List<ReportEntity>();

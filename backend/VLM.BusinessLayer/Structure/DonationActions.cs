@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using VLM.DataAccessLayer.Context;
 using VLM.Domain.Entities.Donation;
 using VLM.Domain.Models.Donation;
@@ -33,7 +34,9 @@ public class DonationActions
                 ExpirationDate = donationCreateDto.ExpirationDate,
                 Image = donationCreateDto.Image,
                 Status = "Available",
-                CreatedDate = DateTime.UtcNow
+                CreatedDate = DateTime.UtcNow,
+                PickupLatitude = donationCreateDto.PickupLatitude,
+                PickupLongitude = donationCreateDto.PickupLongitude,
             };
 
             _dbContext.Donations.Add(donationEntity);
@@ -76,8 +79,6 @@ public class DonationActions
         }
     }
 
-    // ... (restul metodelor rămân neschimbate)
-    public ServiceResponse GetDonationsByDonorIdAction(int donorId)
     private const decimal LowStockThreshold = 5;
 
     public ServiceResponse GetDonationsByDonorIdAction(
@@ -93,7 +94,7 @@ public class DonationActions
                 .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-            var baseQuery = _dbContext.Donations.Where(d => d.DonorId == donorId);
+            var baseQuery = _dbContext.Donations.Include(d => d.Donor).Where(d => d.DonorId == donorId);
 
             // Category filter
             if (categoryList is { Count: > 0 })
@@ -108,39 +109,60 @@ public class DonationActions
                 _           => baseQuery
             };
 
-            var query = baseQuery.Select(entity => new DonationInfoDto
+            var donationList = baseQuery.ToList();
+
+            // Get all reservations in a single query for efficiency
+            var reservationsByDonation = _dbContext.Reservations
+                .Where(r => r.Status == "pending" || r.Status == "donor_confirmed")
+                .GroupBy(r => r.DonationId)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.Sum(r => r.QuantityReserved)
+                );
+
+            var donations = donationList.Select(entity =>
             {
-                Id = entity.Id,
-                Title = entity.Title,
-                Description = entity.Description,
-                Quantity = entity.Quantity,
-                Unit = entity.Unit,
-                DonorId = entity.DonorId,
-                Category = entity.Category,
-                PickupLocation = entity.PickupLocation,
-                ExpirationDate = entity.ExpirationDate,
-                Image = entity.Image,
-                Status = entity.Status,
-                CreatedDate = entity.CreatedDate,
-                UpdatedDate = entity.UpdatedDate,
-                DonorName = entity.Donor.Name,
-                DonorAvatar = entity.Donor.Avatar
+                // Get reserved quantity for this donation (0 if not in dictionary)
+                var reservedQuantity = reservationsByDonation.TryGetValue(entity.Id, out var reserved) ? reserved : 0;
+                var availableQuantity = Math.Max(0, entity.Quantity - reservedQuantity);
+
+                return new DonationInfoDto
+                {
+                    Id = entity.Id,
+                    Title = entity.Title,
+                    Description = entity.Description,
+                    Quantity = entity.Quantity,
+                    ReservedQuantity = reservedQuantity,
+                    Unit = entity.Unit,
+                    DonorId = entity.DonorId,
+                    Category = entity.Category,
+                    PickupLocation = entity.PickupLocation,
+                    ExpirationDate = entity.ExpirationDate,
+                    Image = entity.Image,
+                    Status = entity.Status,
+                    CreatedDate = entity.CreatedDate,
+                    UpdatedDate = entity.UpdatedDate,
+                    DonorName = entity.Donor?.Name ?? string.Empty,
+                    DonorAvatar = entity.Donor?.Avatar,
+                    PickupLatitude = entity.PickupLatitude,
+                    PickupLongitude = entity.PickupLongitude,
+                };
             });
 
-            var donations = sortBy switch
+            var sortedDonations = sortBy switch
             {
-                "oldest"        => query.OrderBy(d => d.CreatedDate).ToList(),
-                "expiring_soon" => query.OrderBy(d => d.ExpirationDate).ToList(),
-                "name_asc"      => query.OrderBy(d => d.Title).ToList(),
-                "quantity_high" => query.OrderByDescending(d => d.Quantity).ToList(),
-                "quantity_low"  => query.OrderBy(d => d.Quantity).ToList(),
-                _               => query.OrderByDescending(d => d.CreatedDate).ToList(),
+                "oldest"        => donations.OrderBy(d => d.CreatedDate).ToList(),
+                "expiring_soon" => donations.OrderBy(d => d.ExpirationDate).ToList(),
+                "name_asc"      => donations.OrderBy(d => d.Title).ToList(),
+                "quantity_high" => donations.OrderByDescending(d => d.Quantity).ToList(),
+                "quantity_low"  => donations.OrderBy(d => d.Quantity).ToList(),
+                _               => donations.OrderByDescending(d => d.CreatedDate).ToList(),
             };
 
             return new ServiceResponse
             {
                 IsSuccess = true,
-                Data = donations
+                Data = sortedDonations
             };
         }
         catch (Exception e)
@@ -157,27 +179,7 @@ public class DonationActions
     {
         try
         {
-            var entity = _dbContext.Donations
-                .Where(d => d.Id == id)
-                .Select(d => new DonationInfoDto
-                {
-                    Id = d.Id,
-                    Title = d.Title,
-                    Description = d.Description,
-                    Quantity = d.Quantity,
-                    Unit = d.Unit,
-                    DonorId = d.DonorId,
-                    Category = d.Category,
-                    PickupLocation = d.PickupLocation,
-                    ExpirationDate = d.ExpirationDate,
-                    Image = d.Image,
-                    Status = d.Status,
-                    CreatedDate = d.CreatedDate,
-                    UpdatedDate = d.UpdatedDate,
-                    DonorName = d.Donor.Name,
-                    DonorAvatar = d.Donor.Avatar
-                })
-                .FirstOrDefault();
+            var entity = _dbContext.Donations.Include(d => d.Donor).FirstOrDefault(d => d.Id == id);
 
             if (entity == null)
                 return new ServiceResponse
@@ -186,7 +188,34 @@ public class DonationActions
                     Message = "Donation not found"
                 };
 
-            var dto = entity;
+            // Calculate available quantity by subtracting pending and confirmed reservations
+            var reservedQuantity = _dbContext.Reservations
+                .Where(r => r.DonationId == id && (r.Status == "pending" || r.Status == "donor_confirmed"))
+                .Sum(r => r.QuantityReserved);
+
+            var availableQuantity = Math.Max(0, entity.Quantity - reservedQuantity);
+
+            var dto = new DonationInfoDto
+            {
+                Id = entity.Id,
+                Title = entity.Title,
+                Description = entity.Description,
+                Quantity = entity.Quantity,
+                ReservedQuantity = reservedQuantity,
+                Unit = entity.Unit,
+                DonorId = entity.DonorId,
+                Category = entity.Category,
+                PickupLocation = entity.PickupLocation,
+                ExpirationDate = entity.ExpirationDate,
+                Image = entity.Image,
+                Status = entity.Status,
+                CreatedDate = entity.CreatedDate,
+                UpdatedDate = entity.UpdatedDate,
+                DonorName = entity.Donor?.Name ?? string.Empty,
+                DonorAvatar = entity.Donor?.Avatar,
+                PickupLatitude = entity.PickupLatitude,
+                PickupLongitude = entity.PickupLongitude,
+            };
 
             return new ServiceResponse
             {
@@ -208,13 +237,28 @@ public class DonationActions
     {
         try
         {
+            var now = DateTime.UtcNow;
             var donations = _dbContext.Donations
-                .Select(entity => new DonationInfoDto
+                .Include(d => d.Donor)
+                .Where(d => d.ExpirationDate > now)
+                .ToList();
+
+            var reservationsByDonation = _dbContext.Reservations
+                .Where(r => r.Status == "pending" || r.Status == "donor_confirmed")
+                .GroupBy(r => r.DonationId)
+                .ToDictionary(g => g.Key, g => g.Sum(r => r.QuantityReserved));
+
+            var result = donations.Select(entity =>
+            {
+                var reservedQuantity = reservationsByDonation.TryGetValue(entity.Id, out var reserved) ? reserved : 0;
+
+                return new DonationInfoDto
                 {
                     Id = entity.Id,
                     Title = entity.Title,
                     Description = entity.Description,
                     Quantity = entity.Quantity,
+                    ReservedQuantity = reservedQuantity,
                     Unit = entity.Unit,
                     DonorId = entity.DonorId,
                     Category = entity.Category,
@@ -224,15 +268,17 @@ public class DonationActions
                     Status = entity.Status,
                     CreatedDate = entity.CreatedDate,
                     UpdatedDate = entity.UpdatedDate,
-                    DonorName = entity.Donor.Name,
-                    DonorAvatar = entity.Donor.Avatar
-                })
-                .ToList();
+                    DonorName = entity.Donor?.Name ?? string.Empty,
+                    DonorAvatar = entity.Donor?.Avatar,
+                    PickupLatitude = entity.PickupLatitude,
+                    PickupLongitude = entity.PickupLongitude,
+                };
+            }).ToList();
 
             return new ServiceResponse
             {
                 IsSuccess = true,
-                Data = donations
+                Data = result
             };
         }
         catch (Exception e)
@@ -268,6 +314,8 @@ public class DonationActions
             entity.ExpirationDate = donationCreateDto.ExpirationDate;
             entity.Image = donationCreateDto.Image;
             entity.UpdatedDate = DateTime.UtcNow;
+            entity.PickupLatitude = donationCreateDto.PickupLatitude;
+            entity.PickupLongitude = donationCreateDto.PickupLongitude;
 
             _dbContext.SaveChanges();
 

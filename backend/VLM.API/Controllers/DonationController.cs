@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using VLM.API.Extensions;
 using VLM.BusinessLayer;
 using VLM.BusinessLayer.Interface;
 using VLM.Domain.Models.Donation;
@@ -54,6 +55,10 @@ public class DonationController : ControllerBase
     [Authorize(Roles = "donor,admin")]
     public IActionResult CreateDonation([FromBody] DonationCreateDto donationCreateDto)
     {
+        var callerId = User.GetUserId();
+        if (callerId != donationCreateDto.DonorId && !User.IsAdmin())
+            return Forbid();
+
         var result = _donationLogic.CreateDonation(donationCreateDto);
         if (!result.IsSuccess)
             return BadRequest(result.Message);

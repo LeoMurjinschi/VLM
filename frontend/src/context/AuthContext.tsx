@@ -8,6 +8,7 @@ interface User {
     email: string;
     role: Role;
     avatar?: string;
+    hasAcceptedSafetyCommitment: boolean;
 }
 
 interface AuthContextType {

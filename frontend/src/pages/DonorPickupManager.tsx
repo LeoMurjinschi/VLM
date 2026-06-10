@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import { avatarSrc } from '../utils/avatarUtils';
 import {
   CheckBadgeIcon,
   XMarkIcon,
@@ -50,7 +51,10 @@ const STATUS_COLORS: Record<ReservationStatus, string> = {
   cancelled: 'bg-red-500/15 text-red-500',
 };
 
+const DEFAULT_DONATION_IMAGE = 'https://images.unsplash.com/vector-1740026651800-93fb37caa211?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8ODR8fGdyb2Nlcnl8ZW58MHx8MHx8fDA%3D';
+
 interface StockGroup {
+  groupKey: string;
   stockId: string;
   stockTitle: string;
   stockImage: string;
@@ -71,7 +75,15 @@ const DonorPickupManager: React.FC = () => {
   const [activeTab, setActiveTab] = useState<FilterTab>('all');
   const [confirmingId, setConfirmingId] = useState<string | null>(null);
   const [finalConfirmReservation, setFinalConfirmReservation] = useState<Reservation | null>(null);
-  const [finalConfirmQty, setFinalConfirmQty] = useState<number>(0);
+  const [finalConfirmQty, setFinalConfirmQty] = useState<string>('0');
+  const [expandedHistory, setExpandedHistory] = useState<Set<string>>(new Set());
+
+  const toggleHistory = (groupKey: string) =>
+    setExpandedHistory(prev => {
+      const next = new Set(prev);
+      next.has(groupKey) ? next.delete(groupKey) : next.add(groupKey);
+      return next;
+    });
 
   const donorReservations = useMemo(
     () => myReservations.filter((r) => r.donorId === user?.id),
@@ -95,11 +107,13 @@ const DonorPickupManager: React.FC = () => {
   const grouped = useMemo((): StockGroup[] => {
     const map = new Map<string, StockGroup>();
     for (const r of filtered) {
-      if (!map.has(r.stockId)) {
-        map.set(r.stockId, {
+      const key = r.stockId;
+      if (!map.has(key)) {
+        map.set(key, {
+          groupKey: key,
           stockId: r.stockId,
           stockTitle: r.stockTitle,
-          stockImage: r.stockImage,
+          stockImage: r.stockImage || DEFAULT_DONATION_IMAGE,
           stockCategory: r.stockCategory,
           unit: r.unit,
           pickupLocation: r.pickupLocation,
@@ -107,7 +121,7 @@ const DonorPickupManager: React.FC = () => {
           reservations: [],
         });
       }
-      map.get(r.stockId)!.reservations.push(r);
+      map.get(key)!.reservations.push(r);
     }
     return Array.from(map.values());
   }, [filtered]);
@@ -135,12 +149,12 @@ const DonorPickupManager: React.FC = () => {
 
   const handleOpenFinalConfirm = (r: Reservation) => {
     setFinalConfirmReservation(r);
-    setFinalConfirmQty(r.quantityPickedUpByReceiver ?? r.quantityReserved);
+    setFinalConfirmQty(String(r.quantityPickedUpByReceiver ?? r.quantityReserved));
   };
 
   const handleFinalConfirm = () => {
     if (!finalConfirmReservation) return;
-    donorFinalConfirm(finalConfirmReservation.id, finalConfirmQty);
+    donorFinalConfirm(finalConfirmReservation.id, parseFloat(finalConfirmQty) || 0);
     setFinalConfirmReservation(null);
     toast.success('Pickup confirmed! Stock transfer recorded.');
   };
@@ -211,7 +225,7 @@ const DonorPickupManager: React.FC = () => {
         <div className="space-y-5">
           {grouped.map((group) => (
             <div
-              key={group.stockId}
+              key={group.groupKey}
               className={`rounded-2xl border overflow-hidden ${isDark ? 'bg-[#1a1a1a] border-[#2e2e2e]' : 'bg-white border-gray-200'}`}
             >
               {/* Stock header */}
@@ -248,123 +262,101 @@ const DonorPickupManager: React.FC = () => {
               </div>
 
               {/* Reservation rows */}
-              <div className="divide-y divide-gray-100 dark:divide-[#2e2e2e]">
-                {group.reservations.map((r) => (
-                  <div key={r.id} className="p-4">
-                    {/* Inline "Mark as Ready" confirmation */}
+              {(() => {
+                const active = group.reservations.filter(r => r.status === 'pending' || r.status === 'donor_confirmed' || r.status === 'receiver_confirmed');
+                const history = group.reservations.filter(r => r.status === 'completed' || r.status === 'cancelled');
+                const showHistory = expandedHistory.has(group.groupKey);
+
+                const renderRow = (r: Reservation) => (
+                  <div key={r.id} className={`p-4 border-b last:border-b-0 ${isDark ? 'border-[#2e2e2e]' : 'border-gray-100'}`}>
                     {confirmingId === r.id ? (
-                      <div className={`flex flex-col sm:flex-row items-start sm:items-center gap-3 p-3 rounded-xl ${
-                        isDark ? 'bg-[#222]' : 'bg-amber-50'
-                      }`}>
+                      <div className={`flex flex-col sm:flex-row items-start sm:items-center gap-3 p-3 rounded-xl ${isDark ? 'bg-[#222]' : 'bg-amber-50'}`}>
                         <p className={`text-sm font-semibold flex-grow ${isDark ? 'text-amber-400' : 'text-amber-700'}`}>
                           Mark this reservation as ready for pickup?
                         </p>
                         <div className="flex gap-2 flex-shrink-0">
-                          <button
-                            onClick={() => setConfirmingId(null)}
-                            className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
-                              isDark ? 'bg-[#2e2e2e] text-gray-300 hover:bg-gray-700' : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
-                            }`}
-                          >
-                            No
-                          </button>
-                          <button
-                            onClick={() => handleConfirmReady(r.id)}
-                            className="px-3 py-1.5 rounded-lg text-sm font-bold bg-[#16a34a] text-white hover:bg-[#15803d] transition-all"
-                          >
-                            Yes, mark ready
-                          </button>
+                          <button onClick={() => setConfirmingId(null)} className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${isDark ? 'bg-[#2e2e2e] text-gray-300 hover:bg-gray-700' : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'}`}>No</button>
+                          <button onClick={() => handleConfirmReady(r.id)} className="px-3 py-1.5 rounded-lg text-sm font-bold bg-[#16a34a] text-white hover:bg-[#15803d] transition-all">Yes, mark ready</button>
                         </div>
                       </div>
                     ) : (
                       <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                        {/* Left: receiver info */}
                         <div className="flex items-center gap-3 flex-grow min-w-0">
-                          <div className="w-9 h-9 rounded-full bg-[#16a34a] flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
-                            {r.receiverName.charAt(0).toUpperCase()}
-                          </div>
+                          <img src={avatarSrc(r.receiverName, r.receiverAvatar)} alt={r.receiverName} className="w-9 h-9 rounded-full object-cover flex-shrink-0" />
                           <div className="min-w-0">
-                            <p className={`text-sm font-semibold truncate ${isDark ? 'text-white' : 'text-[#1a1a1a]'}`}>
+                            <Link to={`../receivers/${r.receiverId}`} className={`text-sm font-semibold truncate block hover:text-[#16a34a] transition-colors ${isDark ? 'text-white' : 'text-[#1a1a1a]'}`}>
                               {r.receiverName}
-                            </p>
+                            </Link>
                             <div className={`flex items-center gap-2 text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                              <span className="font-semibold text-[#16a34a]">
-                                {r.quantityReserved} {r.unit}
-                              </span>
+                              <span className="font-semibold text-[#16a34a]">{r.quantityReserved} {r.unit}</span>
                               <span>·</span>
-                              <span className="flex items-center gap-0.5">
-                                <ClockIcon className="w-3 h-3" />
-                                {timeAgo(r.reservedAt)}
-                              </span>
+                              <span className="flex items-center gap-0.5"><ClockIcon className="w-3 h-3" />{timeAgo(r.reservedAt)}</span>
                             </div>
                           </div>
                         </div>
-
-                        {/* Status badge */}
                         <span className={`self-start sm:self-center px-2.5 py-1 rounded-lg text-[11px] font-bold uppercase tracking-wide flex-shrink-0 ${STATUS_COLORS[r.status]}`}>
                           {STATUS_LABEL[r.status]}
                         </span>
-
-                        {/* Actions */}
                         {(r.status === 'pending' || r.status === 'donor_confirmed' || r.status === 'receiver_confirmed') && (
                           <div className="flex gap-2 flex-shrink-0">
-                            <button
-                              onClick={() => handleMessage(r.receiverId, r.receiverName)}
-                              title="Message receiver"
-                              className={`p-2 rounded-lg transition-all ${
-                                isDark ? 'text-gray-400 hover:text-white hover:bg-gray-800' : 'text-gray-400 hover:text-gray-700 hover:bg-gray-100'
-                              }`}
-                            >
+                            <button onClick={() => handleMessage(r.receiverId, r.receiverName)} title="Message receiver" className={`p-2 rounded-lg transition-all ${isDark ? 'text-gray-400 hover:text-white hover:bg-gray-800' : 'text-gray-400 hover:text-gray-700 hover:bg-gray-100'}`}>
                               <ChatBubbleLeftRightIcon className="w-4 h-4" />
                             </button>
                             {r.status !== 'receiver_confirmed' && (
-                              <button
-                                onClick={() => handleCancel(r.id)}
-                                title="Cancel reservation"
-                                className={`p-2 rounded-lg transition-all ${
-                                  isDark ? 'text-red-400 hover:bg-red-400/10' : 'text-red-500 hover:bg-red-50'
-                                }`}
-                              >
+                              <button onClick={() => handleCancel(r.id)} title="Cancel reservation" className={`p-2 rounded-lg transition-all ${isDark ? 'text-red-400 hover:bg-red-400/10' : 'text-red-500 hover:bg-red-50'}`}>
                                 <XMarkIcon className="w-4 h-4" />
                               </button>
                             )}
                             {r.status === 'pending' && (
-                              <button
-                                onClick={() => handleMarkReady(r.id)}
-                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-[#16a34a] text-white hover:bg-[#15803d] transition-all shadow-sm shadow-green-500/20"
-                              >
-                                <CheckBadgeIcon className="w-4 h-4" />
-                                Mark Ready
+                              <button onClick={() => handleMarkReady(r.id)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-[#16a34a] text-white hover:bg-[#15803d] transition-all shadow-sm shadow-green-500/20">
+                                <CheckBadgeIcon className="w-4 h-4" />Mark Ready
                               </button>
                             )}
                             {r.status === 'receiver_confirmed' && (
-                              <button
-                                onClick={() => handleOpenFinalConfirm(r)}
-                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-600 text-white hover:bg-blue-700 transition-all shadow-sm shadow-blue-500/20"
-                              >
-                                <CheckCircleIcon className="w-4 h-4" />
-                                Confirm Pickup
+                              <button onClick={() => handleOpenFinalConfirm(r)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-600 text-white hover:bg-blue-700 transition-all shadow-sm shadow-blue-500/20">
+                                <CheckCircleIcon className="w-4 h-4" />Confirm Pickup
                               </button>
                             )}
                           </div>
                         )}
-
                         {r.status === 'receiver_confirmed' && r.quantityPickedUpByReceiver !== undefined && (
-                          <span className={`text-xs flex-shrink-0 font-semibold ${isDark ? 'text-blue-400' : 'text-blue-600'}`}>
-                            Receiver reports: {r.quantityPickedUpByReceiver} {r.unit}
-                          </span>
+                          <span className={`text-xs flex-shrink-0 font-semibold ${isDark ? 'text-blue-400' : 'text-blue-600'}`}>Receiver reports: {r.quantityPickedUpByReceiver} {r.unit}</span>
                         )}
-
                         {r.status === 'completed' && r.quantityConfirmed !== undefined && (
-                          <span className={`text-xs flex-shrink-0 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
-                            Picked up: {r.quantityConfirmed} {r.unit}
-                          </span>
+                          <span className={`text-xs flex-shrink-0 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>Picked up: {r.quantityConfirmed} {r.unit}</span>
                         )}
                       </div>
                     )}
                   </div>
-                ))}
-              </div>
+                );
+
+                return (
+                  <div>
+                    {active.length === 0 && history.length > 0 && (
+                      <div className={`px-4 py-3 text-sm ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>No active reservations.</div>
+                    )}
+                    {active.map(renderRow)}
+                    {history.length > 0 && (
+                      <>
+                        <button
+                          onClick={() => toggleHistory(group.groupKey)}
+                          className={`w-full flex items-center justify-between px-4 py-2.5 text-xs font-semibold transition-colors border-t ${
+                            isDark ? 'border-[#2e2e2e] text-gray-500 hover:text-gray-300 hover:bg-[#1e1e1e]' : 'border-gray-100 text-gray-400 hover:text-gray-600 hover:bg-gray-50'
+                          }`}
+                        >
+                          <span>
+                            {history.filter(r => r.status === 'completed').length > 0 && `${history.filter(r => r.status === 'completed').length} completed`}
+                            {history.filter(r => r.status === 'completed').length > 0 && history.filter(r => r.status === 'cancelled').length > 0 && ' · '}
+                            {history.filter(r => r.status === 'cancelled').length > 0 && `${history.filter(r => r.status === 'cancelled').length} cancelled`}
+                          </span>
+                          <span>{showHistory ? '▲ Hide' : '▼ Show'}</span>
+                        </button>
+                        {showHistory && history.map(renderRow)}
+                      </>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
           ))}
         </div>
@@ -419,16 +411,28 @@ const DonorPickupManager: React.FC = () => {
                   max={finalConfirmReservation.quantityReserved}
                   step={0.1}
                   value={finalConfirmQty}
-                  onChange={(e) => setFinalConfirmQty(Number(e.target.value))}
+                  onChange={(e) => {
+                    const raw = e.target.value;
+                    const parsed = parseFloat(raw);
+                    if (!isNaN(parsed) && parsed > finalConfirmReservation.quantityReserved) {
+                      setFinalConfirmQty(String(finalConfirmReservation.quantityReserved));
+                    } else {
+                      setFinalConfirmQty(raw);
+                    }
+                  }}
+                  onBlur={() => {
+                    const parsed = parseFloat(finalConfirmQty);
+                    if (isNaN(parsed) || parsed <= 0) setFinalConfirmQty('0.1');
+                  }}
                   className={`w-full px-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-sm font-medium ${
                     isDark ? 'bg-[#222] border-[#2e2e2e] text-gray-100' : 'bg-white border-gray-200 text-gray-700'
                   }`}
                 />
-                {finalConfirmQty < finalConfirmReservation.quantityReserved && finalConfirmQty > 0 && (
+                {(() => { const n = parseFloat(finalConfirmQty) || 0; return n > 0 && n < finalConfirmReservation.quantityReserved ? (
                   <p className={`text-xs mt-1.5 ${isDark ? 'text-amber-400' : 'text-amber-600'}`}>
-                    The remaining {(finalConfirmReservation.quantityReserved - finalConfirmQty).toFixed(1)} {finalConfirmReservation.unit} will be returned to the feed.
+                    The remaining {(finalConfirmReservation.quantityReserved - n).toFixed(1)} {finalConfirmReservation.unit} will be returned to the feed.
                   </p>
-                )}
+                ) : null; })()}
               </div>
             </div>
 
@@ -443,7 +447,7 @@ const DonorPickupManager: React.FC = () => {
               </button>
               <button
                 onClick={handleFinalConfirm}
-                disabled={finalConfirmQty <= 0}
+                disabled={(() => { const n = parseFloat(finalConfirmQty) || 0; return n <= 0 || n > finalConfirmReservation.quantityReserved; })()}
                 className="flex-1 py-2.5 rounded-xl font-semibold text-sm bg-blue-600 hover:bg-blue-700 text-white transition-all flex items-center justify-center gap-2 shadow-md shadow-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <CheckCircleIcon className="w-4 h-4" />
