@@ -50,6 +50,10 @@ public class ReceiverProfileActions
             entity.Phone = dto.Phone;
             entity.Address = dto.Address;
             entity.Location = dto.Location;
+            entity.IsPublic = dto.IsPublic;
+            entity.ShowPhone = dto.ShowPhone;
+            entity.ShowAddress = dto.ShowAddress;
+            entity.UpdatedDate = DateTime.UtcNow;
 
             _dbContext.SaveChanges();
             return new ServiceResponse { IsSuccess = true, Data = MapToDto(entity) };
@@ -72,5 +76,8 @@ public class ReceiverProfileActions
         Phone = e.Phone,
         Address = e.Address,
         Location = e.Location,
+        IsPublic = e.IsPublic,
+        ShowPhone = e.ShowPhone,
+        ShowAddress = e.ShowAddress,
     };
 }

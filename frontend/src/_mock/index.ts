@@ -160,6 +160,7 @@ export interface Donation {
   postedAt: string;
   image: string;
   quantity: number;
+  reservedQuantity?: number;
   unit: string;
   donorId?: string;
   donorName?: string;

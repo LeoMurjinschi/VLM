@@ -11,6 +11,9 @@ export interface ReceiverProfileDto {
   phone: string;
   address: string;
   location: string;
+  isPublic?: boolean;
+  showPhone?: boolean;
+  showAddress?: boolean;
 }
 
 export const receiverProfileService = {

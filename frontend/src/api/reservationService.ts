@@ -39,7 +39,11 @@ export interface ReservationInfoDto {
   expirationDate?: string;
   donorId: number;
   donorName: string;
+  donorAvatar?: string;
   receiverName: string;
+  receiverAvatar?: string;
+  pickupLatitude?: number;
+  pickupLongitude?: number;
 }
 
 export const reservationService = {

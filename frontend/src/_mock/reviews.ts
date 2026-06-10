@@ -1,4 +1,4 @@
-export type ReviewTargetType = 'donor' | 'stock';
+export type ReviewTargetType = 'donor' | 'stock' | 'receiver';
 
 export interface Review {
   id: string;

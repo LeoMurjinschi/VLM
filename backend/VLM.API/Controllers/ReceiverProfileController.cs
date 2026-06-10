@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using VLM.API.Extensions;
 using VLM.BusinessLayer;
 using VLM.BusinessLayer.Interface;
 using VLM.Domain.Models.User;
@@ -30,6 +31,10 @@ public class ReceiverProfileController : ControllerBase
     [HttpPut("save")]
     public IActionResult Save([FromBody] ReceiverProfileDto dto)
     {
+        var callerId = User.GetUserId();
+        if (callerId != dto.UserId && !User.IsAdmin())
+            return Forbid();
+
         var result = _logic.UpsertReceiverProfile(dto);
         if (!result.IsSuccess) return BadRequest(result.Message);
         return Ok(result.Data);

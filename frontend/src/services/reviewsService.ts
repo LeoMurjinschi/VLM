@@ -41,6 +41,35 @@ export const fetchReviews = async (
     }
   }
 
+  // Real API for receiver reviews (reviews donors left about this receiver)
+  if (targetType === 'receiver') {
+    const numericId = parseInt(targetId);
+    if (!isNaN(numericId)) {
+      try {
+        const apiReviews = await reviewService.getByReceiver(numericId);
+        if (apiReviews.length > 0) {
+          return apiReviews.map((r) => ({
+            id: String(r.id),
+            targetType: 'receiver' as ReviewTargetType,
+            targetId,
+            targetName: `User ${r.receiverId}`,
+            authorId: String(r.donorId),
+            authorName: `User ${r.donorId}`,
+            authorAvatar: `https://i.pravatar.cc/40?u=${r.donorId}`,
+            authorRole: 'donor' as const,
+            rating: r.rating,
+            comment: r.text,
+            date: r.createdDate.slice(0, 10),
+            status: 'approved' as const,
+            tags: [],
+          }));
+        }
+      } catch {
+        // fall through to mock
+      }
+    }
+  }
+
   await delay();
   return reviewStore
     .filter(

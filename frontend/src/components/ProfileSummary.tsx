@@ -15,7 +15,7 @@ const ProfileSummary: React.FC<ProfileSummaryProps> = ({ user }) => {
         <div className="w-24 h-24 mx-auto mb-4 rounded-full overflow-hidden border-4 border-[#16a34a]/20 dark:border-[#16a34a]/30">
           <img src={user.avatar || 'https://ui-avatars.com/api/?name=User&background=0D8ABC&color=fff'} alt="Profile" className="w-full h-full object-cover" />
         </div>
-        <h3 className={`text-lg font-bold ${theme === 'light' ? 'text-[#1a1a1a]' : 'text-gray-100'}`} style={{ fontFamily: 'var(--font-display)' }}>{user.name}</h3>
+        <h3 className={`text-lg font-bold truncate ${theme === 'light' ? 'text-[#1a1a1a]' : 'text-gray-100'}`} style={{ fontFamily: 'var(--font-display)' }} title={user.name}>{user.name}</h3>
         <span className={`inline-block px-3 py-1 mt-2 text-xs font-bold rounded-lg uppercase tracking-wider ${theme === 'light' ? 'text-[#16a34a] bg-[#16a34a]/10' : 'bg-[#16a34a]/20 text-green-400'}`}>
           {user.role}
         </span>

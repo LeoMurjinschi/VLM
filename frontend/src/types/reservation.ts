@@ -8,11 +8,15 @@ export interface Reservation {
   stockCategory: string;
   unit: string;
   pickupLocation: string;
+  pickupLatitude?: number;
+  pickupLongitude?: number;
   expirationDate: string;
   donorId: string;
   donorName: string;
+  donorAvatar?: string;
   receiverId: string;
   receiverName: string;
+  receiverAvatar?: string;
   quantityReserved: number;
   quantityPickedUpByReceiver?: number;
   quantityConfirmed?: number;

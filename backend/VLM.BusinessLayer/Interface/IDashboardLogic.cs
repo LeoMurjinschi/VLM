@@ -8,4 +8,5 @@ public interface IDashboardLogic
     ServiceResponse GetDonorBarChart(int donorId);
     ServiceResponse GetDonorPieChart(int donorId);
     ServiceResponse GetDonorRecentActivity(int donorId, int limit = 10);
+    ServiceResponse GetReceiverStats(int receiverId);
 }
