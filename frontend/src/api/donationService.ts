@@ -11,6 +11,8 @@ export interface DonationCreateDto {
   pickupLocation: string;
   expirationDate?: string;
   image?: string;
+  pickupLatitude?: number;
+  pickupLongitude?: number;
 }
 
 export interface DonationInfoDto {
@@ -18,6 +20,7 @@ export interface DonationInfoDto {
   title: string;
   description: string;
   quantity: number;
+  reservedQuantity: number;
   unit: string;
   donorId: number;
   category: string;
@@ -29,6 +32,8 @@ export interface DonationInfoDto {
   updatedDate?: string;
   donorName: string;
   donorAvatar?: string;
+  pickupLatitude?: number;
+  pickupLongitude?: number;
 }
 
 // ── Service ───────────────────────────────────────────────────────────────────

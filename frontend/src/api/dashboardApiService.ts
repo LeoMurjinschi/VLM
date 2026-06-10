@@ -12,6 +12,11 @@ export interface ChartPointDto {
   value: number;
 }
 
+export interface ReceiverStatsDto {
+  mealsSaved: number;
+  completedPickups: number;
+}
+
 export interface ActivityItemDto {
   id: number;
   action: string;
@@ -40,6 +45,11 @@ export const dashboardApiService = {
     const response = await axiosInstance.get<ActivityItemDto[]>(`/dashboard/${donorId}/activity`, {
       params: { limit },
     });
+    return response.data;
+  },
+
+  getReceiverStats: async (receiverId: number): Promise<ReceiverStatsDto> => {
+    const response = await axiosInstance.get<ReceiverStatsDto>(`/dashboard/${receiverId}/receiver-stats`);
     return response.data;
   },
 };

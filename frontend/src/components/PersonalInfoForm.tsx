@@ -36,16 +36,16 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ user, onChange, onA
       <form onSubmit={onSave} className="space-y-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
           <div>
-            <label className={`block text-sm font-semibold mb-2 ${theme === 'light' ? 'text-gray-700' : 'text-gray-300'}`}>Full Name</label>
-            <input type="text" name="name" value={user.name} onChange={onChange} className={inputClass} required />
+            <label className={`block text-sm font-semibold mb-2 ${theme === 'light' ? 'text-gray-700' : 'text-gray-300'}`}>Full Name * (Max 50 chars)</label>
+            <input type="text" name="name" maxLength={50} value={user.name} onChange={onChange} className={inputClass} required />
           </div>
           <div>
-            <label className={`block text-sm font-semibold mb-2 ${theme === 'light' ? 'text-gray-700' : 'text-gray-300'}`}>Email Address</label>
-            <input type="email" name="email" value={user.email} onChange={onChange} className={inputClass} required />
+            <label className={`block text-sm font-semibold mb-2 ${theme === 'light' ? 'text-gray-700' : 'text-gray-300'}`}>Email Address *</label>
+            <input type="email" name="email" maxLength={255} value={user.email} onChange={onChange} className={inputClass} required />
           </div>
           <div className="sm:col-span-2">
             <label className={`block text-sm font-semibold mb-2 ${theme === 'light' ? 'text-gray-700' : 'text-gray-300'}`}>Phone Number (Optional)</label>
-            <input type="tel" name="phone" value={user.phone || ''} onChange={onChange} className={inputClass} placeholder="+373 XXX XX XXX" />
+            <input type="tel" name="phone" maxLength={15} value={user.phone || ''} onChange={onChange} className={inputClass} placeholder="+373 XXX XX XXX" />
           </div>
         </div>
 

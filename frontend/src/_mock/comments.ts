@@ -1,4 +1,4 @@
-export type CommentTargetType = 'donor' | 'stock';
+export type CommentTargetType = 'donor' | 'stock' | 'receiver';
 
 export interface Comment {
   id: string;

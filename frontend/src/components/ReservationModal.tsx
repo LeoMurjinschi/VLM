@@ -36,6 +36,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, do
 
   const isKg = donation.unit.toLowerCase() === 'kg';
   const stepSize = isKg ? 0.1 : 1;
+  const availableQty = Math.max(0, donation.quantity - (donation.reservedQuantity ?? 0));
 
   const handleConfirmReservation = async () => {
     const finalQuantity = Number(quantity);
@@ -46,9 +47,9 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, do
       return;
     }
 
-    if (finalQuantity > donation.quantity) {
-      toast.error(`Only ${donation.quantity} ${donation.unit} available. Adjust your amount to complete the reservation.`);
-      setQuantity(donation.quantity);
+    if (finalQuantity > availableQty) {
+      toast.error(`Only ${availableQty} ${donation.unit} available to reserve. Adjust your amount to complete the reservation.`);
+      setQuantity(availableQty);
       return;
     }
 
@@ -90,7 +91,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, do
   const handleIncrement = () => {
     const current = Number(quantity) || 0;
     const next = Math.round((current + stepSize) * 10) / 10;
-    if (next <= donation.quantity) setQuantity(next);
+    if (next <= availableQty) setQuantity(next);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -99,14 +100,14 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, do
     let num = Number(val);
     if (isNaN(num)) return;
     if (!isKg) num = Math.floor(num);
-    if (num > donation.quantity) {
-      setQuantity(donation.quantity);
+    if (num > availableQty) {
+      setQuantity(availableQty);
     } else {
       setQuantity(num);
     }
   };
 
-  const isMaxReached = Number(quantity) >= donation.quantity;
+  const isMaxReached = Number(quantity) >= availableQty;
 
   if (!isOpen) return null;
 
@@ -182,11 +183,20 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, do
             }`} style={{ fontFamily: 'var(--font-display)', fontSize: '24px' }}>
               {donation.title}
             </h3>
-            <div className="flex items-center gap-1.5 mt-2">
-              <ArchiveBoxIcon className="w-4 h-4 text-[#16a34a]" />
-              <span className="text-sm font-semibold text-[#16a34a]">
-                {donation.quantity} {donation.unit} available
-              </span>
+            <div className="flex items-center gap-2 mt-2 flex-wrap">
+              <div className="flex items-center gap-1.5">
+                <ArchiveBoxIcon className="w-4 h-4 text-[#16a34a]" />
+                <span className="text-sm font-semibold text-[#16a34a]">
+                  {donation.quantity} {donation.unit} total
+                </span>
+              </div>
+              {(donation.reservedQuantity ?? 0) > 0 && (
+                <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                  theme === 'light' ? 'bg-amber-100 text-amber-700' : 'bg-amber-900/30 text-amber-400'
+                }`}>
+                  {donation.reservedQuantity} {donation.unit} reserved
+                </span>
+              )}
             </div>
           </div>
 
@@ -205,11 +215,11 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, do
               }`}>
                 <MapPinIcon className="w-4 h-4 text-[#16a34a]" />
               </div>
-              <div>
+              <div className="min-w-0 flex-1">
                 <p className={`text-[10px] font-semibold uppercase tracking-wider mb-0.5 ${
                   theme === 'light' ? 'text-gray-400' : 'text-gray-500'
                 }`}>Pickup</p>
-                <p className={`text-xs font-semibold truncate ${
+                <p className={`text-xs font-semibold break-words ${
                   theme === 'light' ? 'text-[#1a1a1a]' : 'text-white'
                 }`}>{donation.pickupLocation}</p>
               </div>
@@ -243,7 +253,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, do
               }`}>Select Amount</p>
               <p className={`text-[10px] ${
                 theme === 'light' ? 'text-gray-400' : 'text-gray-500'
-              }`}>in {donation.unit} (max {donation.quantity})</p>
+              }`}>in {donation.unit} (max {availableQty})</p>
             </div>
             
             <div className={`inline-flex items-center rounded-full border ${
@@ -265,7 +275,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, do
                 value={quantity}
                 onChange={handleInputChange}
                 min={isKg ? "0.1" : "1"}
-                max={donation.quantity}
+                max={availableQty}
                 step={isKg ? "0.1" : "1"}
                 className={`w-12 text-center font-bold text-sm bg-transparent focus:outline-none ${
                   theme === 'light' ? 'text-[#1a1a1a]' : 'text-white'

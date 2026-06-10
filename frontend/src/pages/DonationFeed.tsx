@@ -18,6 +18,7 @@ const mapDonationDtoToDonation = (dto: DonationInfoDto): Donation => ({
     title: dto.title,
     description: dto.description,
     quantity: dto.quantity,
+    reservedQuantity: dto.reservedQuantity,
     unit: dto.unit,
     category: dto.category,
     pickupLocation: dto.pickupLocation,
@@ -47,19 +48,20 @@ const DonationFeed: React.FC = () => {
   const [urgencyFilter, setUrgencyFilter] = useState<string>('All');
   const [sortBy, setSortBy] = useState<string>('newest');
 
-  useEffect(() => {
-    const fetchAllDonations = async () => {
-        try {
-            const apiDonations = await donationService.getAll();
-            const mappedDonations = apiDonations.map(mapDonationDtoToDonation);
-            setDonations(mappedDonations);
-        } catch (error) {
-            console.error("Failed to fetch donations:", error);
-            toast.error("Could not load the donation feed.");
-        }
-    };
-    fetchAllDonations();
+  const fetchAllDonations = useCallback(async () => {
+    try {
+      const apiDonations = await donationService.getAll();
+      const mappedDonations = apiDonations.map(mapDonationDtoToDonation);
+      setDonations(mappedDonations);
+    } catch (error) {
+      console.error("Failed to fetch donations:", error);
+      toast.error("Could not load the donation feed.");
+    }
   }, []);
+
+  useEffect(() => {
+    fetchAllDonations();
+  }, [fetchAllDonations]);
 
   const filteredDonations = useMemo(() => {
     const now = new Date();
@@ -108,8 +110,12 @@ const DonationFeed: React.FC = () => {
       // Verificarea se face acum pe backend.
       // Vom prinde eroarea în modal.
       await createReservation(id, amountReserved);
+      // Refresh donations list after successful reservation
+      await fetchAllDonations();
+      // Close the modal after successful reservation
+      setActiveStock(null);
     },
-    [isDonor, createReservation]
+    [isDonor, createReservation, fetchAllDonations]
   );
 
   const toggleCategory = useCallback((category: string) => {

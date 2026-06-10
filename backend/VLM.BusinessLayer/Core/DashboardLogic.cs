@@ -10,4 +10,5 @@ public class DashboardLogic : DashboardActions, IDashboardLogic
     public ServiceResponse GetDonorBarChart(int donorId) => GetDonorBarChartAction(donorId);
     public ServiceResponse GetDonorPieChart(int donorId) => GetDonorPieChartAction(donorId);
     public ServiceResponse GetDonorRecentActivity(int donorId, int limit = 10) => GetDonorRecentActivityAction(donorId, limit);
+    public ServiceResponse GetReceiverStats(int receiverId) => GetReceiverStatsAction(receiverId);
 }

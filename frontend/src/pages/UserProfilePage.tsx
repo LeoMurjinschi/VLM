@@ -25,6 +25,8 @@ import ReviewSummary from '../components/reviews/ReviewSummary';
 import ReviewList from '../components/reviews/ReviewList';
 import CommentThread from '../components/comments/CommentThread';
 import DonationCard from '../components/DonationCard';
+import { userStatisticsService, donorProfileService, receiverProfileService } from '../api';
+import type { UserStatisticsDto } from '../api/userStatisticsService';
 
 const UserProfilePage: React.FC = () => {
   const { theme } = useTheme();
@@ -35,6 +37,9 @@ const UserProfilePage: React.FC = () => {
   const [aggregate, setAggregate] = useState<ReviewAggregate | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeStock, setActiveStock] = useState<Donation | null>(null);
+
+  const [stats, setStats] = useState<UserStatisticsDto | null>(null);
+  const [roleProfile, setRoleProfile] = useState<{ location?: string; description?: string } | null>(null);
 
   const role = user?.role || 'receiver';
   const isDonor = role === 'donor';
@@ -89,6 +94,29 @@ const UserProfilePage: React.FC = () => {
     };
   }, [user, isDonor]);
 
+  // Real statistics + role-specific profile (location/description)
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    const id = parseInt(user.id);
+
+    userStatisticsService.getByUser(id)
+      .then((s) => { if (!cancelled) setStats(s); })
+      .catch(() => { if (!cancelled) setStats(null); });
+
+    const profilePromise = isDonor
+      ? donorProfileService.getByUser(id).then((d) => ({ location: d.location || d.address, description: d.description }))
+      : role === 'receiver'
+        ? receiverProfileService.getByUser(id).then((r) => ({ location: r.location || r.address, description: r.missionStatement }))
+        : Promise.resolve(null);
+
+    profilePromise
+      .then((rp) => { if (!cancelled) setRoleProfile(rp); })
+      .catch(() => { if (!cancelled) setRoleProfile(null); });
+
+    return () => { cancelled = true; };
+  }, [user, isDonor, role]);
+
   if (!user) {
     return (
       <div className="max-w-3xl mx-auto p-8 text-center">
@@ -106,17 +134,33 @@ const UserProfilePage: React.FC = () => {
     `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=16a34a&color=fff`;
   const description =
     profile?.description ||
+    roleProfile?.description ||
     (role === 'donor'
       ? 'Donor sharing surplus food with the community.'
       : role === 'receiver'
       ? 'Receiver organization rescuing food for those in need.'
       : 'Platform administrator.');
-  const location = profile?.location || '—';
+  const location = roleProfile?.location || profile?.location || '—';
   const joined = profile?.joinedDate
     ? new Date(profile.joinedDate).toLocaleDateString(undefined, { month: 'short', year: 'numeric' })
     : 'Recently';
-  const donations = profile?.totalDonations ?? (isDonor ? myStocks.length : 0);
-  const rescued = profile?.totalKgRescued ?? 0;
+
+  // Role-appropriate stat tiles (last two of the four-up row)
+  const roleStats: { icon: React.ReactNode; label: string; value: string }[] =
+    role === 'donor'
+      ? [
+          { icon: <GiftIcon className="w-4 h-4" />, label: 'Donations', value: String(stats?.totalDonations ?? 0) },
+          { icon: <ScaleIcon className="w-4 h-4" />, label: 'Total donated', value: `${stats?.totalDonated ?? 0} units` },
+        ]
+      : role === 'receiver'
+      ? [
+          { icon: <GiftIcon className="w-4 h-4" />, label: 'Reservations', value: String(stats?.totalReservations ?? 0) },
+          { icon: <ScaleIcon className="w-4 h-4" />, label: 'Total reserved', value: `${stats?.totalReserved ?? 0} units` },
+        ]
+      : [
+          { icon: <GiftIcon className="w-4 h-4" />, label: 'Platform users', value: String(stats?.totalUsers ?? 0) },
+          { icon: <ScaleIcon className="w-4 h-4" />, label: 'Platform donations', value: String(stats?.totalPlatformDonations ?? 0) },
+        ];
 
   return (
     <div className="max-w-5xl mx-auto space-y-6 animate-fade-in-up">
@@ -196,16 +240,9 @@ const UserProfilePage: React.FC = () => {
               label="Member since"
               value={joined}
             />
-            <Stat
-              icon={<GiftIcon className="w-4 h-4" />}
-              label="Donations"
-              value={donations.toString()}
-            />
-            <Stat
-              icon={<ScaleIcon className="w-4 h-4" />}
-              label="Rescued"
-              value={`${rescued} kg`}
-            />
+            {roleStats.map((s) => (
+              <Stat key={s.label} icon={s.icon} label={s.label} value={s.value} />
+            ))}
           </div>
 
           {/* Email row */}

@@ -11,11 +11,12 @@ interface PickupConfirmModalProps {
 
 const PickupConfirmModal: React.FC<PickupConfirmModalProps> = ({ reservation, onConfirm, onClose }) => {
   const { theme } = useTheme();
-  const [qty, setQty] = useState(reservation.quantityReserved);
+  const [qty, setQty] = useState(String(reservation.quantityReserved));
   const isDark = theme === 'dark';
+  const numQty = parseFloat(qty) || 0;
 
   const handleConfirm = () => {
-    const clamped = Math.min(Math.max(0.1, qty), reservation.quantityReserved);
+    const clamped = Math.min(Math.max(0.1, numQty), reservation.quantityReserved);
     onConfirm(clamped);
   };
 
@@ -72,16 +73,28 @@ const PickupConfirmModal: React.FC<PickupConfirmModalProps> = ({ reservation, on
               max={reservation.quantityReserved}
               step={0.1}
               value={qty}
-              onChange={(e) => setQty(Number(e.target.value))}
+              onChange={(e) => {
+                const raw = e.target.value;
+                const parsed = parseFloat(raw);
+                if (!isNaN(parsed) && parsed > reservation.quantityReserved) {
+                  setQty(String(reservation.quantityReserved));
+                } else {
+                  setQty(raw);
+                }
+              }}
+              onBlur={() => {
+                const parsed = parseFloat(qty);
+                if (isNaN(parsed) || parsed <= 0) setQty('0.1');
+              }}
               className={`w-full px-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-[#16a34a]/20 focus:border-[#16a34a] outline-none transition-all text-sm font-medium ${
                 isDark
                   ? 'bg-[#222] border-[#2e2e2e] text-gray-100'
                   : 'bg-white border-gray-200 text-gray-700'
               }`}
             />
-            {qty < reservation.quantityReserved && qty > 0 && (
+            {numQty > 0 && numQty < reservation.quantityReserved && (
               <p className={`text-xs mt-1.5 ${isDark ? 'text-amber-400' : 'text-amber-600'}`}>
-                The remaining {(reservation.quantityReserved - qty).toFixed(1)} {reservation.unit} will be returned to the feed.
+                The remaining {(reservation.quantityReserved - numQty).toFixed(1)} {reservation.unit} will be returned to the feed.
               </p>
             )}
           </div>
@@ -101,7 +114,7 @@ const PickupConfirmModal: React.FC<PickupConfirmModalProps> = ({ reservation, on
           </button>
           <button
             onClick={handleConfirm}
-            disabled={qty <= 0}
+            disabled={numQty <= 0 || numQty > reservation.quantityReserved}
             className="flex-1 py-2.5 rounded-xl font-semibold text-sm bg-[#16a34a] hover:bg-[#15803d] text-white transition-all flex items-center justify-center gap-2 shadow-md shadow-green-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <CheckCircleIcon className="w-4 h-4" />

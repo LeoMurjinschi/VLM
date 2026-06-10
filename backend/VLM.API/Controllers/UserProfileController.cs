@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using VLM.API.Extensions;
 using VLM.BusinessLayer;
 using VLM.BusinessLayer.Interface;
 using VLM.Domain.Models.User;
@@ -31,6 +32,10 @@ public class UserProfileController : ControllerBase
     [HttpPut("save")]
     public IActionResult UpsertProfile([FromBody] UserProfileDto dto)
     {
+        var callerId = User.GetUserId();
+        if (callerId != dto.UserId && !User.IsAdmin())
+            return Forbid();
+
         var result = _profileLogic.UpsertProfile(dto);
         if (!result.IsSuccess)
             return BadRequest(result.Message);

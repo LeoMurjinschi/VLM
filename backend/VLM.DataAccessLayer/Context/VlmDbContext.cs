@@ -33,6 +33,7 @@ public sealed class VlmDbContext : DbContext
     public DbSet<UserSettingsEntity> UserSettings { get; set; }
     public DbSet<DonorProfileEntity> DonorProfiles { get; set; }
     public DbSet<ReceiverProfileEntity> ReceiverProfiles { get; set; }
+    public DbSet<AdminProfileEntity> AdminProfiles { get; set; }
     public DbSet<UserDocumentEntity> UserDocuments { get; set; }
     public DbSet<CategoryEntity> Categories { get; set; }
     public DbSet<FavoriteEntity> Favorites { get; set; }
@@ -173,6 +174,12 @@ public sealed class VlmDbContext : DbContext
             .HasForeignKey<ReceiverProfileEntity>(r => r.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        modelBuilder.Entity<AdminProfileEntity>()
+            .HasOne(a => a.User)
+            .WithOne(u => u.AdminProfile)
+            .HasForeignKey<AdminProfileEntity>(a => a.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         modelBuilder.Entity<UserDocumentEntity>()
             .HasOne(d => d.User)
             .WithMany(u => u.Documents)
@@ -210,7 +217,7 @@ public sealed class VlmDbContext : DbContext
                 Id = 1,
                 Name = "Alex Donor",
                 Email = "alex@vlm.com",
-                PasswordHash = "3820be471b75236bf93e1790ea484432",
+                PasswordHash = "$2a$11$hnPDsLrfqVgCR7Zpl/hQheKd4gEa8kNFqQRXp4v3oaKFP5yZ3dNvG",
                 Role = "donor",
                 Bio = "I love helping my community by donating food.",
                 Avatar = null,
@@ -222,7 +229,7 @@ public sealed class VlmDbContext : DbContext
                 Id = 2,
                 Name = "Maria Receiver",
                 Email = "maria@vlm.com",
-                PasswordHash = "d003257014b8a10582419f1f84478281",
+                PasswordHash = "$2a$11$qmJPFKPlePRWPFWwk0Y0L.uJCrfCPYzGYWJ0/hnJiGfHqcLPTBhLm",
                 Role = "receiver",
                 Bio = "Grateful for every donation I receive.",
                 Avatar = null,
@@ -234,7 +241,7 @@ public sealed class VlmDbContext : DbContext
                 Id = 3,
                 Name = "John Donor",
                 Email = "john@vlm.com",
-                PasswordHash = "f9a28b5d9ee09b2a5281a579d4f4090a",
+                PasswordHash = "$2a$11$hnPDsLrfqVgCR7Zpl/hQheKd4gEa8kNFqQRXp4v3oaKFP5yZ3dNvG",
                 Role = "donor",
                 Bio = "Regular donor since 2025.",
                 Avatar = null,
