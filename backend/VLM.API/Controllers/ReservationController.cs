@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using VLM.BusinessLayer.Structure; // Modificat pentru a folosi clasa concretă
+using VLM.API.Extensions;
+using VLM.BusinessLayer.Structure;
 using VLM.Domain.Models.Reservation;
 
 namespace VLM.API.Controllers;
@@ -10,9 +11,8 @@ namespace VLM.API.Controllers;
 [Authorize]
 public class ReservationController : ControllerBase
 {
-    private readonly ReservationActions _reservationActions; // Folosim clasa concretă
+    private readonly ReservationActions _reservationActions;
 
-    // Folosim injecția de dependențe
     public ReservationController(ReservationActions reservationActions)
     {
         _reservationActions = reservationActions;
@@ -37,6 +37,10 @@ public class ReservationController : ControllerBase
     [HttpGet("by-receiver/{userId}")]
     public IActionResult GetByReceiver([FromRoute] int userId)
     {
+        var callerId = User.GetUserId();
+        if (callerId != userId && !User.IsAdmin())
+            return Forbid();
+
         var result = _reservationActions.GetReservationsByReceiverAction(userId);
         if (!result.IsSuccess) return BadRequest(result.Message);
         return Ok(result.Data);
@@ -45,6 +49,10 @@ public class ReservationController : ControllerBase
     [HttpGet("by-donor/{donorId}")]
     public IActionResult GetByDonor([FromRoute] int donorId)
     {
+        var callerId = User.GetUserId();
+        if (callerId != donorId && !User.IsAdmin())
+            return Forbid();
+
         var result = _reservationActions.GetReservationsByDonorAction(donorId);
         if (!result.IsSuccess) return BadRequest(result.Message);
         return Ok(result.Data);

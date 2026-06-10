@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using VLM.API.Extensions;
 using VLM.BusinessLayer;
 using VLM.BusinessLayer.Interface;
 
@@ -21,6 +22,10 @@ public class DashboardController : ControllerBase
     [HttpGet("{donorId}/stats")]
     public IActionResult GetStats([FromRoute] int donorId)
     {
+        var callerId = User.GetUserId();
+        if (callerId != donorId && !User.IsAdmin())
+            return Forbid();
+
         var result = _dashboardLogic.GetDonorStats(donorId);
         if (!result.IsSuccess) return BadRequest(result.Message);
         return Ok(result.Data);
@@ -29,6 +34,10 @@ public class DashboardController : ControllerBase
     [HttpGet("{donorId}/bar-chart")]
     public IActionResult GetBarChart([FromRoute] int donorId)
     {
+        var callerId = User.GetUserId();
+        if (callerId != donorId && !User.IsAdmin())
+            return Forbid();
+
         var result = _dashboardLogic.GetDonorBarChart(donorId);
         if (!result.IsSuccess) return BadRequest(result.Message);
         return Ok(result.Data);
@@ -37,6 +46,10 @@ public class DashboardController : ControllerBase
     [HttpGet("{donorId}/pie-chart")]
     public IActionResult GetPieChart([FromRoute] int donorId)
     {
+        var callerId = User.GetUserId();
+        if (callerId != donorId && !User.IsAdmin())
+            return Forbid();
+
         var result = _dashboardLogic.GetDonorPieChart(donorId);
         if (!result.IsSuccess) return BadRequest(result.Message);
         return Ok(result.Data);
@@ -45,6 +58,10 @@ public class DashboardController : ControllerBase
     [HttpGet("{donorId}/activity")]
     public IActionResult GetRecentActivity([FromRoute] int donorId, [FromQuery] int limit = 10)
     {
+        var callerId = User.GetUserId();
+        if (callerId != donorId && !User.IsAdmin())
+            return Forbid();
+
         var result = _dashboardLogic.GetDonorRecentActivity(donorId, limit);
         if (!result.IsSuccess) return BadRequest(result.Message);
         return Ok(result.Data);
@@ -53,6 +70,10 @@ public class DashboardController : ControllerBase
     [HttpGet("{receiverId}/receiver-stats")]
     public IActionResult GetReceiverStats([FromRoute] int receiverId)
     {
+        var callerId = User.GetUserId();
+        if (callerId != receiverId && !User.IsAdmin())
+            return Forbid();
+
         var result = _dashboardLogic.GetReceiverStats(receiverId);
         if (!result.IsSuccess) return BadRequest(result.Message);
         return Ok(result.Data);

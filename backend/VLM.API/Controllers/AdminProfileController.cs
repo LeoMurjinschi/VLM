@@ -8,7 +8,7 @@ namespace VLM.API.Controllers;
 
 [ApiController]
 [Route("api/admin-profile")]
-[Authorize]
+[Authorize(Roles = "admin")]
 public class AdminProfileController : ControllerBase
 {
     private readonly IAdminProfileLogic _logic;

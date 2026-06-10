@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using VLM.API.Extensions;
 using VLM.BusinessLayer;
 using VLM.BusinessLayer.Interface;
 using VLM.Domain.Models.User;
@@ -30,6 +31,10 @@ public class DonorProfileController : ControllerBase
     [HttpPut("save")]
     public IActionResult Save([FromBody] DonorProfileDto dto)
     {
+        var callerId = User.GetUserId();
+        if (callerId != dto.UserId && !User.IsAdmin())
+            return Forbid();
+
         var result = _logic.UpsertDonorProfile(dto);
         if (!result.IsSuccess) return BadRequest(result.Message);
         return Ok(result.Data);
@@ -38,6 +43,10 @@ public class DonorProfileController : ControllerBase
     [HttpPut("{userId}/pickup-locations")]
     public IActionResult SavePickupLocations([FromRoute] int userId, [FromBody] string locationsJson)
     {
+        var callerId = User.GetUserId();
+        if (callerId != userId && !User.IsAdmin())
+            return Forbid();
+
         var result = _logic.SavePickupLocations(userId, locationsJson);
         if (!result.IsSuccess) return BadRequest(result.Message);
         return Ok(result.Data);
