@@ -203,18 +203,18 @@ const DonationCard: React.FC<DonationCardProps> = ({
               <p className={`text-xs font-medium truncate group-hover/donor:underline ${
                 theme === 'light' ? 'text-gray-500' : 'text-gray-400'
               }`}>
-                from {donation.donorName || donation.pickupLocation.split(',')[0]}
+                from {donation.donorName}
               </p>
             </Link>
           ) : (
             <div className="flex items-center gap-2 mb-3">
               <div className="w-6 h-6 rounded-full bg-[#16a34a] flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0">
-                {donation.pickupLocation.charAt(0)}
+                {donation.donorName.charAt(0)}
               </div>
               <p className={`text-xs font-medium truncate ${
                 theme === 'light' ? 'text-gray-500' : 'text-gray-400'
               }`}>
-                from {donation.pickupLocation.split(',')[0]}
+                from {donation.donorName}
               </p>
             </div>
           )}

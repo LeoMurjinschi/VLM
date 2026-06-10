@@ -231,6 +231,7 @@ public class DonationActions
         {
             var now = DateTime.UtcNow;
             var donations = _dbContext.Donations
+                .Include(d => d.Donor)
                 .Where(d => d.ExpirationDate > now)
                 .ToList();
 

@@ -105,7 +105,15 @@ const Settings: React.FC = () => {
   }, [user]);
 
   const handleProfileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+
+    // Enforce character limits
+    let limitedValue = value;
+    if (name === 'name') limitedValue = value.slice(0, 50);
+    else if (name === 'email') limitedValue = value.slice(0, 255);
+    else if (name === 'phone') limitedValue = value.slice(0, 15);
+
+    setFormData(prev => ({ ...prev, [name]: limitedValue }));
   }, []);
 
   const handleAvatarChange = useCallback((newAvatarBase64: string) => {

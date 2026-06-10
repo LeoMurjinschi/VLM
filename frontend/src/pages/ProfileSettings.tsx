@@ -3,19 +3,15 @@ import { useTheme } from '../hooks/useTheme';
 import { useAuth } from '../context/AuthContext';
 import PageLayout from '../components/PageLayout';
 import { toast } from 'react-toastify';
-import { 
-  UserCircleIcon, 
+import {
+  UserCircleIcon,
   BellAlertIcon,
   ShieldCheckIcon,
   LifebuoyIcon,
-  BuildingOfficeIcon,
-  EnvelopeIcon,
-  PhoneIcon,
-  MapPinIcon,
-  PencilSquareIcon,
-  XMarkIcon,
-  CloudArrowUpIcon
+  CloudArrowUpIcon,
+  CheckCircleIcon,
 } from '@heroicons/react/24/outline';
+import { validateEmail, validatePassword } from '../utils/validationUtils';
 
 const getInitials = (name: string) => {
   const parts = name.trim().split(/\s+/);
@@ -23,12 +19,21 @@ const getInitials = (name: string) => {
   return name.slice(0, 2).toUpperCase();
 };
 
-// Componenta Buton Toggle
-const ToggleSwitch = ({ enabled, onChange }: { enabled: boolean, onChange: () => void }) => {
+const ToggleSwitch = ({ enabled, onChange }: { enabled: boolean; onChange: () => void }) => {
   const { theme } = useTheme();
   return (
-    <button onClick={onChange} type="button" className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[#16a34a]/50 ${enabled ? 'bg-[#16a34a]' : (theme === 'light' ? 'bg-gray-200' : 'bg-gray-700')}`}>
-      <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${enabled ? 'translate-x-6' : 'translate-x-1'}`} />
+    <button
+      onClick={onChange}
+      type="button"
+      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[#16a34a]/50 ${
+        enabled ? 'bg-[#16a34a]' : theme === 'light' ? 'bg-gray-200' : 'bg-gray-700'
+      }`}
+    >
+      <span
+        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+          enabled ? 'translate-x-6' : 'translate-x-1'
+        }`}
+      />
     </button>
   );
 };
@@ -39,107 +44,203 @@ const ProfileSettings: React.FC = () => {
   const [activeTab, setActiveTab] = useState('general');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const buildProfile = () => ({
-    fullName: user?.name || '',
-    orgName: user?.name || '',
-    email: user?.email || '',
-    phone: '',
-    address: '',
-    avatarUrl: user?.avatar || null as string | null,
-  });
+  // === GENERAL TAB STATE ===
+  const [fullName, setFullName] = useState((user?.name || '').slice(0, 100));
+  const [email, setEmail] = useState((user?.email || '').slice(0, 255));
+  const [avatarUrl, setAvatarUrl] = useState(user?.avatar || (null as string | null));
+  const [profileErrors, setProfileErrors] = useState<Record<string, string>>({});
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
 
-  // --- STATE-URI TAB 1: PROFIL ---
-  const [profileData, setProfileData] = useState(buildProfile);
-  const [tempProfileData, setTempProfileData] = useState(buildProfile);
-  const [isEditingProfile, setIsEditingProfile] = useState(false);
-  
-  // --- STATE-URI TAB 2: NOTIFICĂRI ---
+  // === SECURITY TAB STATE ===
+  const [currentPassword, setCurrentPassword] = useState(''.slice(0, 128));
+  const [newPassword, setNewPassword] = useState(''.slice(0, 128));
+  const [passwordErrors, setPasswordErrors] = useState<Record<string, string>>({});
+
+  // === SUPPORT TAB STATE ===
+  const [ticketMessage, setTicketMessage] = useState(''.slice(0, 2000));
+  const [ticketError, setTicketError] = useState('');
+
+  // === NOTIFICATIONS TAB STATE ===
   const [notifyPush, setNotifyPush] = useState(true);
   const [notifySms, setNotifySms] = useState(true);
   const [notifyEmail, setNotifyEmail] = useState(false);
 
-  // --- STATE-URI TAB 3 & 4: SECURITATE & SUPORT ---
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [ticketMessage, setTicketMessage] = useState('');
-
-  // --- LOGICĂ AVATAR ---
+  // === AVATAR HANDLING ===
   const handleAvatarClick = () => fileInputRef.current?.click();
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
-      if (!file.type.startsWith('image/')) {
-        toast.error('Upload an image (JPG or PNG) to use as your profile photo.');
-        return;
-      }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const avatarUrl = reader.result as string;
-        setProfileData(prev => ({ ...prev, avatarUrl }));
-        updateUser({ avatar: avatarUrl });
-        toast.success('Photo preview updated. Click Save to make it official.');
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Upload an image (JPG or PNG)');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setAvatarUrl(reader.result as string);
+      toast.success('Avatar preview updated. Click Save to apply.');
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // === GENERAL TAB VALIDATION ===
+  const validateProfileField = (fieldName: string, value: string) => {
+    let error = '';
+
+    switch (fieldName) {
+      case 'fullName':
+        if (!value.trim()) {
+          error = 'Name is required';
+        } else if (value.length < 3) {
+          error = 'Name must be at least 3 characters';
+        } else if (value.length > 100) {
+          error = 'Name cannot exceed 100 characters';
+        }
+        break;
+
+      case 'email':
+        const emailVal = validateEmail(value);
+        if (emailVal.error) error = emailVal.error;
+        break;
+    }
+
+    if (error) {
+      setProfileErrors((prev) => ({ ...prev, [fieldName]: error }));
+    } else {
+      setProfileErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[fieldName];
+        return newErrors;
+      });
     }
   };
 
-  // --- LOGICĂ EDITARE PROFIL ---
-  const startEditing = () => {
-    setTempProfileData(profileData);
-    setIsEditingProfile(true);
+  const validateProfileForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
+
+    if (!fullName.trim() || fullName.length < 3 || fullName.length > 100) {
+      newErrors.fullName = 'Name must be 3-100 characters';
+    }
+
+    const emailVal = validateEmail(email);
+    if (emailVal.error) newErrors.email = emailVal.error;
+
+    setProfileErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
-  const cancelEditing = () => setIsEditingProfile(false);
+  const saveProfile = async () => {
+    if (!validateProfileForm()) {
+      toast.error('Please fix errors below');
+      return;
+    }
 
-  const saveProfileChanges = () => {
-    setProfileData(tempProfileData);
-    setIsEditingProfile(false);
-    updateUser({
-      name: tempProfileData.fullName,
-      email: tempProfileData.email,
-      ...(tempProfileData.avatarUrl ? { avatar: tempProfileData.avatarUrl } : {}),
-    });
-    toast.success('Profile updated. Your community information is current.');
+    setIsSavingProfile(true);
+    try {
+      updateUser({
+        name: fullName.trim(),
+        email: email.trim(),
+        ...(avatarUrl ? { avatar: avatarUrl } : {}),
+      });
+      toast.success('Profile saved successfully!');
+    } catch {
+      toast.error('Failed to save profile');
+    } finally {
+      setIsSavingProfile(false);
+    }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setTempProfileData(prev => ({ ...prev, [name]: value }));
+  // === SECURITY TAB VALIDATION ===
+  const validatePasswordField = (fieldName: string, value: string) => {
+    let error = '';
+
+    if (fieldName === 'currentPassword') {
+      if (!value) error = 'Current password is required';
+    } else if (fieldName === 'newPassword') {
+      const passVal = validatePassword(value);
+      if (passVal.error) error = passVal.error;
+    }
+
+    if (error) {
+      setPasswordErrors((prev) => ({ ...prev, [fieldName]: error }));
+    } else {
+      setPasswordErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[fieldName];
+        return newErrors;
+      });
+    }
   };
 
-  // --- LOGICĂ SIMULARE: UPDATE PASSWORD ---
+  const validatePasswordForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
+
+    if (!currentPassword) {
+      newErrors.currentPassword = 'Current password is required';
+    }
+
+    const passVal = validatePassword(newPassword);
+    if (passVal.error) newErrors.newPassword = passVal.error;
+
+    setPasswordErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleUpdatePassword = () => {
-    if (!currentPassword || !newPassword) {
-      toast.error('Enter your current password and a new one to proceed.');
+    if (!validatePasswordForm()) {
+      toast.error('Please fix errors below');
       return;
     }
-    if (newPassword.length < 6) {
-      toast.warning('Your new password needs to be at least 6 characters for security.');
-      return;
-    }
-    // Simulare de succes
-    toast.success('Password updated. Your account is more secure now.');
+
+    toast.success('Password updated successfully!');
     setCurrentPassword('');
     setNewPassword('');
+    setPasswordErrors({});
   };
 
-  // --- LOGICĂ SIMULARE: SUBMIT TICKET ---
-  const handleSubmitTicket = () => {
-    if (!ticketMessage.trim()) {
-      toast.error("Tell us what's wrong so we can help you quickly.");
-      return;
+  // === SUPPORT TAB VALIDATION ===
+  const validateTicket = (): boolean => {
+    const msg = ticketMessage.trim();
+    if (!msg || msg.length < 10 || msg.length > 2000) {
+      setTicketError('Message must be 10-2000 characters');
+      return false;
     }
-    // Simulare de succes
+    setTicketError('');
+    return true;
+  };
+
+  const handleSubmitTicket = () => {
+    if (!validateTicket()) return;
+
     toast.success('Your issue submitted. Our team will help you soon.');
     setTicketMessage('');
   };
 
-  // Helper Notificări
+  // === NOTIFICATIONS TAB ===
   const handleSaveToggle = (setter: React.Dispatch<React.SetStateAction<boolean>>, currentValue: boolean) => {
     setter(!currentValue);
-    toast.success('Preference updated. Your settings are saved.');
+    toast.success('Preference updated.');
   };
+
+  // === FORM VALIDITY ===
+  const isProfileFormValid =
+    Object.keys(profileErrors).length === 0 && fullName.trim() && email.trim();
+  const isPasswordFormValid =
+    Object.keys(passwordErrors).length === 0 && currentPassword && newPassword;
+
+  // === INPUT STYLING ===
+  const inputClass = (hasError: boolean = false) =>
+    `w-full px-4 py-3 rounded-xl border transition-all outline-none focus:ring-2 ${
+      hasError
+        ? theme === 'light'
+          ? 'bg-white border-red-500 focus:ring-red-500/30 focus:border-red-500 text-gray-900'
+          : 'bg-[#222222] border-red-500 focus:ring-red-500/30 focus:border-red-500 text-gray-100'
+        : theme === 'light'
+        ? 'bg-white border-gray-200 focus:border-[#16a34a] focus:ring-[#16a34a]/30 text-gray-900 placeholder-gray-400'
+        : 'bg-[#222222] border-[#2e2e2e] focus:border-[#16a34a] focus:ring-[#16a34a]/30 text-gray-100 placeholder-gray-500'
+    }`;
 
   const TABS = [
     { id: 'general', label: 'General Profile', icon: UserCircleIcon },
@@ -150,26 +251,46 @@ const ProfileSettings: React.FC = () => {
 
   return (
     <PageLayout>
-      <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        accept="image/jpeg,image/png"
+        className="hidden"
+      />
 
       <div className={`w-full max-w-5xl mx-auto min-h-screen pb-12 ${theme === 'light' ? 'bg-gray-50' : 'bg-gray-900'}`}>
-        
         <div className="mb-8">
-          <h1 className={`text-3xl font-extrabold tracking-tight mb-2 ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>Settings</h1>
-          <p className={`text-base ${theme === 'light' ? 'text-gray-600' : 'text-gray-400'}`}>Manage your account settings and preferences.</p>
+          <h1 className={`text-3xl font-extrabold tracking-tight mb-2 ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>
+            Settings
+          </h1>
+          <p className={`text-base ${theme === 'light' ? 'text-gray-600' : 'text-gray-400'}`}>
+            Manage your account settings and preferences.
+          </p>
         </div>
 
         <div className="flex flex-col md:flex-row gap-8">
-          
-          {/* Meniul Lateral */}
-          <div className="w-full md:w-64 shrink-0 overflow-x-auto md:overflow-visible pb-2 md:pb-0 scrollbar-hide">
+          {/* TAB NAVIGATION */}
+          <div className="w-full md:w-64 shrink-0 overflow-x-auto md:overflow-visible pb-2 md:pb-0">
             <nav className="flex md:flex-col gap-2 min-w-max md:min-w-0">
               {TABS.map((tab) => {
                 const isActive = activeTab === tab.id;
                 const Icon = tab.icon;
                 return (
-                  <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm transition-all whitespace-nowrap w-full ${isActive ? (theme === 'light' ? 'bg-[#16a34a]/10 text-[#16a34a]' : 'bg-green-900/30 text-green-400') : (theme === 'light' ? 'text-gray-600 hover:bg-gray-100' : 'text-gray-400 hover:bg-gray-800')}`}>
-                    <Icon className={`w-5 h-5 ${isActive ? (theme === 'light' ? 'text-[#16a34a]' : 'text-green-400') : 'text-gray-400'}`} />
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${
+                      isActive
+                        ? theme === 'light'
+                          ? 'bg-[#16a34a]/10 text-[#16a34a]'
+                          : 'bg-green-900/30 text-green-400'
+                        : theme === 'light'
+                        ? 'text-gray-600 hover:bg-gray-100'
+                        : 'text-gray-400 hover:bg-gray-800'
+                    }`}
+                  >
+                    <Icon className="w-5 h-5" />
                     {tab.label}
                   </button>
                 );
@@ -177,42 +298,36 @@ const ProfileSettings: React.FC = () => {
             </nav>
           </div>
 
-          {/* Zona de Conținut */}
-          <div className={`flex-1 rounded-3xl border ${theme === 'light' ? 'bg-white border-gray-200' : 'bg-gray-800 border-gray-700'}`}>
-            
+          {/* TAB CONTENT */}
+          <div className={`flex-1 rounded-3xl border shadow-sm ${theme === 'light' ? 'bg-white border-gray-200' : 'bg-gray-800 border-gray-700'}`}>
+
             {/* === TAB 1: GENERAL === */}
             {activeTab === 'general' && (
-              <div className="p-6 md:p-8 animate-fade-in">
-                <div className="flex items-center justify-between mb-8 gap-4">
-                  <h2 className={`text-xl font-extrabold ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>General Profile</h2>
-                  
-                  {!isEditingProfile ? (
-                    <button onClick={startEditing} className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm border transition-colors ${theme === 'light' ? 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50' : 'bg-gray-800 border-gray-600 text-gray-300 hover:bg-gray-700'}`}>
-                      <PencilSquareIcon className="w-4 h-4 text-gray-400" />
-                      Edit Profile
-                    </button>
-                  ) : (
-                    <div className="flex items-center gap-2">
-                      <button onClick={cancelEditing} className={`flex items-center gap-1.5 px-3 py-2 rounded-xl font-bold text-sm ${theme === 'light' ? 'text-gray-500 hover:bg-gray-100' : 'text-gray-400 hover:bg-gray-700'}`}>
-                        <XMarkIcon className="w-4 h-4" />
-                        Cancel
-                      </button>
-                      <button onClick={saveProfileChanges} className="px-5 py-2 bg-[#16a34a] hover:bg-green-700 text-white font-bold rounded-xl text-sm shadow-md active:scale-95">
-                        Save Changes
-                      </button>
-                    </div>
-                  )}
+              <div className="p-6 md:p-8">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className={`p-2 rounded-lg ${theme === 'light' ? 'bg-[#16a34a]/10' : 'bg-[#16a34a]/20'}`}>
+                    <UserCircleIcon className={`w-6 h-6 ${theme === 'light' ? 'text-[#16a34a]' : 'text-green-400'}`} />
+                  </div>
+                  <h2 className={`text-xl font-bold ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>
+                    General Profile
+                  </h2>
                 </div>
-                
+
                 <div className="flex flex-col sm:flex-row gap-6 mb-10 items-start sm:items-center">
                   <div
                     onClick={handleAvatarClick}
-                    className={`relative w-28 h-28 rounded-full flex items-center justify-center border-4 shrink-0 cursor-pointer group overflow-hidden ${theme === 'light' ? 'bg-[#16a34a]/10 text-[#16a34a] border-white shadow-md' : 'bg-green-900/40 text-green-400 border-gray-800'}`}
+                    className={`relative w-28 h-28 rounded-full flex items-center justify-center border-4 shrink-0 cursor-pointer group overflow-hidden ${
+                      theme === 'light'
+                        ? 'bg-[#16a34a]/10 text-[#16a34a] border-white shadow-md'
+                        : 'bg-green-900/40 text-green-400 border-gray-800'
+                    }`}
                   >
-                    {profileData.avatarUrl ? (
-                      <img src={profileData.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                    {avatarUrl ? (
+                      <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
                     ) : (
-                      <span className="text-4xl font-black tracking-tighter">{getInitials(profileData.fullName || 'U')}</span>
+                      <span className="text-4xl font-black tracking-tighter">
+                        {getInitials(fullName || 'U')}
+                      </span>
                     )}
                     <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-white gap-1">
                       <CloudArrowUpIcon className="w-7 h-7" />
@@ -221,163 +336,282 @@ const ProfileSettings: React.FC = () => {
                   </div>
                   <div>
                     <p className={`text-sm font-bold mb-1 ${theme === 'light' ? 'text-gray-800' : 'text-gray-200'}`}>
-                      {profileData.orgName}
+                      {fullName || user?.name}
                     </p>
                     <p className={`text-xs mb-3 ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>
-                      {user?.role === 'donor' ? 'Donor' : user?.role === 'receiver' ? 'Receiver' : 'Admin'} · {profileData.email}
+                      {user?.role === 'donor'
+                        ? 'Donor'
+                        : user?.role === 'receiver'
+                        ? 'Receiver'
+                        : 'Admin'}{' '}
+                      · {email || user?.email}
                     </p>
-                    <button onClick={handleAvatarClick} className={`flex items-center gap-2 px-3 py-1.5 rounded-lg font-bold text-xs border transition-colors ${theme === 'light' ? 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50' : 'bg-gray-800 border-gray-600 text-gray-300 hover:bg-gray-700'}`}>
+                    <button
+                      onClick={handleAvatarClick}
+                      className={`flex items-center gap-2 px-3 py-1.5 rounded-lg font-bold text-xs border transition-colors ${
+                        theme === 'light'
+                          ? 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                          : 'bg-gray-800 border-gray-600 text-gray-300 hover:bg-gray-700'
+                      }`}
+                    >
                       <CloudArrowUpIcon className="w-4 h-4 text-gray-400" />
                       Change Photo
                     </button>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5 mb-6 max-w-3xl">
-                  {[
-                    { label: 'Display Name', name: 'fullName', icon: UserCircleIcon, type: 'text' },
-                    { label: 'Organization Name', name: 'orgName', icon: BuildingOfficeIcon, type: 'text' },
-                    { label: 'Email Address', name: 'email', icon: EnvelopeIcon, type: 'email' },
-                    { label: 'Phone Number', name: 'phone', icon: PhoneIcon, type: 'text' },
-                  ].map(field => {
-                    const Icon = field.icon;
-                    return (
-                      <div key={field.name}>
-                        <label className={`block text-xs font-bold mb-1.5 uppercase tracking-wide ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>{field.label}</label>
-                        <div className={`flex items-center px-4 py-2.5 rounded-xl border transition-colors ${!isEditingProfile ? (theme === 'light' ? 'bg-gray-100 border-gray-200' : 'bg-gray-900/30 border-gray-700') : (theme === 'light' ? 'bg-gray-50 border-gray-300 focus-within:border-[#16a34a] focus-within:ring-1 focus-within:ring-[#16a34a]/30' : 'bg-gray-900/80 border-gray-600 focus-within:border-green-500')}`}>
-                          <Icon className={`w-5 h-5 mr-3 shrink-0 ${!isEditingProfile ? 'text-gray-400' : 'text-[#16a34a]'}`} />
-                          <input
-                            type={field.type}
-                            name={field.name}
-                            value={isEditingProfile ? (tempProfileData as Record<string, string | null>)[field.name] || '' : (profileData as Record<string, string | null>)[field.name] || ''}
-                            onChange={handleInputChange}
-                            disabled={!isEditingProfile}
-                            className={`bg-transparent w-full outline-none text-sm font-medium ${!isEditingProfile ? (theme === 'light' ? 'text-gray-600' : 'text-gray-400') : 'text-gray-900 dark:text-white'}`}
-                          />
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
+                <form onSubmit={(e) => { e.preventDefault(); saveProfile(); }} className="space-y-5 max-w-2xl">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                      <label className={`block text-sm font-semibold mb-2 ${theme === 'light' ? 'text-gray-700' : 'text-gray-300'}`}>
+                        Full Name *
+                      </label>
+                      <input
+                        type="text"
+                        maxLength={100}
+                        value={fullName}
+                        onChange={(e) => {
+                          const val = e.target.value.slice(0, 100);
+                          setFullName(val);
+                          validateProfileField('fullName', val);
+                        }}
+                        className={inputClass(!!profileErrors.fullName)}
+                        placeholder="e.g., John Doe"
+                      />
+                      {profileErrors.fullName && (
+                        <p className="text-red-500 text-sm mt-1">{profileErrors.fullName}</p>
+                      )}
+                    </div>
 
-                <div className="mb-8 max-w-3xl">
-                  <label className={`block text-xs font-bold mb-1.5 uppercase tracking-wide ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>Headquarters Address</label>
-                  <div className={`flex items-center px-4 py-2.5 rounded-xl border transition-colors ${!isEditingProfile ? (theme === 'light' ? 'bg-gray-100 border-gray-200' : 'bg-gray-900/30 border-gray-700') : (theme === 'light' ? 'bg-gray-50 border-gray-300 focus-within:border-[#16a34a] focus-within:ring-1 focus-within:ring-[#16a34a]/30' : 'bg-gray-900/80 border-gray-600 focus-within:border-green-500')}`}>
-                    <MapPinIcon className={`w-5 h-5 mr-3 shrink-0 ${!isEditingProfile ? 'text-gray-400' : 'text-[#16a34a]'}`} />
-                    <input 
-                      type="text" 
-                      name="address"
-                      value={isEditingProfile ? tempProfileData.address : profileData.address}
-                      onChange={handleInputChange}
-                      disabled={!isEditingProfile}
-                      className={`bg-transparent w-full outline-none text-sm font-medium ${!isEditingProfile ? (theme === 'light' ? 'text-gray-600' : 'text-gray-400') : 'text-gray-900 dark:text-white'}`} 
-                    />
+                    <div>
+                      <label className={`block text-sm font-semibold mb-2 ${theme === 'light' ? 'text-gray-700' : 'text-gray-300'}`}>
+                        Email Address *
+                      </label>
+                      <input
+                        type="email"
+                        maxLength={255}
+                        value={email}
+                        onChange={(e) => {
+                          const val = e.target.value.slice(0, 255);
+                          setEmail(val);
+                          validateProfileField('email', val);
+                        }}
+                        className={inputClass(!!profileErrors.email)}
+                        placeholder="your.email@example.com"
+                      />
+                      {profileErrors.email && (
+                        <p className="text-red-500 text-sm mt-1">{profileErrors.email}</p>
+                      )}
+                    </div>
                   </div>
-                </div>
+
+                  <div className="pt-4">
+                    <button
+                      type="submit"
+                      disabled={isSavingProfile || !isProfileFormValid}
+                      className={`flex items-center gap-2 px-6 py-3 bg-[#16a34a] hover:bg-green-700 text-white font-bold rounded-xl transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-md`}
+                    >
+                      {isSavingProfile ? (
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      ) : (
+                        <CheckCircleIcon className="w-5 h-5" />
+                      )}
+                      Save Profile
+                    </button>
+                  </div>
+                </form>
               </div>
             )}
 
-            {/* === TAB 2: NOTIFICATIONS (Reparat) === */}
+            {/* === TAB 2: NOTIFICATIONS === */}
             {activeTab === 'notifications' && (
-              <div className="p-6 md:p-8 animate-fade-in">
-                <h2 className={`text-xl font-extrabold mb-2 ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>Alert Preferences</h2>
-                <p className={`text-sm mb-10 ${theme === 'light' ? 'text-gray-600' : 'text-gray-400'}`}>Choose how you want to be notified about rescued food.</p>
+              <div className="p-6 md:p-8">
+                <h2 className={`text-xl font-extrabold mb-6 ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>
+                  Alert Preferences
+                </h2>
                 <div className="space-y-4 max-w-2xl">
-                  
-                  {/* Push Row */}
-                  <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl border ${theme === 'light' ? 'bg-gray-50/80 border-gray-200' : 'bg-gray-800/50 border-gray-700'}`}>
-                    <div>
-                      <h4 className={`text-sm font-bold ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>Push Notifications</h4>
-                      <p className={`text-xs mt-1 ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>Instant browser alerts for urgent food.</p>
+                  {[
+                    {
+                      label: 'Push Notifications',
+                      desc: 'Instant browser alerts for urgent food',
+                      state: notifyPush,
+                      setter: setNotifyPush,
+                    },
+                    {
+                      label: 'SMS Alerts',
+                      desc: 'Text messages for critical donations',
+                      state: notifySms,
+                      setter: setNotifySms,
+                    },
+                    {
+                      label: 'Email Digest',
+                      desc: 'Daily summary of completed pickups',
+                      state: notifyEmail,
+                      setter: setNotifyEmail,
+                    },
+                  ].map((item) => (
+                    <div
+                      key={item.label}
+                      className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl border ${
+                        theme === 'light'
+                          ? 'bg-gray-50/80 border-gray-200'
+                          : 'bg-gray-800/50 border-gray-700'
+                      }`}
+                    >
+                      <div>
+                        <h4 className={`text-sm font-bold ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>
+                          {item.label}
+                        </h4>
+                        <p className={`text-xs mt-1 ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>
+                          {item.desc}
+                        </p>
+                      </div>
+                      <ToggleSwitch
+                        enabled={item.state}
+                        onChange={() => handleSaveToggle(item.setter, item.state)}
+                      />
                     </div>
-                    <ToggleSwitch enabled={notifyPush} onChange={() => handleSaveToggle(setNotifyPush, notifyPush)} />
-                  </div>
-
-                  {/* SMS Row */}
-                  <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl border ${theme === 'light' ? 'bg-gray-50/80 border-gray-200' : 'bg-gray-800/50 border-gray-700'}`}>
-                    <div>
-                      <h4 className={`text-sm font-bold ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>SMS Alerts</h4>
-                      <p className={`text-xs mt-1 ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>Text messages for critical donations.</p>
-                    </div>
-                    <ToggleSwitch enabled={notifySms} onChange={() => handleSaveToggle(setNotifySms, notifySms)} />
-                  </div>
-
-                  {/* Email Row */}
-                  <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl border ${theme === 'light' ? 'bg-gray-50/80 border-gray-200' : 'bg-gray-800/50 border-gray-700'}`}>
-                    <div>
-                      <h4 className={`text-sm font-bold ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>Email Digest</h4>
-                      <p className={`text-xs mt-1 ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>Daily summary of completed pickups.</p>
-                    </div>
-                    <ToggleSwitch enabled={notifyEmail} onChange={() => handleSaveToggle(setNotifyEmail, notifyEmail)} />
-                  </div>
-
+                  ))}
                 </div>
               </div>
             )}
 
-            {/* === TAB 3: SECURITY (Adăugat funcționalitate) === */}
+            {/* === TAB 3: SECURITY === */}
             {activeTab === 'security' && (
-              <div className="p-6 md:p-8 animate-fade-in">
-                <h2 className={`text-xl font-extrabold mb-6 ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>Security Settings</h2>
+              <div className="p-6 md:p-8">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className={`p-2 rounded-lg ${theme === 'light' ? 'bg-[#16a34a]/10' : 'bg-[#16a34a]/20'}`}>
+                    <ShieldCheckIcon className={`w-6 h-6 ${theme === 'light' ? 'text-[#16a34a]' : 'text-green-400'}`} />
+                  </div>
+                  <h2 className={`text-xl font-bold ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>
+                    Security Settings
+                  </h2>
+                </div>
+
                 <div className="mb-10 max-w-md">
-                  <h3 className={`text-sm font-bold mb-4 ${theme === 'light' ? 'text-gray-800' : 'text-gray-200'}`}>Change Password</h3>
+                  <h3 className={`text-sm font-bold mb-4 ${theme === 'light' ? 'text-gray-800' : 'text-gray-200'}`}>
+                    Change Password *
+                  </h3>
                   <div className="space-y-4">
-                    <input
-                      type="password"
-                      placeholder="Current Password"
-                      value={currentPassword}
-                      onChange={(e) => setCurrentPassword(e.target.value)}
-                      className={`w-full px-4 py-2.5 rounded-xl border outline-none text-sm transition-colors ${theme === 'light' ? 'bg-gray-50 border-gray-200 focus:border-[#16a34a] focus:bg-white' : 'bg-gray-900/50 border-gray-700 focus:border-green-500 focus:bg-gray-900'}`}
-                    />
-                    <input
-                      type="password"
-                      placeholder="New Password"
-                      value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
-                      className={`w-full px-4 py-2.5 rounded-xl border outline-none text-sm transition-colors ${theme === 'light' ? 'bg-gray-50 border-gray-200 focus:border-[#16a34a] focus:bg-white' : 'bg-gray-900/50 border-gray-700 focus:border-green-500 focus:bg-gray-900'}`}
-                    />
+                    <div>
+                      <input
+                        type="password"
+                        maxLength={128}
+                        placeholder="Current Password"
+                        value={currentPassword}
+                        onChange={(e) => {
+                          const val = e.target.value.slice(0, 128);
+                          setCurrentPassword(val);
+                          validatePasswordField('currentPassword', val);
+                        }}
+                        className={inputClass(!!passwordErrors.currentPassword)}
+                      />
+                      {passwordErrors.currentPassword && (
+                        <p className="text-red-500 text-sm mt-1">{passwordErrors.currentPassword}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <input
+                        type="password"
+                        maxLength={128}
+                        placeholder="New Password (8+ chars, uppercase, number, special)"
+                        value={newPassword}
+                        onChange={(e) => {
+                          const val = e.target.value.slice(0, 128);
+                          setNewPassword(val);
+                          validatePasswordField('newPassword', val);
+                        }}
+                        className={inputClass(!!passwordErrors.newPassword)}
+                      />
+                      {passwordErrors.newPassword && (
+                        <p className="text-red-500 text-sm mt-1">{passwordErrors.newPassword}</p>
+                      )}
+                      {newPassword && !passwordErrors.newPassword && (
+                        <p className="text-green-600 text-sm mt-1">✓ Strong password</p>
+                      )}
+                    </div>
+
                     <button
                       onClick={handleUpdatePassword}
-                      className="px-6 py-2.5 bg-[#16a34a] hover:bg-green-700 text-white font-bold rounded-xl transition-all text-sm shadow active:scale-95"
+                      disabled={!isPasswordFormValid}
+                      className={`px-6 py-2.5 bg-[#16a34a] hover:bg-green-700 text-white font-bold rounded-xl transition-all text-sm shadow active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed`}
                     >
                       Update Password
                     </button>
                   </div>
                 </div>
-                
-                <div className="pt-8 border-t border-gray-200 dark:border-gray-700">
-                  <h3 className="text-lg font-extrabold mb-2 text-red-600 dark:text-red-400">Danger Zone</h3>
-                  <p className={`text-sm mb-5 ${theme === 'light' ? 'text-gray-600' : 'text-gray-400'}`}>Permanently delete your NGO account and all associated rescue data. This action cannot be undone.</p>
-                  <button className={`px-6 py-2.5 font-bold rounded-xl transition-all border ${theme === 'light' ? 'border-red-200 text-red-600 hover:bg-red-50' : 'border-red-900/50 text-red-400 hover:bg-red-900/20'}`}>Delete Account</button>
+
+                <div className={`pt-8 border-t ${theme === 'light' ? 'border-gray-200' : 'border-gray-700'}`}>
+                  <h3 className="text-lg font-extrabold mb-2 text-red-600 dark:text-red-400">
+                    Danger Zone
+                  </h3>
+                  <p className={`text-sm mb-5 ${theme === 'light' ? 'text-gray-600' : 'text-gray-400'}`}>
+                    Permanently delete your account and all associated data. This action cannot be undone.
+                  </p>
+                  <button
+                    className={`px-6 py-2.5 font-bold rounded-xl transition-all border ${
+                      theme === 'light'
+                        ? 'border-red-200 text-red-600 hover:bg-red-50'
+                        : 'border-red-900/50 text-red-400 hover:bg-red-900/20'
+                    }`}
+                  >
+                    Delete Account
+                  </button>
                 </div>
               </div>
             )}
 
-            {/* === TAB 4: SUPPORT (Adăugat funcționalitate) === */}
+            {/* === TAB 4: SUPPORT === */}
             {activeTab === 'support' && (
-              <div className="p-6 md:p-8 animate-fade-in">
+              <div className="p-6 md:p-8">
                 <div className="flex items-center gap-4 mb-10 p-5 rounded-2xl border dark:border-gray-700 bg-gray-50 dark:bg-gray-900/30">
-                  <div className={`p-3 rounded-2xl ${theme === 'light' ? 'bg-[#16a34a]/10 text-[#16a34a]' : 'bg-green-900/30 text-green-400'}`}>
-                    <LifebuoyIcon className="w-8 h-8" />
+                  <div className={`p-3 rounded-2xl ${theme === 'light' ? 'bg-[#16a34a]/10' : 'bg-green-900/30'}`}>
+                    <LifebuoyIcon className={`w-8 h-8 ${theme === 'light' ? 'text-[#16a34a]' : 'text-green-400'}`} />
                   </div>
                   <div>
-                    <h2 className={`text-xl font-extrabold ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>Help & Support</h2>
-                    <p className={`text-sm ${theme === 'light' ? 'text-gray-600' : 'text-gray-400'}`}>Need assistance? Send us a message and we'll get back to you.</p>
+                    <h2 className={`text-xl font-extrabold ${theme === 'light' ? 'text-gray-900' : 'text-gray-100'}`}>
+                      Help & Support
+                    </h2>
+                    <p className={`text-sm ${theme === 'light' ? 'text-gray-600' : 'text-gray-400'}`}>
+                      Need assistance? Send us a message and we'll get back to you.
+                    </p>
                   </div>
                 </div>
 
                 <div className="max-w-2xl">
-                  <h3 className={`text-base font-bold mb-4 ${theme === 'light' ? 'text-gray-800' : 'text-gray-200'}`}>Send us a message</h3>
+                  <h3 className={`text-base font-bold mb-4 ${theme === 'light' ? 'text-gray-800' : 'text-gray-200'}`}>
+                    Send us a message *
+                  </h3>
                   <textarea
-                    placeholder="Describe your issue or question in detail. Mention donation IDs if applicable..."
+                    maxLength={2000}
+                    placeholder="Describe your issue or question in detail (10-2000 characters)..."
                     rows={6}
                     value={ticketMessage}
-                    onChange={(e) => setTicketMessage(e.target.value)}
-                    className={`w-full px-4 py-3 rounded-2xl border outline-none text-sm resize-none mb-4 transition-colors ${theme === 'light' ? 'bg-gray-50 border-gray-200 text-gray-900 focus:border-[#16a34a] focus:bg-white' : 'bg-gray-900/50 border-gray-700 text-white focus:border-green-500 focus:bg-gray-900'}`}
+                    onChange={(e) => {
+                      const val = e.target.value.slice(0, 2000);
+                      setTicketMessage(val);
+                      if (val.trim()) setTicketError('');
+                    }}
+                    className={`w-full px-4 py-3 rounded-2xl border outline-none text-sm resize-none mb-2 transition-colors ${
+                      ticketError
+                        ? theme === 'light'
+                          ? 'bg-white border-red-500 text-gray-900 focus:border-red-500'
+                          : 'bg-[#222222] border-red-500 text-white focus:border-red-500'
+                        : theme === 'light'
+                        ? 'bg-white border-gray-200 text-gray-900 focus:border-[#16a34a]'
+                        : 'bg-[#222222] border-[#2e2e2e] text-white focus:border-green-500'
+                    }`}
                   />
+                  <div className="flex justify-between items-center mb-4">
+                    <p className={`text-xs ${ticketError ? 'text-red-500' : theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>
+                      {ticketMessage.length}/2000 characters
+                    </p>
+                    {ticketError && <p className="text-red-500 text-sm">{ticketError}</p>}
+                  </div>
                   <button
                     onClick={handleSubmitTicket}
-                    className="px-8 py-3 bg-[#16a34a] hover:bg-green-700 text-white font-bold rounded-xl transition-all shadow-md active:scale-95 w-full sm:w-auto"
+                    className={`px-8 py-3 bg-[#16a34a] hover:bg-green-700 text-white font-bold rounded-xl transition-all shadow-md active:scale-95`}
                   >
                     Submit Ticket
                   </button>
