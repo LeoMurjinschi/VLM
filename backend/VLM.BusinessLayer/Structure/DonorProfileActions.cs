@@ -49,6 +49,10 @@ public class DonorProfileActions
             entity.Address = dto.Address;
             entity.Location = dto.Location;
             entity.PickupLocationsJson = dto.PickupLocationsJson;
+            entity.IsPublic = dto.IsPublic;
+            entity.ShowPhone = dto.ShowPhone;
+            entity.ShowAddress = dto.ShowAddress;
+            entity.UpdatedDate = DateTime.UtcNow;
 
             _dbContext.SaveChanges();
             return new ServiceResponse { IsSuccess = true, Data = MapToDto(entity) };
@@ -90,5 +94,8 @@ public class DonorProfileActions
         Address = e.Address,
         Location = e.Location,
         PickupLocationsJson = e.PickupLocationsJson,
+        IsPublic = e.IsPublic,
+        ShowPhone = e.ShowPhone,
+        ShowAddress = e.ShowAddress,
     };
 }

@@ -33,6 +33,7 @@ public sealed class VlmDbContext : DbContext
     public DbSet<UserSettingsEntity> UserSettings { get; set; }
     public DbSet<DonorProfileEntity> DonorProfiles { get; set; }
     public DbSet<ReceiverProfileEntity> ReceiverProfiles { get; set; }
+    public DbSet<AdminProfileEntity> AdminProfiles { get; set; }
     public DbSet<UserDocumentEntity> UserDocuments { get; set; }
     public DbSet<CategoryEntity> Categories { get; set; }
     public DbSet<FavoriteEntity> Favorites { get; set; }
@@ -171,6 +172,12 @@ public sealed class VlmDbContext : DbContext
             .HasOne(r => r.User)
             .WithOne(u => u.ReceiverProfile)
             .HasForeignKey<ReceiverProfileEntity>(r => r.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<AdminProfileEntity>()
+            .HasOne(a => a.User)
+            .WithOne(u => u.AdminProfile)
+            .HasForeignKey<AdminProfileEntity>(a => a.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<UserDocumentEntity>()

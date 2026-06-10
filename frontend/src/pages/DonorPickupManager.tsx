@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import {
   CheckBadgeIcon,
   XMarkIcon,
@@ -284,9 +284,12 @@ const DonorPickupManager: React.FC = () => {
                             {r.receiverName.charAt(0).toUpperCase()}
                           </div>
                           <div className="min-w-0">
-                            <p className={`text-sm font-semibold truncate ${isDark ? 'text-white' : 'text-[#1a1a1a]'}`}>
+                            <Link
+                              to={`../receivers/${r.receiverId}`}
+                              className={`text-sm font-semibold truncate block hover:text-[#16a34a] transition-colors ${isDark ? 'text-white' : 'text-[#1a1a1a]'}`}
+                            >
                               {r.receiverName}
-                            </p>
+                            </Link>
                             <div className={`flex items-center gap-2 text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                               <span className="font-semibold text-[#16a34a]">
                                 {r.quantityReserved} {r.unit}

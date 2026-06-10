@@ -46,6 +46,7 @@ public class UserEntity
     public UserSettingsEntity? Settings { get; set; }
     public DonorProfileEntity? DonorProfile { get; set; }
     public ReceiverProfileEntity? ReceiverProfile { get; set; }
+    public AdminProfileEntity? AdminProfile { get; set; }
     public ICollection<UserDocumentEntity> Documents { get; set; } = new List<UserDocumentEntity>();
     public ICollection<FavoriteEntity> Favorites { get; set; } = new List<FavoriteEntity>();
     public ICollection<ReportEntity> Reports { get; set; } = new List<ReportEntity>();

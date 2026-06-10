@@ -25,6 +25,8 @@ import DocumentManager from '../components/DocumentManager';
 import NgoProfileForm from '../components/NgoProfileForm';
 import NgoDocumentManager from '../components/NgoDocumentManager';
 import ReportProblemForm from '../components/ReportProblemForm';
+import AdminProfileForm from '../components/AdminProfileForm';
+import ProfileStatsPanel from '../components/ProfileStatsPanel';
 
 type SettingsKey = 'theme' | 'notifyPush' | 'notifySms' | 'notifyEmail' | 'emailUpdates';
 
@@ -56,13 +58,14 @@ const Settings: React.FC = () => {
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [isSavingPrefs, setIsSavingPrefs] = useState(false);
 
-  type TabId = 'profile' | 'business' | 'ngo' | 'preferences' | 'security' | 'support';
+  type TabId = 'profile' | 'business' | 'ngo' | 'admin' | 'preferences' | 'security' | 'support';
   const [activeTab, setActiveTab] = useState<TabId>('profile');
 
   const tabs = [
     { id: 'profile' as TabId, label: 'Profile Settings', icon: UserIcon },
     ...(user?.role === 'donor' ? [{ id: 'business' as TabId, label: 'Business Details', icon: BriefcaseIcon }] : []),
     ...(user?.role === 'receiver' ? [{ id: 'ngo' as TabId, label: 'Organization Details', icon: BriefcaseIcon }] : []),
+    ...(user?.role === 'admin' ? [{ id: 'admin' as TabId, label: 'Admin Profile', icon: ShieldCheckIcon }] : []),
     { id: 'preferences' as TabId, label: 'Preferences', icon: Cog6ToothIcon },
     { id: 'security' as TabId, label: 'Security', icon: ShieldCheckIcon },
     { id: 'support' as TabId, label: 'Report a Problem', icon: ExclamationCircleIcon },
@@ -232,6 +235,13 @@ const Settings: React.FC = () => {
                   onSave={handleSaveProfile}
                   isSaving={isSavingProfile}
                 />
+                <ProfileStatsPanel userId={parseInt(user.id)} role={user.role} />
+              </div>
+            )}
+
+            {activeTab === 'admin' && user.role === 'admin' && (
+              <div className="space-y-6 animate-fade-in-up">
+                <AdminProfileForm />
               </div>
             )}
 

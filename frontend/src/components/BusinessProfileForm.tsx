@@ -22,6 +22,7 @@ const BusinessProfileForm: React.FC = () => {
     transportType: '',
   });
 
+  const [visibility, setVisibility] = useState({ isPublic: true, showPhone: false, showAddress: false });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -36,6 +37,11 @@ const BusinessProfileForm: React.FC = () => {
           address: profile.address || '',
           location: profile.location || '',
           transportType: profile.transportType || '',
+        });
+        setVisibility({
+          isPublic: profile.isPublic ?? true,
+          showPhone: profile.showPhone ?? false,
+          showAddress: profile.showAddress ?? false,
         });
       })
       .catch(() => {/* no profile yet — use defaults */})
@@ -146,6 +152,9 @@ const BusinessProfileForm: React.FC = () => {
         location: formData.location.trim(),
         transportType: formData.transportType.trim(),
         pickupLocationsJson: '[]',
+        isPublic: visibility.isPublic,
+        showPhone: visibility.showPhone,
+        showAddress: visibility.showAddress,
       });
       toast.success('Business profile saved!');
     } catch {
@@ -271,6 +280,27 @@ const BusinessProfileForm: React.FC = () => {
               placeholder="e.g., Cluj-Napoca"
             />
             {errors.location && <p className="text-red-500 text-sm mt-1">{errors.location}</p>}
+          </div>
+        </div>
+
+        <div className={`p-4 rounded-2xl border ${theme === 'light' ? 'bg-gray-50/80 border-gray-200' : 'bg-[#222222] border-[#2e2e2e]'}`}>
+          <p className={`text-sm font-semibold mb-3 ${theme === 'light' ? 'text-gray-700' : 'text-gray-300'}`}>Profile Visibility</p>
+          <div className="space-y-2">
+            {([
+              { key: 'isPublic', label: 'Show my profile publicly' },
+              { key: 'showPhone', label: 'Show phone number to others' },
+              { key: 'showAddress', label: 'Show address to others' },
+            ] as const).map(({ key, label }) => (
+              <label key={key} className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={visibility[key]}
+                  onChange={() => setVisibility(prev => ({ ...prev, [key]: !prev[key] }))}
+                  className="w-4 h-4 accent-[#16a34a]"
+                />
+                <span className={`text-sm ${theme === 'light' ? 'text-gray-700' : 'text-gray-300'}`}>{label}</span>
+              </label>
+            ))}
           </div>
         </div>
 

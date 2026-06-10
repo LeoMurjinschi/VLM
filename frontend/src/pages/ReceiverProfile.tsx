@@ -13,6 +13,7 @@ import {
   PhoneIcon,
   HomeIcon,
   LockClosedIcon,
+  TagIcon,
 } from '@heroicons/react/24/outline';
 import { useTheme } from '../hooks/useTheme';
 import { useAuth } from '../context/AuthContext';
@@ -22,93 +23,76 @@ import ReviewSummary from '../components/reviews/ReviewSummary';
 import ReviewList from '../components/reviews/ReviewList';
 import ReviewFormModal from '../components/reviews/ReviewFormModal';
 import CommentThread from '../components/comments/CommentThread';
-import DonationCard from '../components/DonationCard';
-import StockDetailModal from '../components/StockDetailModal';
-import type { Donation } from '../_mock';
-import { userService, donorProfileService, donationService } from '../api';
+import { userService, receiverProfileService, userStatisticsService } from '../api';
 import type { UserInfoDto } from '../api/userService';
-import type { DonorProfileDto } from '../api/donorProfileService';
-import type { DonationInfoDto } from '../api/donationService';
+import type { ReceiverProfileDto } from '../api/receiverProfileService';
+import type { UserStatisticsDto } from '../api/userStatisticsService';
 
-const mapDto = (dto: DonationInfoDto): Donation => ({
-  id: String(dto.id),
-  title: dto.title,
-  description: dto.description,
-  quantity: dto.quantity,
-  unit: dto.unit,
-  category: dto.category,
-  pickupLocation: dto.pickupLocation,
-  expirationDate: dto.expirationDate || new Date().toISOString(),
-  image: dto.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&q=80',
-  status: dto.status as 'Available' | 'Reserved',
-  donorId: String(dto.donorId),
-  donorName: dto.donorName,
-  donorAvatar: dto.donorAvatar,
-  postedAt: dto.createdDate,
-});
-
-const DonorProfile: React.FC = () => {
+const ReceiverProfile: React.FC = () => {
   const { theme } = useTheme();
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const { donorId = '' } = useParams<{ donorId: string }>();
-  const donorIdNum = parseInt(donorId, 10);
+  const { receiverId = '' } = useParams<{ receiverId: string }>();
+  const receiverIdNum = parseInt(receiverId, 10);
 
   const [userInfo, setUserInfo] = useState<UserInfoDto | null>(null);
-  const [donorProfileData, setDonorProfileData] = useState<DonorProfileDto | null>(null);
-  const [donations, setDonations] = useState<Donation[]>([]);
+  const [receiverProfileData, setReceiverProfileData] = useState<ReceiverProfileDto | null>(null);
+  const [stats, setStats] = useState<UserStatisticsDto | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [aggregate, setAggregate] = useState<ReviewAggregate | null>(null);
   const [loading, setLoading] = useState(true);
   const [formOpen, setFormOpen] = useState(false);
-  const [activeStock, setActiveStock] = useState<Donation | null>(null);
 
   const load = async () => {
     setLoading(true);
-    const [u, dp, dons, r, a] = await Promise.allSettled([
-      userService.getById(donorIdNum),
-      donorProfileService.getByUser(donorIdNum),
-      donationService.getDonationsByDonorId(donorIdNum),
-      fetchReviews('donor', donorId),
-      fetchAggregate('donor', donorId),
+    const [u, rp, s, r, a] = await Promise.allSettled([
+      userService.getById(receiverIdNum),
+      receiverProfileService.getByUser(receiverIdNum),
+      userStatisticsService.getByUser(receiverIdNum),
+      fetchReviews('receiver', receiverId),
+      fetchAggregate('receiver', receiverId),
     ]);
     if (u.status === 'fulfilled') setUserInfo(u.value);
-    if (dp.status === 'fulfilled') setDonorProfileData(dp.value);
-    if (dons.status === 'fulfilled') setDonations(dons.value.map(mapDto));
+    if (rp.status === 'fulfilled') setReceiverProfileData(rp.value);
+    if (s.status === 'fulfilled') setStats(s.value);
     if (r.status === 'fulfilled') setReviews(r.value);
     if (a.status === 'fulfilled') setAggregate(a.value);
     setLoading(false);
   };
 
   useEffect(() => {
-    if (donorIdNum) load();
+    if (receiverIdNum) load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [donorId]);
+  }, [receiverId]);
 
-  const activeStocks = useMemo(
-    () => donations.filter((d) => d.status === 'Available'),
-    [donations]
+  const categories = useMemo(
+    () =>
+      (receiverProfileData?.acceptedCategories || '')
+        .split(',')
+        .map((c) => c.trim())
+        .filter(Boolean),
+    [receiverProfileData]
   );
 
   const profile = useMemo(() => {
     if (!userInfo) return null;
     return {
-      id: donorId,
+      id: receiverId,
       name: userInfo.name,
-      avatar: userInfo.avatar || `https://i.pravatar.cc/150?u=${donorId}`,
-      description: donorProfileData?.description || userInfo.bio || '',
-      location: donorProfileData?.location || donorProfileData?.address || '—',
+      avatar: userInfo.avatar || `https://i.pravatar.cc/150?u=${receiverId}`,
+      description: receiverProfileData?.missionStatement || userInfo.bio || '',
+      location: receiverProfileData?.location || receiverProfileData?.address || '—',
       joinedDate: userInfo.createdDate,
-      totalDonations: donations.length,
-      totalKgRescued: donations.reduce((sum, d) => sum + d.quantity, 0),
       verified: false,
       email: userInfo.email,
     };
-  }, [userInfo, donorProfileData, donations, donorId]);
+  }, [userInfo, receiverProfileData, receiverId]);
 
-  const canReview = user?.role === 'receiver';
-  const isOwnProfile = user?.id === donorId;
+  const canReview = user?.role === 'donor';
+  const isOwnProfile = user?.id === receiverId;
+  const isAdmin = user?.role === 'admin';
+  const isPrivate = receiverProfileData?.isPublic === false && !isOwnProfile && !isAdmin;
 
   const handleChat = () => {
     const base = location.pathname.startsWith('/receiver')
@@ -119,9 +103,9 @@ const DonorProfile: React.FC = () => {
     navigate(base, {
       state: {
         openChatWith: {
-          id: donorIdNum,
-          name: profile?.name ?? donorId,
-          role: 'Donor',
+          id: receiverIdNum,
+          name: profile?.name ?? receiverId,
+          role: 'Receiver',
         },
       },
     });
@@ -139,7 +123,7 @@ const DonorProfile: React.FC = () => {
     return (
       <div className="max-w-3xl mx-auto p-8 text-center">
         <p className={`text-lg font-semibold ${theme === 'light' ? 'text-gray-700' : 'text-gray-300'}`}>
-          Donor not found.
+          Receiver not found.
         </p>
         <Link to=".." className="mt-4 inline-block text-[#16a34a] font-bold hover:underline">
           ← Back
@@ -147,9 +131,6 @@ const DonorProfile: React.FC = () => {
       </div>
     );
   }
-
-  const isAdmin = user?.role === 'admin';
-  const isPrivate = donorProfileData?.isPublic === false && !isOwnProfile && !isAdmin;
 
   if (isPrivate) {
     return (
@@ -191,7 +172,7 @@ const DonorProfile: React.FC = () => {
           theme === 'light' ? 'bg-white border-gray-200' : 'bg-[#1a1a1a] border-[#2e2e2e]'
         }`}
       >
-        <div className="h-32 bg-gradient-to-r from-[#16a34a]/80 via-emerald-500/60 to-teal-500/60" />
+        <div className="h-32 bg-gradient-to-r from-blue-500/70 via-emerald-500/60 to-teal-500/60" />
         <div className="px-6 sm:px-8 pb-6 -mt-12">
           <div className="flex flex-col sm:flex-row sm:items-end gap-4">
             <img
@@ -214,10 +195,13 @@ const DonorProfile: React.FC = () => {
                 {profile?.verified && (
                   <CheckBadgeIcon className="w-6 h-6 text-[#16a34a] shrink-0" />
                 )}
+                <span className="text-[10px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded bg-blue-500/10 text-blue-500">
+                  receiver
+                </span>
               </div>
-              {donorProfileData?.companyName && (
+              {receiverProfileData?.orgName && (
                 <p className={`text-xs font-mono mb-1 ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>
-                  {donorProfileData.companyName}
+                  {receiverProfileData.orgName}
                 </p>
               )}
               <p className={`text-sm ${theme === 'light' ? 'text-gray-600' : 'text-gray-400'}`}>
@@ -274,17 +258,17 @@ const DonorProfile: React.FC = () => {
             />
             <Stat
               icon={<GiftIcon className="w-4 h-4" />}
-              label="Donations"
-              value={profile?.totalDonations?.toString() || '0'}
+              label="Reservations"
+              value={String(stats?.totalReservations ?? 0)}
             />
             <Stat
               icon={<ScaleIcon className="w-4 h-4" />}
-              label="Total qty"
-              value={`${profile?.totalKgRescued || 0} units`}
+              label="Total reserved"
+              value={`${stats?.totalReserved ?? 0} units`}
             />
           </div>
 
-          {/* Contact rows — phone/address gated by the donor's visibility settings */}
+          {/* Contact rows — phone/address gated by the receiver's visibility settings */}
           <div className={`mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs ${
             theme === 'light' ? 'text-gray-500' : 'text-gray-400'
           }`}>
@@ -292,74 +276,53 @@ const DonorProfile: React.FC = () => {
               <EnvelopeIcon className="w-3.5 h-3.5" />
               {profile?.email}
             </span>
-            {donorProfileData?.showPhone && donorProfileData.phone && (
+            {receiverProfileData?.showPhone && receiverProfileData.phone && (
               <span className="flex items-center gap-2">
                 <PhoneIcon className="w-3.5 h-3.5" />
-                {donorProfileData.phone}
+                {receiverProfileData.phone}
               </span>
             )}
-            {donorProfileData?.showAddress && donorProfileData.address && (
+            {receiverProfileData?.showAddress && receiverProfileData.address && (
               <span className="flex items-center gap-2">
                 <HomeIcon className="w-3.5 h-3.5" />
-                {donorProfileData.address}
+                {receiverProfileData.address}
               </span>
             )}
           </div>
         </div>
       </div>
 
-      {/* Available Stocks */}
-      <section>
-        <div className="flex items-center justify-between mb-4">
-          <h2
-            className={`text-lg font-bold ${
-              theme === 'light' ? 'text-gray-900' : 'text-white'
-            }`}
-            style={{ fontFamily: 'var(--font-display)' }}
-          >
-            Available Stocks
-          </h2>
-          <span
-            className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
-              theme === 'light' ? 'bg-gray-100 text-gray-600' : 'bg-[#262626] text-gray-300'
-            }`}
-          >
-            {activeStocks.length} active
-          </span>
-        </div>
-
-        {activeStocks.length === 0 ? (
-          <div
-            className={`py-10 text-center rounded-2xl border border-dashed ${
-              theme === 'light'
-                ? 'bg-gray-50 border-gray-200 text-gray-500'
-                : 'bg-[#1a1a1a] border-[#2e2e2e] text-gray-400'
-            }`}
-          >
-            <p className="text-sm font-medium">No active stocks right now.</p>
+      {/* Accepted categories */}
+      {categories.length > 0 && (
+        <section>
+          <div className="flex items-center gap-2 mb-3">
+            <TagIcon className={`w-5 h-5 ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`} />
+            <h2
+              className={`text-lg font-bold ${theme === 'light' ? 'text-gray-900' : 'text-white'}`}
+              style={{ fontFamily: 'var(--font-display)' }}
+            >
+              Accepted Categories
+            </h2>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {activeStocks.map((d) => (
-              <DonationCard
-                key={d.id}
-                donation={d}
-                onReserve={() => {}}
-                canReserve={user?.role === 'receiver'}
-                mode="profile"
-                onCardClick={(stock) => setActiveStock(stock)}
-              />
+          <div className="flex flex-wrap gap-2">
+            {categories.map((c) => (
+              <span
+                key={c}
+                className={`px-3 py-1.5 rounded-full text-sm font-semibold ${
+                  theme === 'light' ? 'bg-[#16a34a]/10 text-[#16a34a]' : 'bg-[#16a34a]/20 text-green-400'
+                }`}
+              >
+                {c}
+              </span>
             ))}
           </div>
-        )}
-      </section>
+        </section>
+      )}
 
       {/* Reviews */}
       <section className="space-y-4">
         <h2
-          className={`text-lg font-bold ${
-            theme === 'light' ? 'text-gray-900' : 'text-white'
-          }`}
+          className={`text-lg font-bold ${theme === 'light' ? 'text-gray-900' : 'text-white'}`}
           style={{ fontFamily: 'var(--font-display)' }}
         >
           Reviews
@@ -371,32 +334,24 @@ const DonorProfile: React.FC = () => {
       {/* Comment thread */}
       <section>
         <h2
-          className={`text-lg font-bold mb-4 ${
-            theme === 'light' ? 'text-gray-900' : 'text-white'
-          }`}
+          className={`text-lg font-bold mb-4 ${theme === 'light' ? 'text-gray-900' : 'text-white'}`}
           style={{ fontFamily: 'var(--font-display)' }}
         >
           Community Wall
         </h2>
         <CommentThread
-          targetType="donor"
-          targetId={donorId}
+          targetType="receiver"
+          targetId={receiverId}
           readOnly={isOwnProfile}
           title="Wall posts"
         />
       </section>
 
-      <StockDetailModal
-        isOpen={!!activeStock}
-        donation={activeStock}
-        onClose={() => setActiveStock(null)}
-      />
-
       {profile && user && (
         <ReviewFormModal
           isOpen={formOpen}
           onClose={() => setFormOpen(false)}
-          targetType="donor"
+          targetType="receiver"
           targetId={profile.id}
           targetName={profile.name}
           authorId={user.id}
@@ -433,4 +388,4 @@ const Stat: React.FC<{ icon: React.ReactNode; label: string; value: string }> = 
   );
 };
 
-export default DonorProfile;
+export default ReceiverProfile;
