@@ -18,6 +18,7 @@ const mapDonationDtoToDonation = (dto: DonationInfoDto): Donation => ({
     title: dto.title,
     description: dto.description,
     quantity: dto.quantity,
+    reservedQuantity: dto.reservedQuantity,
     unit: dto.unit,
     category: dto.category,
     pickupLocation: dto.pickupLocation,

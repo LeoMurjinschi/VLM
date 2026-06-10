@@ -1,11 +1,18 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, Suspense, lazy, Component, type ReactNode } from 'react';
 import { PlusCircleIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 import { toast } from 'react-toastify';
 import Select from '../components/UI/Select';
 import ImageDragDrop from '../components/UI/ImageDragDrop';
 import CustomDatePicker from '../components/UI/CustomDatePicker';
-import LocationPicker from '../components/UI/LocationPicker';
 import { useTheme } from '../hooks/useTheme';
+
+const LocationPicker = lazy(() => import('../components/UI/LocationPicker'));
+
+class MapErrorBoundary extends Component<{ children: ReactNode; fallback: ReactNode }, { error: boolean }> {
+  state = { error: false };
+  static getDerivedStateFromError() { return { error: true }; }
+  render() { return this.state.error ? this.props.fallback : this.props.children; }
+}
 import { donationService } from '../api';
 import { useAuth } from '../context/AuthContext';
 
@@ -388,7 +395,11 @@ const AddStock: React.FC = () => {
                 <p className={`text-xs mb-2 ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>
                   Pin the exact pickup spot so receivers can navigate to you
                 </p>
-                <LocationPicker value={pickupCoords} onChange={setPickupCoords} />
+                <MapErrorBoundary fallback={<div className={`h-64 rounded-xl flex items-center justify-center text-sm ${theme === 'light' ? 'bg-gray-50 text-gray-400' : 'bg-[#222] text-gray-500'}`}>Map unavailable — enter location above</div>}>
+                  <Suspense fallback={<div className={`h-64 rounded-xl flex items-center justify-center text-sm ${theme === 'light' ? 'bg-gray-50 text-gray-400' : 'bg-[#222] text-gray-500'}`}>Loading map…</div>}>
+                    <LocationPicker value={pickupCoords} onChange={setPickupCoords} />
+                  </Suspense>
+                </MapErrorBoundary>
               </div>
 
               <div className="relative z-10">

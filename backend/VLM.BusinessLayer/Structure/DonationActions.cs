@@ -94,7 +94,7 @@ public class DonationActions
                 .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-            var baseQuery = _dbContext.Donations.Where(d => d.DonorId == donorId);
+            var baseQuery = _dbContext.Donations.Include(d => d.Donor).Where(d => d.DonorId == donorId);
 
             // Category filter
             if (categoryList is { Count: > 0 })
@@ -131,7 +131,8 @@ public class DonationActions
                     Id = entity.Id,
                     Title = entity.Title,
                     Description = entity.Description,
-                    Quantity = availableQuantity,
+                    Quantity = entity.Quantity,
+                    ReservedQuantity = reservedQuantity,
                     Unit = entity.Unit,
                     DonorId = entity.DonorId,
                     Category = entity.Category,
@@ -141,8 +142,8 @@ public class DonationActions
                     Status = entity.Status,
                     CreatedDate = entity.CreatedDate,
                     UpdatedDate = entity.UpdatedDate,
-                    DonorName = entity.Donor.Name,
-                    DonorAvatar = entity.Donor.Avatar,
+                    DonorName = entity.Donor?.Name ?? string.Empty,
+                    DonorAvatar = entity.Donor?.Avatar,
                     PickupLatitude = entity.PickupLatitude,
                     PickupLongitude = entity.PickupLongitude,
                 };
@@ -178,7 +179,7 @@ public class DonationActions
     {
         try
         {
-            var entity = _dbContext.Donations.Find(id);
+            var entity = _dbContext.Donations.Include(d => d.Donor).FirstOrDefault(d => d.Id == id);
 
             if (entity == null)
                 return new ServiceResponse
@@ -199,7 +200,8 @@ public class DonationActions
                 Id = entity.Id,
                 Title = entity.Title,
                 Description = entity.Description,
-                Quantity = availableQuantity,
+                Quantity = entity.Quantity,
+                ReservedQuantity = reservedQuantity,
                 Unit = entity.Unit,
                 DonorId = entity.DonorId,
                 Category = entity.Category,
@@ -209,8 +211,8 @@ public class DonationActions
                 Status = entity.Status,
                 CreatedDate = entity.CreatedDate,
                 UpdatedDate = entity.UpdatedDate,
-                DonorName = entity.Donor.Name,
-                DonorAvatar = entity.Donor.Avatar,
+                DonorName = entity.Donor?.Name ?? string.Empty,
+                DonorAvatar = entity.Donor?.Avatar,
                 PickupLatitude = entity.PickupLatitude,
                 PickupLongitude = entity.PickupLongitude,
             };
@@ -241,21 +243,22 @@ public class DonationActions
                 .Where(d => d.ExpirationDate > now)
                 .ToList();
 
+            var reservationsByDonation = _dbContext.Reservations
+                .Where(r => r.Status == "pending" || r.Status == "donor_confirmed")
+                .GroupBy(r => r.DonationId)
+                .ToDictionary(g => g.Key, g => g.Sum(r => r.QuantityReserved));
+
             var result = donations.Select(entity =>
             {
-                // Calculate available quantity by subtracting pending and confirmed reservations
-                var reservedQuantity = _dbContext.Reservations
-                    .Where(r => r.DonationId == entity.Id && (r.Status == "pending" || r.Status == "donor_confirmed"))
-                    .Sum(r => r.QuantityReserved);
-
-                var availableQuantity = Math.Max(0, entity.Quantity - reservedQuantity);
+                var reservedQuantity = reservationsByDonation.TryGetValue(entity.Id, out var reserved) ? reserved : 0;
 
                 return new DonationInfoDto
                 {
                     Id = entity.Id,
                     Title = entity.Title,
                     Description = entity.Description,
-                    Quantity = availableQuantity,
+                    Quantity = entity.Quantity,
+                    ReservedQuantity = reservedQuantity,
                     Unit = entity.Unit,
                     DonorId = entity.DonorId,
                     Category = entity.Category,

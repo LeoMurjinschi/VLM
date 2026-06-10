@@ -1,11 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { avatarSrc } from '../utils/avatarUtils';
-import { MapContainer, TileLayer, Marker } from 'react-leaflet';
-import L from 'leaflet';
-import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
-import markerIcon from 'leaflet/dist/images/marker-icon.png';
-import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 import { useTheme } from '../hooks/useTheme';
 import { toast } from 'react-toastify';
 import {
@@ -23,12 +18,6 @@ import { useReservations } from '../context/ReservationContext';
 import { useAuth } from '../context/AuthContext';
 import type { Reservation } from '../types/reservation';
 
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconUrl: markerIcon,
-  iconRetinaUrl: markerIcon2x,
-  shadowUrl: markerShadow,
-});
 
 const DEFAULT_DONATION_IMAGE = 'https://images.unsplash.com/vector-1740026651800-93fb37caa211?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8ODR8fGdyb2Nlcnl8ZW58MHx8MHx8fDA%3D';
 
@@ -383,31 +372,20 @@ const MyPickups: React.FC = () => {
               isDark ? 'bg-[#1a1a1a]' : 'bg-white'
             }`}>
               <div className="relative w-full h-[55vh] min-h-[300px]">
-                {mapGroup.pickupLatitude && mapGroup.pickupLongitude ? (
-                  <MapContainer
-                    center={[mapGroup.pickupLatitude, mapGroup.pickupLongitude]}
-                    zoom={15}
-                    style={{ height: '100%', width: '100%' }}
-                    className="absolute inset-0"
-                  >
-                    <TileLayer
-                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                      attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                    />
-                    <Marker position={[mapGroup.pickupLatitude, mapGroup.pickupLongitude]} />
-                  </MapContainer>
-                ) : (
-                  <iframe
-                    src={mapEmbedFromAddress(mapGroup.pickupLocation)}
-                    width="100%"
-                    height="100%"
-                    style={{ border: 0 }}
-                    allowFullScreen
-                    loading="lazy"
-                    referrerPolicy="no-referrer-when-downgrade"
-                    className="absolute inset-0"
-                  />
-                )}
+                <iframe
+                  src={
+                    mapGroup.pickupLatitude && mapGroup.pickupLongitude
+                      ? `https://maps.google.com/maps?q=${mapGroup.pickupLatitude},${mapGroup.pickupLongitude}&t=&z=15&ie=UTF8&iwloc=&output=embed`
+                      : mapEmbedFromAddress(mapGroup.pickupLocation)
+                  }
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  className="absolute inset-0"
+                />
                 <div className={`absolute top-0 inset-x-0 h-24 bg-gradient-to-b pointer-events-none z-[400] ${
                   isDark ? 'from-black/60 to-transparent' : 'from-white/60 to-transparent'
                 }`} />

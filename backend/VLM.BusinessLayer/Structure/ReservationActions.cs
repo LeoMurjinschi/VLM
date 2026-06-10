@@ -246,15 +246,6 @@ public class ReservationActions
 
             if (dto.Status == "donor_confirmed" && entity.Status != "donor_confirmed")
             {
-                if (entity.Donation != null)
-                {
-                    if (entity.Donation.Quantity < entity.QuantityReserved)
-                        return new ServiceResponse { IsSuccess = false, Message = $"Not enough quantity. Only {entity.Donation.Quantity} available" };
-                        
-                    entity.Donation.Quantity -= entity.QuantityReserved;
-                    _dbContext.Update(entity.Donation);
-                }
-
                 _notificationActions.CreateNotificationAction(new NotificationCreateDto
                 {
                     UserId = entity.UserId,
@@ -265,11 +256,12 @@ public class ReservationActions
                 });
             }
 
-            if (dto.Status == "cancelled" && entity.Status == "donor_confirmed")
+            if (dto.Status == "completed" && entity.Status != "completed")
             {
                 if (entity.Donation != null)
                 {
-                    entity.Donation.Quantity += entity.QuantityReserved;
+                    var actualQty = dto.QuantityConfirmed ?? entity.QuantityReserved;
+                    entity.Donation.Quantity = Math.Max(0, entity.Donation.Quantity - actualQty);
                     _dbContext.Update(entity.Donation);
                 }
             }
@@ -315,16 +307,6 @@ public class ReservationActions
             var entity = _dbContext.Reservations.Find(id);
             if (entity == null)
                 return new ServiceResponse { IsSuccess = false, Message = "Reservation not found" };
-
-            if (entity.Status == "donor_confirmed")
-            {
-                var donation = _dbContext.Donations.Find(entity.DonationId);
-                if (donation != null)
-                {
-                    donation.Quantity += entity.QuantityReserved;
-                    _dbContext.Update(donation);
-                }
-            }
 
             _dbContext.Reservations.Remove(entity);
             _dbContext.SaveChanges();

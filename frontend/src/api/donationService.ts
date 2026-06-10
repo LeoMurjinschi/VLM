@@ -20,6 +20,7 @@ export interface DonationInfoDto {
   title: string;
   description: string;
   quantity: number;
+  reservedQuantity: number;
   unit: string;
   donorId: number;
   category: string;
